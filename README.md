@@ -1,0 +1,1 @@
+1. Instal http-server and run index.html with Node instead of directly in the browser. => This makes it easier to load the model documents. Navigate to the root directory of the project and run `$ http-server`
