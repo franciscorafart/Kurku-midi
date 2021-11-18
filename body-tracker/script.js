@@ -23,7 +23,6 @@ let model;
 //     rmsRadius: 20, // amount of pixels multiple poses detected
 // });
 
-console.log('running the script')
 const init = async () => {
     video = await loadVideo();
     model = await posenet.load();
@@ -32,7 +31,6 @@ const init = async () => {
 
 const loadVideo = async () => {
     const video = await setupCamera();
-    console.log('3')
     video.play();
     return video;
 }
@@ -68,7 +66,6 @@ const setupCamera = async () => {
 init();
 
 const main = () => {
-    console.log('main executed')
     model.estimateMultiplePoses(video, {
         flipHorizontal: true,
     }).then(pose => {
