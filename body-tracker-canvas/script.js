@@ -79,7 +79,15 @@ function detectPoseInRealTime(video, net) {
 let net;
 
 async function init() {
+    // Not really precise but it's ok
     net = await posenet.load();
+
+    // net = await posenet.load({
+    //     architecture: 'ResNet50', // Better accuracy model / slower to load
+    //     outputStride: 32,
+    //     inputResolution: { width: 640, height:480 },
+    //     quantBytes: 2,
+    // });
 
     let video;
 
