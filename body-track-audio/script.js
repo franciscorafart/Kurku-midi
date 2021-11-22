@@ -22,8 +22,9 @@ document.getElementById('btn').addEventListener('click', async () => {
 async function init(sounds, audioCtx) {
     net = await posenet.load();
 
+    // Better accuracy model / slower to load
     // net = await posenet.load({
-    //     architecture: 'ResNet50', // Better accuracy model / slower to load
+    //     architecture: 'ResNet50',
     //     outputStride: 32,
     //     inputResolution: { width: 640, height:480 },
     //     quantBytes: 2,
@@ -118,26 +119,79 @@ function detectPoseInRealTime(video, net, sounds, audioCtx) {
     poseDetectionFrame();
 }
 
+function makeDistortionCurve(amount) {
+    var k = typeof amount === 'number' ? amount : 50,
+      n_samples = 44100,
+      curve = new Float32Array(n_samples),
+      deg = Math.PI / 180,
+      i = 0,
+      x;
+    for ( ; i < n_samples; ++i ) {
+      x = i * 2 / n_samples - 1;
+      curve[i] = ( 3 + k ) * x * 20 * deg / ( Math.PI + k * Math.abs(x) );
+    }
+    return curve;
+  };
+
+
 function setAudio(keypoints, audioCtx, sound){
     const panControl = sound.panNode;
     const gainControl = sound.gainNode;
+    const delayControl = sound.delayNode;
+    const distortionControl = sound.distortionNode;
+    const reverbControl = sound.reverbLevelNode;
 
+    // console.log('keypoints', keypoints)
     const [nose_x, nose_y] = translatePosition(extractPosition(keypoints, 'nose'));
+    const [rw_x, rw_y] = translatePosition(extractPosition(keypoints, 'rightWrist'))
+    const [lw_x, lw_y] = translatePosition(extractPosition(keypoints, 'leftWrist'))
     // TODO: Implement more complex/interesting interactions.
+    // 1. Distance from camera => intensity
+    // Horizontal position = pan
+    // vertical position (nose) = pitch shift
+    // Hands => FX. Distortion / Reverb
+    // Feet => Delay / Filter / Bitcrusher
+
+    // Try out continuous pulsating sounds instead of synth, so I can try delay.
+    // console.log('rw_x', rw_x, 'rw_y', rw_y)
+    // console.log('lw_x', lw_x, 'lw_y', lw_y)
 
     if (panControl){
-        panControl.pan.setValueAtTime(nose_x || 0, audioCtx.currentTime);
+        panControl.pan.value = nose_x ? (nose_x * 2) -1 : 0;
     }
 
     if (gainControl) {
         gainControl.gain.setValueAtTime(nose_y || 0, audioCtx.currentTime);
     }
+
+    if (distortionControl) {
+        distortionControl.curve = makeDistortionCurve((lw_y || 0) * 400);
+        distortionControl.oversample = '4x';
+    }
+
+    if (reverbControl) {
+        reverbControl.gain.setValueAtTime(rw_y || 0, audioCtx.currentTime);
+    }
+
+    // if (delayControl) {
+    //     delayControl.delayTime.value = rw_y || 0;
+    // }
+}
+
+const boundOneAndZero = n => {
+    if (n > 1) {
+        return 1;
+    } else if (n < 0) {
+        return 0;
+    }
+
+    return n;
 }
 
 const extractPosition = (keypoints, bodyPart) => keypoints.find(k => k.part === bodyPart);
 const translatePosition = bodyPart => {
     if (bodyPart) {
-        return [bodyPart.position.x / videoWidth, Math.abs((bodyPart.position.y / videoHeight - 1))]
+        return [Math.abs(bodyPart.position.x / videoWidth), Math.abs((bodyPart.position.y / videoHeight - 1))]
     }
 
     return [undefined, undefined];

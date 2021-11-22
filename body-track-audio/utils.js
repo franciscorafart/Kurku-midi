@@ -17,7 +17,6 @@ function drawSegment([ay, ax], [by, bx], color, scale, ctx) {
     ctx.lineWidth = lineWidth;
     ctx.strokeStyle = color;
     ctx.stroke();
-    console.log('drawing!')
 }
 
 export function drawSkeleton(keypoints, minConfidence, ctx, scale = 1){
