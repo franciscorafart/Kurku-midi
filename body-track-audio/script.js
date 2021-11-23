@@ -18,8 +18,18 @@ document.getElementById('btn').addEventListener('click', async () => {
     init(sounds, audioCtx);
 });
 
+// Previous state
 let prevDistortion = 0;
 let targetDistortion = 0;
+
+let previousLevel = 0;
+let targetLevel = 0;
+
+let previousPan = 0;
+let targetPan = 0;
+
+let previousRev = 0;
+let targetRev = 0;
 
 async function init(sounds, audioCtx) {
     net = await posenet.load();
@@ -143,70 +153,76 @@ function setAudio(keypoints, audioCtx, sound){
     const distortionControl = sound.distortionNode;
     const reverbControl = sound.reverbLevelNode;
 
-    // console.log('keypoints', keypoints)
     const [nose_x, nose_y] = translatePosition(extractPosition(keypoints, 'nose'));
     const [rw_x, rw_y] = translatePosition(extractPosition(keypoints, 'rightWrist'))
     const [lw_x, lw_y] = translatePosition(extractPosition(keypoints, 'leftWrist'))
     // TODO: Implement more complex/interesting interactions.
-    // 1. Distance from camera => intensity
-    // Horizontal position = pan
-    // vertical position (nose) = pitch shift
-    // Hands => FX. Distortion / Reverb
+    // 1. Distance from camera => Filter
+    // 2. Hand howizontal => Delay and feedback
     // Feet => Delay / Filter / Bitcrusher
-
     // Try out continuous pulsating sounds instead of synth, so I can try delay.
-    // console.log('rw_x', rw_x, 'rw_y', rw_y)
-    // console.log('lw_x', lw_x, 'lw_y', lw_y)
-
     if (panControl){
-        panControl.pan.value = nose_x ? (nose_x * 2) -1 : 0;
+        if (nose_x !== undefined) {
+            targetPan = nose_x;
+        }
+        const nextPan = moveTowardsPoint(previousPan, targetPan);
+        panControl.pan.value = (nextPan * 2) - 1;
+        previousPan = nextPan;
     }
 
     if (gainControl) {
-        gainControl.gain.setValueAtTime(nose_y || 0, audioCtx.currentTime);
+        if (nose_y !== undefined) {
+            targetLevel = nose_y;
+        }
+
+        const nextLevel = moveTowardsPoint(previousLevel, targetLevel);
+        gainControl.gain.setValueAtTime(nextLevel, audioCtx.currentTime);
+        previousLevel = nextLevel;
     }
 
-    if (distortionControl) {
+    if(distortionControl) {
         if (lw_y !== undefined) {
             targetDistortion = lw_y;
         }
 
-        // if (lw_y !== undefined) {
-            const nextPosition = moveTowardsPoint(prevDistortion, targetDistortion);
-            // console.log('nextPosition', nextPosition, 'target', targetDistortion)
-            distortionControl.curve = makeDistortionCurve(nextPosition * 400);
-            prevDistortion = nextPosition;
-            distortionControl.oversample = '4x';
-        // }
+        const nextPosition = moveTowardsPoint(prevDistortion, targetDistortion);
+        distortionControl.curve = makeDistortionCurve(nextPosition * 60);
+        prevDistortion = nextPosition;
+        distortionControl.oversample = '4x';
     }
+    
+    if (reverbControl) {
+        if (rw_y !== undefined) {
+            targetRev = rw_y;
+        }
 
-    // if (reverbControl) {
-    //     reverbControl.gain.setValueAtTime(rw_y || 0, audioCtx.currentTime);
-    // }
+        const nextRev = moveTowardsPoint(previousRev, targetRev);
+        reverbControl.gain.setValueAtTime(nextRev, audioCtx.currentTime);
+        previousRev = nextRev;
+    }
 
     // if (delayControl) {
     //     delayControl.delayTime.value = rw_y || 0;
     // }
 }
 
+// TODO: Problem with artifacts at limit of screen likely here
 const moveTowardsPoint = (origin, destination) => {
     const distance = Math.abs(destination - origin)
-
-    if (distance < 0.05) {
-        // console.log('small distance')
+    
+    if (distance <= 0.01) {
         return destination
     }
 
     const sign = destination > origin ? 1 : -1;
-    // console.log('distance', distance, 'sign', sign)
-    return boundOneAndZero(origin+(sign*0.05));
+    return boundOneAndZero(origin+(sign*0.01));
 }
 
 const boundOneAndZero = n => {
     if (n >= 1) {
         return 1;
-    } else if (n <= 0) {
-        return 0;
+    } else if (n <= 0.01) {
+        return 0.01;
     }
 
     return n;
@@ -214,12 +230,11 @@ const boundOneAndZero = n => {
 
 const extractPosition = (keypoints, bodyPart) => keypoints.find(k => k.part === bodyPart);
 const translatePosition = bodyPart => {
-    // console.log('bodyPart', bodyPart)
 
     if (bodyPart && bodyPart.score > 0.5) {
         return [Math.abs(bodyPart.position.x / videoWidth), Math.abs((bodyPart.position.y / videoHeight - 1))]
     }
-    // console.log('return undefined', bodyPart.part)
+
     return [undefined, undefined];
 }
 
