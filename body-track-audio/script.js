@@ -18,6 +18,8 @@ document.getElementById('btn').addEventListener('click', async () => {
     init(sounds, audioCtx);
 });
 
+let prevDistortion = 0;
+let targetDistortion = 0;
 
 async function init(sounds, audioCtx) {
     net = await posenet.load();
@@ -89,7 +91,7 @@ function detectPoseInRealTime(video, net, sounds, audioCtx) {
 
         const poses = await net.estimateMultiplePoses(video, {
             flipHorizontal: flipPoseHorizontal,
-            scroreThreshold: 0.8,
+            scroreThreshold: 0.7,
         });
 
         const minPoseConfidence = 0.5;
@@ -137,7 +139,7 @@ function makeDistortionCurve(amount) {
 function setAudio(keypoints, audioCtx, sound){
     const panControl = sound.panNode;
     const gainControl = sound.gainNode;
-    const delayControl = sound.delayNode;
+    // const delayControl = sound.delayNode;
     const distortionControl = sound.distortionNode;
     const reverbControl = sound.reverbLevelNode;
 
@@ -165,23 +167,45 @@ function setAudio(keypoints, audioCtx, sound){
     }
 
     if (distortionControl) {
-        distortionControl.curve = makeDistortionCurve((lw_y || 0) * 400);
-        distortionControl.oversample = '4x';
+        if (lw_y !== undefined) {
+            targetDistortion = lw_y;
+        }
+
+        // if (lw_y !== undefined) {
+            const nextPosition = moveTowardsPoint(prevDistortion, targetDistortion);
+            // console.log('nextPosition', nextPosition, 'target', targetDistortion)
+            distortionControl.curve = makeDistortionCurve(nextPosition * 400);
+            prevDistortion = nextPosition;
+            distortionControl.oversample = '4x';
+        // }
     }
 
-    if (reverbControl) {
-        reverbControl.gain.setValueAtTime(rw_y || 0, audioCtx.currentTime);
-    }
+    // if (reverbControl) {
+    //     reverbControl.gain.setValueAtTime(rw_y || 0, audioCtx.currentTime);
+    // }
 
     // if (delayControl) {
     //     delayControl.delayTime.value = rw_y || 0;
     // }
 }
 
+const moveTowardsPoint = (origin, destination) => {
+    const distance = Math.abs(destination - origin)
+
+    if (distance < 0.05) {
+        // console.log('small distance')
+        return destination
+    }
+
+    const sign = destination > origin ? 1 : -1;
+    // console.log('distance', distance, 'sign', sign)
+    return boundOneAndZero(origin+(sign*0.05));
+}
+
 const boundOneAndZero = n => {
-    if (n > 1) {
+    if (n >= 1) {
         return 1;
-    } else if (n < 0) {
+    } else if (n <= 0) {
         return 0;
     }
 
@@ -190,10 +214,12 @@ const boundOneAndZero = n => {
 
 const extractPosition = (keypoints, bodyPart) => keypoints.find(k => k.part === bodyPart);
 const translatePosition = bodyPart => {
-    if (bodyPart) {
+    // console.log('bodyPart', bodyPart)
+
+    if (bodyPart && bodyPart.score > 0.5) {
         return [Math.abs(bodyPart.position.x / videoWidth), Math.abs((bodyPart.position.y / videoHeight - 1))]
     }
-
+    // console.log('return undefined', bodyPart.part)
     return [undefined, undefined];
 }
 

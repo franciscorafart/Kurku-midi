@@ -54,6 +54,8 @@ const playBuffer = async (audioCtx, masterGainNode, buffer, time) => {
 
     const analyser = audioCtx.createAnalyser();
     analyser.fftSize = 2048;
+    // analyser.fftSize = 4096;
+
 
     // const bufferLength = analyser.frequencyBinCount;
 
@@ -70,10 +72,12 @@ const playBuffer = async (audioCtx, masterGainNode, buffer, time) => {
     inputGainNode.connect(analyser);
     analyser.connect(panNode);
     panNode.connect(delayNode);
-    delayNode.connect(distortionNode);
+
+    panNode.connect(distortionNode);
+    // delayNode.connect(distortionNode);
 
     distortionNode.connect(outputGainNode);
-    reverbLevelNode.connect(outputGainNode);
+    // reverbLevelNode.connect(outputGainNode);
 
     outputGainNode.connect(masterGainNode);
 
