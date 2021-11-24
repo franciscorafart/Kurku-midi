@@ -19,8 +19,6 @@ const addAudioBuffer = async (audioCtx, filepath) => {
 
 async function createReverb(audioCtx) {
     const convolver = audioCtx.createConvolver();
-
-    // load impulse response from file
     const response     = await fetch('assets/impulse-response.wav');
     const arraybuffer  = await response.arrayBuffer();
     convolver.buffer = await audioCtx.decodeAudioData(arraybuffer);
@@ -28,7 +26,7 @@ async function createReverb(audioCtx) {
     return convolver;
 }
 
-const playBuffer = async (audioCtx, masterGainNode, buffer, time) => {
+const prepareBuffer = async (audioCtx, masterGainNode, buffer) => {
     const stemAudioSource = audioCtx.createBufferSource();
     stemAudioSource.buffer = buffer;
 
@@ -45,7 +43,8 @@ const playBuffer = async (audioCtx, masterGainNode, buffer, time) => {
     panNode.pan.setValueAtTime(0, audioCtx.currentTime);
 
     // TODO: Work out delay with feedback
-    const delayNode = audioCtx.createDelay(10);
+    const delayNode = audioCtx.createDelay(160);
+    const feedback = audioCtx.createGain(0);
 
     const reverbNode = await createReverb(audioCtx)
     const reverbLevelNode = audioCtx.createGain();
@@ -62,8 +61,12 @@ const playBuffer = async (audioCtx, masterGainNode, buffer, time) => {
     analyser.connect(panNode);
     panNode.connect(delayNode);
 
-    panNode.connect(distortionNode);
-    // delayNode.connect(distortionNode);
+    // Feedback delay
+    delayNode.connect(feedback);
+    feedback.connect(delayNode);
+
+    // panNode.connect(distortionNode);
+    delayNode.connect(distortionNode);
 
     distortionNode.connect(outputGainNode);
 
@@ -74,16 +77,16 @@ const playBuffer = async (audioCtx, masterGainNode, buffer, time) => {
 
     outputGainNode.connect(masterGainNode);
 
-    stemAudioSource.start(time);
-
     // Return gain and panning controls so that the UI can manipulate them
     return [
         panNode,
         outputGainNode,
         delayNode,
+        feedback,
         reverbLevelNode,
         distortionNode,
         analyser,
+        stemAudioSource,
     ];
 }
 
@@ -105,32 +108,47 @@ export const initAudio = async () => {
                 panNode: undefined,
                 gainNode: undefined,
                 delayNode: undefined,
+                feedback: undefined,
                 distortionNode: undefined,
                 reverbLevelNode: undefined,
                 analyser: undefined,
                 audioBuffer: buffer,
-                start: 0,
+                stem: undefined,
             })
         })
     }
-
     for (const [idx, sound] of allSounds.entries()) {
         const [
             panNode,
             gainNode,
             delayNode,
+            feedback,
             reverbLevelNode,
             distortionNode,
-            analyser
-        ] = await playBuffer(context, masterGainNode, sound.audioBuffer, sound.start);
+            analyser,
+            stemAudioSource,
+        ] = await prepareBuffer(
+            context,
+            masterGainNode,
+            sound.audioBuffer,
+        );
 
         allSounds[idx].panNode = panNode;
         allSounds[idx].gainNode = gainNode;
         allSounds[idx].delayNode = delayNode;
+        allSounds[idx].feedback = feedback;
         allSounds[idx].distortionNode = distortionNode;
         allSounds[idx].reverbLevelNode = reverbLevelNode;
         allSounds[idx].analyser = analyser;
+        allSounds[idx].stem = stemAudioSource;
     }
 
-    return [context, allSounds];
+    // Play all stems at time 0
+    const playAll = () => {
+        for (const s of allSounds) {
+            s.stem.start(0);
+        }
+    }
+
+    return [context, allSounds, playAll];
 }
