@@ -16,6 +16,9 @@ let previousDelay = 0;
 let targetFeedback = 0;
 let previousFeedback = 0;
 
+let targetCross = 0;
+let previousCross = 0;
+
 export function setAudio(
     keypoints, 
     audioCtx, 
@@ -29,6 +32,7 @@ export function setAudio(
     const feedback = sound.feedback;
     const distortionControl = sound.distortionNode;
     const reverbControl = sound.reverbLevelNode;
+    const crossSynthesisControl = sound.crossSynthesisNode;
 
     const [nose_x, nose_y] = translatePosition(extractPosition(keypoints, 'nose'), videoHeight, videoWidth);
     const [rw_x, rw_y] = translatePosition(extractPosition(keypoints, 'rightWrist'), videoHeight, videoWidth)
@@ -92,13 +96,23 @@ export function setAudio(
     // }
 
     if (feedback) {
-        if (lw_x !== undefined) {
-            targetFeedback = lw_x;
+        if (rw_x !== undefined) {
+            targetFeedback = rw_x;
         }
 
         const nextFeedback = moveTowardsPoint(previousFeedback, targetFeedback);
         feedback.gain.setValueAtTime(nextFeedback, audioCtx.currentTime);
         previousFeedback = nextFeedback;
+    }
+
+    if (crossSynthesisControl) {
+        if (lw_x !== undefined) {
+            targetCross = Math.abs(lw_x - 1);
+        }
+
+        const nextCross = moveTowardsPoint(previousCross, targetCross);
+        crossSynthesisControl.gain.setValueAtTime(nextCross, audioCtx.currentTime);
+        previousCross = nextCross;
     }
 }
 

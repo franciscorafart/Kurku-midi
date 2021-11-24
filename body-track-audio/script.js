@@ -83,7 +83,7 @@ function detectPoseInRealTime(video, net, sounds, audioCtx) {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
 
-    // Draw video pixels on canvas and draw keypoints
+    // Draw video pixels on canvas, draw keypoints, and set audio state
     async function poseDetectionFrame() {
 
         const poses = await net.estimateMultiplePoses(video, {

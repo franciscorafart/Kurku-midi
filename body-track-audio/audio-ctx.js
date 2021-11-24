@@ -17,9 +17,9 @@ const addAudioBuffer = async (audioCtx, filepath) => {
 }
 
 
-async function createReverb(audioCtx) {
+async function createConvolution(audioCtx, impulseFile) {
     const convolver = audioCtx.createConvolver();
-    const response     = await fetch('assets/impulse-response.wav');
+    const response     = await fetch(impulseFile);
     const arraybuffer  = await response.arrayBuffer();
     convolver.buffer = await audioCtx.decodeAudioData(arraybuffer);
 
@@ -46,7 +46,10 @@ const prepareBuffer = async (audioCtx, masterGainNode, buffer) => {
     const delayNode = audioCtx.createDelay(160);
     const feedback = audioCtx.createGain(0);
 
-    const reverbNode = await createReverb(audioCtx)
+    const crossSynthesisNode = await createConvolution(audioCtx, 'assets/sound1.wav');
+    const crossSynthesisLevelNode = audioCtx.createGain();
+
+    const reverbNode = await createConvolution(audioCtx, 'assets/impulse-response.wav')
     const reverbLevelNode = audioCtx.createGain();
 
     const distortionNode = audioCtx.createWaveShaper();
@@ -75,6 +78,10 @@ const prepareBuffer = async (audioCtx, masterGainNode, buffer) => {
     reverbNode.connect(reverbLevelNode);
     reverbLevelNode.connect(outputGainNode);
 
+    distortionNode.connect(crossSynthesisNode);
+    crossSynthesisNode.connect(crossSynthesisLevelNode);
+    crossSynthesisLevelNode.connect(outputGainNode);
+
     outputGainNode.connect(masterGainNode);
 
     // Return gain and panning controls so that the UI can manipulate them
@@ -84,6 +91,7 @@ const prepareBuffer = async (audioCtx, masterGainNode, buffer) => {
         delayNode,
         feedback,
         reverbLevelNode,
+        crossSynthesisLevelNode,
         distortionNode,
         analyser,
         stemAudioSource,
@@ -97,7 +105,7 @@ export const initAudio = async () => {
     masterGainNode.gain.setValueAtTime(1, context.currentTime);
 
     const files = [
-        'assets/sound1.wav',
+        'assets/sound2.wav',
     ]
 
     const allSounds = [];
@@ -111,6 +119,7 @@ export const initAudio = async () => {
                 feedback: undefined,
                 distortionNode: undefined,
                 reverbLevelNode: undefined,
+                crossSynthesisNode: undefined,
                 analyser: undefined,
                 audioBuffer: buffer,
                 stem: undefined,
@@ -124,6 +133,7 @@ export const initAudio = async () => {
             delayNode,
             feedback,
             reverbLevelNode,
+            crossSynthesisNode,
             distortionNode,
             analyser,
             stemAudioSource,
@@ -139,6 +149,7 @@ export const initAudio = async () => {
         allSounds[idx].feedback = feedback;
         allSounds[idx].distortionNode = distortionNode;
         allSounds[idx].reverbLevelNode = reverbLevelNode;
+        allSounds[idx].crossSynthesisNode = crossSynthesisNode;
         allSounds[idx].analyser = analyser;
         allSounds[idx].stem = stemAudioSource;
     }
