@@ -113,36 +113,27 @@ async function poseDetectionFrame(video, net, ctx, sounds, audioCtx, flipPoseHor
     resetCanvas(ctx);
 
     for (const [idx, pose] of poses.entries()) {
-        // Drwaing and settign audio should be separate process than getting positions
+        const bodyPartPositions = getBodyParts(pose.keypoints, videoHeight, videoWidth);
+
         drawKeypoints(pose.keypoints, minPoseConfidence, ctx);
         drawSkeleton(pose.keypoints, minPartConfidence, ctx);
 
-        const bodyPartPositions = getBodyParts(
-            pose.keypoints,
-            ['nose', 'rightWrist', 'leftWrist'],
-            videoHeight,
-            videoWidth,
-        );
-
         if (sounds && sounds[idx]) {
-            // Interface between audio controls and position
-            const fxPositions = {
-                pan: bodyPartPositions['nose'][0],
-                gain: bodyPartPositions['nose'][1],
-                crossSynthesis: bodyPartPositions['leftWrist'][0],
-                distortion: bodyPartPositions['leftWrist'][1],
-                feedback: bodyPartPositions['rightWrist'][0],
-                reverb: bodyPartPositions['rightWrist'][1],
-            }
-
-
+            const fxPositions = mapPositionToSoundParams(bodyPartPositions);
             setAudio(fxPositions, audioCtx, sounds[idx]);
         }
 
         // TODO: Set visuals here.
     }
 
-    requestAnimationFrame(() => poseDetectionFrame(video, net, ctx, sounds, audioCtx, flipPoseHorizontal));
+    requestAnimationFrame(() => poseDetectionFrame(
+        video,
+        net,
+        ctx,
+        sounds,
+        audioCtx,
+        flipPoseHorizontal,
+    ));
 }
 
 function detectPoseInRealTime(video, net, sounds, audioCtx) {
@@ -165,4 +156,13 @@ function detectPoseInRealTime(video, net, sounds, audioCtx) {
     );
 }
 
+// Interface between audio controls and position
+const mapPositionToSoundParams = bodyPartPositions => ({
+    pan: bodyPartPositions['nose'][0],
+    gain: bodyPartPositions['nose'][1],
+    crossSynthesis: bodyPartPositions['leftWrist'][0],
+    distortion: bodyPartPositions['leftWrist'][1],
+    feedback: bodyPartPositions['rightWrist'][0],
+    reverb: bodyPartPositions['rightWrist'][1],
+});
 
