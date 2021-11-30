@@ -1,4 +1,4 @@
-import { drawKeypoints, drawSkeleton } from './utils.js';
+import { drawKeypoints, drawSkeleton, getBodyParts } from './utils.js';
 import { initAudio, initMicAudio } from './audio-ctx.js';
 import { setAudio } from './audio-utils.js'
 
@@ -92,6 +92,59 @@ async function setupCamera(){
     );
 }
 
+const resetCanvas = (ctx) => {
+    ctx.clearRect(0,0, videoWidth, videoHeight);
+    ctx.save();
+    ctx.scale(-1, 1);
+    ctx.translate(-videoWidth, 0);
+    ctx.drawImage(video, 0, 0, window.innerWidth, window.innerHeight);
+    ctx.restore();
+}
+
+async function poseDetectionFrame(video, net, ctx, sounds, audioCtx, flipPoseHorizontal) {
+    const poses = await net.estimateMultiplePoses(video, {
+        flipHorizontal: flipPoseHorizontal,
+        scroreThreshold: 0.7,
+    });
+
+    const minPoseConfidence = 0.5;
+    const minPartConfidence = 0.5;
+
+    resetCanvas(ctx);
+
+    for (const [idx, pose] of poses.entries()) {
+        // Drwaing and settign audio should be separate process than getting positions
+        drawKeypoints(pose.keypoints, minPoseConfidence, ctx);
+        drawSkeleton(pose.keypoints, minPartConfidence, ctx);
+
+        const bodyPartPositions = getBodyParts(
+            pose.keypoints,
+            ['nose', 'rightWrist', 'leftWrist'],
+            videoHeight,
+            videoWidth,
+        );
+
+        if (sounds && sounds[idx]) {
+            // Interface between audio controls and position
+            const fxPositions = {
+                pan: bodyPartPositions['nose'][0],
+                gain: bodyPartPositions['nose'][1],
+                crossSynthesis: bodyPartPositions['leftWrist'][0],
+                distortion: bodyPartPositions['leftWrist'][1],
+                feedback: bodyPartPositions['rightWrist'][0],
+                reverb: bodyPartPositions['rightWrist'][1],
+            }
+
+
+            setAudio(fxPositions, audioCtx, sounds[idx]);
+        }
+
+        // TODO: Set visuals here.
+    }
+
+    requestAnimationFrame(() => poseDetectionFrame(video, net, ctx, sounds, audioCtx, flipPoseHorizontal));
+}
+
 function detectPoseInRealTime(video, net, sounds, audioCtx) {
     const canvas = document.getElementById('output');
     const ctx = canvas.getContext('2d');
@@ -102,39 +155,14 @@ function detectPoseInRealTime(video, net, sounds, audioCtx) {
     canvas.height = window.innerHeight;
 
     // Draw video pixels on canvas, draw keypoints, and set audio state
-    async function poseDetectionFrame() {
-
-        const poses = await net.estimateMultiplePoses(video, {
-            flipHorizontal: flipPoseHorizontal,
-            scroreThreshold: 0.7,
-        });
-
-        const minPoseConfidence = 0.5;
-        const minPartConfidence = 0.5;
-
-        ctx.clearRect(0,0, videoWidth, videoHeight);
-        ctx.save();
-        ctx.scale(-1, 1);
-        ctx.translate(-videoWidth, 0);
-        ctx.drawImage(video, 0, 0, window.innerWidth, window.innerHeight);
-        ctx.restore();
-
-        for (const [idx, pose] of poses.entries()) {
-            drawKeypoints(pose.keypoints, minPoseConfidence, ctx);
-            drawSkeleton(pose.keypoints, minPartConfidence, ctx);
-
-            // TODO: setAudio shouldn't calculate positions, this is a concern of poseDetection
-            if (sounds && sounds[idx]) {
-                setAudio(pose.keypoints, audioCtx, sounds[idx], videoHeight, videoWidth);
-            }
-
-            // TODO: Set visuals here.
-        }
-
-        requestAnimationFrame(poseDetectionFrame);
-    }
-
-    poseDetectionFrame();
+    poseDetectionFrame(
+        video, 
+        net, 
+        ctx, 
+        sounds, 
+        audioCtx, 
+        flipPoseHorizontal,
+    );
 }
 
 

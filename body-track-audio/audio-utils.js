@@ -20,63 +20,67 @@ let targetCross = 0;
 let previousCross = 0;
 
 export function setAudio(
-    keypoints, 
+    fxPositions,
     audioCtx, 
-    sound, 
-    videoHeight, 
-    videoWidth
+    sound,
 ){
-    const panControl = sound.panNode;
-    const gainControl = sound.gainNode;
-    const delayControl = sound.delayNode;
-    const feedback = sound.feedback;
-    const distortionControl = sound.distortionNode;
-    const reverbControl = sound.reverbLevelNode;
-    const crossSynthesisControl = sound.crossSynthesisNode;
 
-    const [nose_x, nose_y] = translatePosition(extractPosition(keypoints, 'nose'), videoHeight, videoWidth);
-    const [rw_x, rw_y] = translatePosition(extractPosition(keypoints, 'rightWrist'), videoHeight, videoWidth)
-    const [lw_x, lw_y] = translatePosition(extractPosition(keypoints, 'leftWrist'), videoHeight, videoWidth)
+    const panNode = sound.panNode;
+    const gainNode = sound.gainNode;
+    const feedbackNode = sound.feedback;
+    const distortionNode = sound.distortionNode;
+    const reverbControl = sound.reverbLevelNode;
+    const crossSynthesisNode = sound.crossSynthesisNode;
+    const delayNode = sound.delayNode;
+
+    const panPos = fxPositions.pan;
+    const gainPos = fxPositions.gain;
+    const crossSynthPos = fxPositions.crossSynthesis;
+    const distortionPos = fxPositions.distortion;
+    const feedbackPos = fxPositions.feedback;
+    const reverbPos = fxPositions.reverb;
+    // const delayPos = fxPositions.delay;
 
     // TODO: Implement more complex/interesting interactions.
     // 1. Distance from camera => Filter
     // 2. Hand howizontal => Delay and feedback
     // Feet => Delay / Filter / Bitcrusher
     // Try out continuous pulsating sounds instead of synth, so I can try delay.
-    if (panControl){
-        if (nose_x !== undefined) {
-            targetPan = nose_x;
+    if (panNode){
+        if (panPos !== undefined) {
+            targetPan = panPos;
         }
         const nextPan = moveTowardsPoint(previousPan, targetPan);
         // console.log('nextPan', nextPan)
-        panControl.pan.value = (nextPan * 2) - 1;
+        panNode.pan.value = (nextPan * 2) - 1;
         previousPan = nextPan;
     }
 
-    if (gainControl) {
-        if (nose_y !== undefined) {
-            targetLevel = nose_y;
+    if (gainNode) {
+        console.log('gainPos', gainPos)
+        if (gainPos !== undefined) {
+            targetLevel = gainPos;
         }
 
         const nextLevel = moveTowardsPoint(previousLevel, targetLevel);
-        gainControl.gain.setValueAtTime(nextLevel, audioCtx.currentTime);
+        gainNode.gain.setValueAtTime(nextLevel, audioCtx.currentTime);
         previousLevel = nextLevel;
     }
 
-    if(distortionControl) {
-        if (lw_y !== undefined) {
-            targetDistortion = lw_y;
+    if(distortionNode) {
+        if (distortionPos !== undefined) {
+            targetDistortion = distortionPos;
         }
 
         const nextPosition = moveTowardsPoint(prevDistortion, targetDistortion);
-        distortionControl.curve = makeDistortionCurve(nextPosition * 60);
+        distortionNode.curve = makeDistortionCurve(nextPosition * 60);
         prevDistortion = nextPosition;
-        distortionControl.oversample = '4x';
+        distortionNode.oversample = '4x';
     }
     
     if (reverbControl) {
-        if (rw_y !== undefined) {
-            targetRev = rw_y;
+        if (reverbPos !== undefined) {
+            targetRev = reverbPos;
         }
 
         const nextRev = moveTowardsPoint(previousRev, targetRev);
@@ -85,46 +89,35 @@ export function setAudio(
     }
 
 
-    // if (delayControl) {
-    //     if (rw_x !== undefined) {
-    //         targetDelay = rw_x;
+    // if (delayNode) {
+    //     if (delayPos !== undefined) {
+    //         targetDelay = delayPos;
     //     }
 
     //     const nextDelay = moveTowardsPoint(previousDelay, targetDelay);
-    //     delayControl.delayTime.setValueAtTime(nextDelay * 10, audioCtx.currentTime);
+    //     delayNode.delayTime.setValueAtTime(nextDelay * 10, audioCtx.currentTime);
     //     previousDelay = nextDelay;
     // }
 
-    if (feedback) {
-        if (rw_x !== undefined) {
-            targetFeedback = rw_x;
+    if (feedbackNode) {
+        if (feedbackPos !== undefined) {
+            targetFeedback = feedbackPos;
         }
 
         const nextFeedback = moveTowardsPoint(previousFeedback, targetFeedback);
-        feedback.gain.setValueAtTime(nextFeedback, audioCtx.currentTime);
+        feedbackNode.gain.setValueAtTime(nextFeedback, audioCtx.currentTime);
         previousFeedback = nextFeedback;
     }
 
-    if (crossSynthesisControl) {
-        if (lw_x !== undefined) {
-            targetCross = Math.abs(lw_x - 1);
+    if (crossSynthesisNode) {
+        if (crossSynthPos !== undefined) {
+            targetCross = Math.abs(crossSynthPos - 1);
         }
 
         const nextCross = moveTowardsPoint(previousCross, targetCross);
-        crossSynthesisControl.gain.setValueAtTime(nextCross, audioCtx.currentTime);
+        crossSynthesisNode.gain.setValueAtTime(nextCross, audioCtx.currentTime);
         previousCross = nextCross;
     }
-}
-// TODO: Move to another modukle, these functions are not exactly part of the audio process.
-const extractPosition = (keypoints, bodyPart) => keypoints.find(k => k.part === bodyPart);
-
-const translatePosition = (bodyPart, videoHeight, videoWidth) => {
-
-    if (bodyPart && bodyPart.score > 0.5) {
-        return [Math.abs(bodyPart.position.x / videoWidth), Math.abs((bodyPart.position.y / videoHeight - 1))]
-    }
-
-    return [undefined, undefined];
 }
 
 // TODO: Problem with artifacts at limit of screen likely here
