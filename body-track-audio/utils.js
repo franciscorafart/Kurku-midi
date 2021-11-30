@@ -58,7 +58,7 @@ export const getBodyParts = (keypoints, minPoseConfidence, videoHeight, videoWid
     {});
 
 const translatePosition = (bodyPart, minPoseConfidence, videoHeight, videoWidth) => {
-    if (bodyPart && bodyPart.score > 0.5) {
+    if (bodyPart && bodyPart.score > minPoseConfidence) {
         return [Math.abs(bodyPart.position.x / videoWidth), Math.abs((bodyPart.position.y / videoHeight - 1))]
     }
 
