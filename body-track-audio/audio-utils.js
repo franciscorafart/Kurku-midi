@@ -51,13 +51,11 @@ export function setAudio(
             targetPan = panPos;
         }
         const nextPan = moveTowardsPoint(previousPan, targetPan);
-        // console.log('nextPan', nextPan)
         panNode.pan.value = (nextPan * 2) - 1;
         previousPan = nextPan;
     }
 
     if (gainNode) {
-        console.log('gainPos', gainPos)
         if (gainPos !== undefined) {
             targetLevel = gainPos;
         }

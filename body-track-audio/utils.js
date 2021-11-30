@@ -49,15 +49,15 @@ export function drawKeypoints(keypoints, minConfidence, ctx, scale = 1) {
     }
 }
 
-export const getBodyParts = (keypoints, videoHeight, videoWidth) => 
+export const getBodyParts = (keypoints, minPoseConfidence, videoHeight, videoWidth) =>
     keypoints.reduce(
         (acc, k) => ({
             ...acc,
-            [k.part]: translatePosition(k, videoHeight, videoWidth)
+            [k.part]: translatePosition(k, minPoseConfidence, videoHeight, videoWidth)
         }),
     {});
 
-const translatePosition = (bodyPart, videoHeight, videoWidth) => {
+const translatePosition = (bodyPart, minPoseConfidence, videoHeight, videoWidth) => {
     if (bodyPart && bodyPart.score > 0.5) {
         return [Math.abs(bodyPart.position.x / videoWidth), Math.abs((bodyPart.position.y / videoHeight - 1))]
     }

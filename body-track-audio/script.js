@@ -113,7 +113,7 @@ async function poseDetectionFrame(video, net, ctx, sounds, audioCtx, flipPoseHor
     resetCanvas(ctx);
 
     for (const [idx, pose] of poses.entries()) {
-        const bodyPartPositions = getBodyParts(pose.keypoints, videoHeight, videoWidth);
+        const bodyPartPositions = getBodyParts(pose.keypoints, minPoseConfidence, videoHeight, videoWidth);
 
         // Draw tracking figure
         drawKeypoints(pose.keypoints, minPoseConfidence, ctx);
