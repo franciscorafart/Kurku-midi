@@ -115,15 +115,17 @@ async function poseDetectionFrame(video, net, ctx, sounds, audioCtx, flipPoseHor
     for (const [idx, pose] of poses.entries()) {
         const bodyPartPositions = getBodyParts(pose.keypoints, videoHeight, videoWidth);
 
+        // Draw tracking figure
         drawKeypoints(pose.keypoints, minPoseConfidence, ctx);
         drawSkeleton(pose.keypoints, minPartConfidence, ctx);
 
+        // TODO: Set visuals.
+
+        // Set sounds.
         if (sounds && sounds[idx]) {
             const fxPositions = mapPositionToSoundParams(bodyPartPositions);
             setAudio(fxPositions, audioCtx, sounds[idx]);
         }
-
-        // TODO: Set visuals here.
     }
 
     requestAnimationFrame(() => poseDetectionFrame(
