@@ -115,7 +115,7 @@ export function setAudio(
         previousCross = nextCross;
     }
 }
-
+// TODO: Move to another modukle, these functions are not exactly part of the audio process.
 const extractPosition = (keypoints, bodyPart) => keypoints.find(k => k.part === bodyPart);
 
 const translatePosition = (bodyPart, videoHeight, videoWidth) => {

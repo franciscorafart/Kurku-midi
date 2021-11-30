@@ -15,7 +15,7 @@ document.body.onclick = async () => {
     const stream = await navigator.mediaDevices.getUserMedia({
         audio: true,
     });
-    console.log('clicked the mofo')
+
     const source = audioctx.createMediaStreamSource(stream);
 
     analyser = audioctx.createAnalyser(); // Fast fouried transform

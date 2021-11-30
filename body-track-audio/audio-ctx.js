@@ -26,11 +26,23 @@ async function createConvolution(audioCtx, impulseFile) {
     return convolver;
 }
 
-const prepareBuffer = async (audioCtx, masterGainNode, buffer) => {
-    const stemAudioSource = audioCtx.createBufferSource();
-    stemAudioSource.buffer = buffer;
+const prepareAudioSource = async (audioCtx, masterGainNode, buffer=null) => {
+    let source;
 
-    stemAudioSource.loop = true;
+    if (buffer){
+        const stemAudioSource = audioCtx.createBufferSource();
+        stemAudioSource.buffer = buffer;
+        stemAudioSource.loop = true;
+
+        source = stemAudioSource;
+    } else {
+        const stream = await navigator.mediaDevices.getUserMedia({
+            audio: true,
+        });
+
+        const micSource = audioCtx.createMediaStreamSource(stream);
+        source = micSource;
+    }
 
     const inputGainNode = audioCtx.createGain();
     inputGainNode.gain.setValueAtTime(1, audioCtx.currentTime);
@@ -57,7 +69,7 @@ const prepareBuffer = async (audioCtx, masterGainNode, buffer) => {
     const analyser = audioCtx.createAnalyser();
     analyser.fftSize = 2048;
 
-    stemAudioSource.connect(inputGainNode);
+    source.connect(inputGainNode);
 
     // Singal chain
     inputGainNode.connect(analyser);
@@ -94,7 +106,7 @@ const prepareBuffer = async (audioCtx, masterGainNode, buffer) => {
         crossSynthesisLevelNode,
         distortionNode,
         analyser,
-        stemAudioSource,
+        source,
     ];
 }
 
@@ -122,7 +134,7 @@ export const initAudio = async () => {
                 crossSynthesisNode: undefined,
                 analyser: undefined,
                 audioBuffer: buffer,
-                stem: undefined,
+                source: undefined,
             })
         })
     }
@@ -136,8 +148,8 @@ export const initAudio = async () => {
             crossSynthesisNode,
             distortionNode,
             analyser,
-            stemAudioSource,
-        ] = await prepareBuffer(
+            source,
+        ] = await prepareAudioSource(
             context,
             masterGainNode,
             sound.audioBuffer,
@@ -151,15 +163,51 @@ export const initAudio = async () => {
         allSounds[idx].reverbLevelNode = reverbLevelNode;
         allSounds[idx].crossSynthesisNode = crossSynthesisNode;
         allSounds[idx].analyser = analyser;
-        allSounds[idx].stem = stemAudioSource;
+        allSounds[idx].source = source;
     }
 
     // Play all stems at time 0
     const playAll = () => {
         for (const s of allSounds) {
-            s.stem.start(0);
+            s.source.start(0);
         }
     }
 
     return [context, allSounds, playAll];
+}
+
+export const initMicAudio = async () => {
+    const context = new (window.AudioContext || window.webkitAudioContext)();
+    const masterGainNode = context.createGain();
+    masterGainNode.connect(context.destination);
+    masterGainNode.gain.setValueAtTime(1, context.currentTime);
+
+    const micStream = {};
+    const [
+        panNode,
+        gainNode,
+        delayNode,
+        feedback,
+        reverbLevelNode,
+        crossSynthesisNode,
+        distortionNode,
+        analyser,
+        source,
+    ] = await prepareAudioSource(
+        context,
+        masterGainNode,
+        null,
+    );
+
+        micStream.panNode = panNode;
+        micStream.gainNode = gainNode;
+        micStream.delayNode = delayNode;
+        micStream.feedback = feedback;
+        micStream.distortionNode = distortionNode;
+        micStream.reverbLevelNode = reverbLevelNode;
+        micStream.crossSynthesisNode = crossSynthesisNode;
+        micStream.analyser = analyser;
+        micStream.source = source;
+
+    return [context, [micStream]];
 }

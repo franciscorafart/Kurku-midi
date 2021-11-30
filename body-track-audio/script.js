@@ -1,5 +1,5 @@
 import { drawKeypoints, drawSkeleton } from './utils.js';
-import { initAudio } from './audio-ctx.js';
+import { initAudio, initMicAudio } from './audio-ctx.js';
 import { setAudio } from './audio-utils.js'
 
 const videoWidth = window.innerWidth;
@@ -8,7 +8,10 @@ const videoHeight = window.innerHeight;
 let net;
 navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
 
-document.getElementById('btn').addEventListener('click', async () => {
+const btnStems = document.getElementById('btn');
+const btnMic = document.getElementById('btn-mic');
+
+btnStems.addEventListener('click', async () => {
     try {
         const [audioCtx, sounds, playAll] = await initAudio();
         await initBodyTracking(sounds, audioCtx);
@@ -16,6 +19,21 @@ document.getElementById('btn').addEventListener('click', async () => {
     } catch (e) {
         throw e;
     }
+
+    btnStems.hidden = true;
+    btnMic.hidden = true;
+});
+
+btnMic.addEventListener('click', async () => {
+    try {
+        const [audioCtx, sounds] = await initMicAudio();
+        await initBodyTracking(sounds, audioCtx);
+    } catch (e) {
+        throw e;
+    }
+
+    btnStems.hidden = true;
+    btnMic.hidden = true;
 });
 
 async function initBodyTracking(sounds, audioCtx) {
@@ -105,6 +123,7 @@ function detectPoseInRealTime(video, net, sounds, audioCtx) {
             drawKeypoints(pose.keypoints, minPoseConfidence, ctx);
             drawSkeleton(pose.keypoints, minPartConfidence, ctx);
 
+            // TODO: setAudio shouldn't calculate positions, this is a concern of poseDetection
             if (sounds && sounds[idx]) {
                 setAudio(pose.keypoints, audioCtx, sounds[idx], videoHeight, videoWidth);
             }
