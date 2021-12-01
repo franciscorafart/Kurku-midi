@@ -55,7 +55,7 @@ const prepareAudioSource = async (audioCtx, masterGainNode, buffer=null) => {
     panNode.pan.setValueAtTime(0, audioCtx.currentTime);
 
     // TODO: Work out delay with feedback
-    const delayNode = audioCtx.createDelay(160);
+    const delayNode = audioCtx.createDelay(0.5);
     const feedback = audioCtx.createGain(0);
 
     const crossSynthesisNode = await createConvolution(audioCtx, 'assets/sound1.wav');

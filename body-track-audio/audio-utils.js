@@ -19,22 +19,15 @@ let previousFeedback = 0;
 let targetCross = 0;
 let previousCross = 0;
 
-export function mapPositionToSoundParams(
-    pan,
-    gain,
-    crossSynthesis,
-    distortion,
-    feedback,
-    reverb,
-) { 
-    return ({
-        pan,
-        gain,
-        crossSynthesis,
-        distortion,
-        feedback,
-        reverb,
-    })
+export function mapPositionToSoundParams(params) { 
+    return {
+        pan: params.pan,
+        gain: params.gain,
+        crossSynthesis: params.crossSynthesis,
+        distortion: params.distortion,
+        feedback: params.feedback,
+        reverb: params.reverb,
+    }
 };
 
 export function setAudio(
@@ -63,11 +56,12 @@ export function setAudio(
     // 1. Distance from camera => Filter
     // 2. Hand howizontal => Delay and feedback
     // Feet => Delay / Filter / Bitcrusher
-    // Try out continuous pulsating sounds instead of synth, so I can try delay.
+
     if (panNode){
         if (panPos !== undefined) {
-            targetPan = panPos;
+            targetPan = scaleCenterdWindow(-0.2, 0.2, zeroCenter(panPos));;
         }
+
         const nextPan = moveTowardsPoint(previousPan, targetPan);
         panNode.pan.value = (nextPan * 2) - 1;
         previousPan = nextPan;
@@ -75,7 +69,7 @@ export function setAudio(
 
     if (gainNode) {
         if (gainPos !== undefined) {
-            targetLevel = gainPos;
+            targetLevel = scaleWindow(0.5, 1, gainPos);
         }
 
         const nextLevel = moveTowardsPoint(previousLevel, targetLevel);
@@ -85,18 +79,18 @@ export function setAudio(
 
     if(distortionNode) {
         if (distortionPos !== undefined) {
-            targetDistortion = distortionPos;
+            targetDistortion = scaleWindow(0.75, 1, distortionPos);
         }
 
         const nextPosition = moveTowardsPoint(prevDistortion, targetDistortion);
-        distortionNode.curve = makeDistortionCurve(nextPosition * 60);
+        distortionNode.curve = makeDistortionCurve(nextPosition * 200);
         prevDistortion = nextPosition;
         distortionNode.oversample = '4x';
     }
     
     if (reverbControl) {
         if (reverbPos !== undefined) {
-            targetRev = reverbPos;
+            targetRev = scaleWindow(0.5, 1, reverbPos);
         }
 
         const nextRev = moveTowardsPoint(previousRev, targetRev);
@@ -117,7 +111,7 @@ export function setAudio(
 
     if (feedbackNode) {
         if (feedbackPos !== undefined) {
-            targetFeedback = feedbackPos;
+            targetFeedback = scaleWindow(0, 0.1, zeroToOneScaleCentered(feedbackPos));
         }
 
         const nextFeedback = moveTowardsPoint(previousFeedback, targetFeedback);
@@ -127,7 +121,7 @@ export function setAudio(
 
     if (crossSynthesisNode) {
         if (crossSynthPos !== undefined) {
-            targetCross = Math.abs(crossSynthPos - 1);
+            targetCross = scaleWindow(0.2, 0.4, zeroToOneScaleCentered(crossSynthPos));
         }
 
         const nextCross = moveTowardsPoint(previousCross, targetCross);
@@ -148,27 +142,55 @@ const moveTowardsPoint = (origin, destination) => {
     return boundOneAndZero(origin+(sign*0.01));
 }
 
-const boundOneAndZero = n => {
-    if (n >= 1) {
-        return 1;
-    } else if (n <= 0.01) {
-        return 0.01;
+const zeroCenter = coordinate => coordinate - 0.5;
+const zeroToOneScaleCentered = v => Math.abs(zeroCenter(v))*2;
+
+const boundToValues = (start, finish, v) => {
+    if (v < start) {
+        return start;
     }
 
-    return n;
+    if (v > finish) {
+        return finish;
+    }
+
+    return v;
 }
+
+// Takes a segment (windowStart:windowEnd) of a 0 to 1 range, and scale it to be 0 to 1
+const scaleWindow = (windowStart, windowEnd, v) => {
+    const windowedValue = boundToValues(windowStart, windowEnd, v);
+
+    // scale
+    const windowRange = Math.abs(windowEnd - windowStart); 
+    const scaleFactor = 1 / windowRange;
+    const shiftedZero = windowedValue - windowStart;
+
+    return boundOneAndZero(shiftedZero * scaleFactor);
+}
+
+// Takes a segment (windowStart:windowEnd) of a -1 to 1 range, and scale it to be -1 to 1
+const scaleCenterdWindow = (windowStart, windowEnd, v) => {
+    const windowedValue = boundToValues(windowStart, windowEnd, v);
+    const windowRange = Math.abs(windowEnd - windowStart); 
+    const scaleFactor = 1 / windowRange * 2;
+
+    return boundToValues(-1, 1, windowedValue * scaleFactor);
+}
+
+const boundOneAndZero = n => boundToValues(0, 1, n);
 
 function makeDistortionCurve(amount) {
     var k = typeof amount === 'number' ? amount : 50,
-      n_samples = 44100,
-      curve = new Float32Array(n_samples),
-      deg = Math.PI / 180,
-      i = 0,
-      x;
+        n_samples = 44100,
+        curve = new Float32Array(n_samples),
+        deg = Math.PI / 180,
+        i = 0,
+        x;
     for ( ; i < n_samples; ++i ) {
-      x = i * 2 / n_samples - 1;
-      curve[i] = ( 3 + k ) * x * 20 * deg / ( Math.PI + k * Math.abs(x) );
+        x = i * 2 / n_samples - 1;
+        curve[i] = ( 3 + k ) * x * 20 * deg / ( Math.PI + k * Math.abs(x) );
     }
-    return curve;
-  };
 
+    return curve;
+};

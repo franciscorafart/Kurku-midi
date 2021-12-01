@@ -88,6 +88,7 @@ async function poseDetectionFrame(video, net, ctx, sounds, audioCtx, flipPoseHor
         const bodyPartPositions = getBodyParts(pose.keypoints, minPoseConfidence, videoHeight, videoWidth);
 
         // Draw tracking figure
+        // TODO: Remove when application finished
         drawKeypoints(pose.keypoints, minPoseConfidence, ctx);
         drawSkeleton(pose.keypoints, minPartConfidence, ctx);
 
@@ -95,14 +96,15 @@ async function poseDetectionFrame(video, net, ctx, sounds, audioCtx, flipPoseHor
 
         // Set sounds.
         if (sounds && sounds[idx]) {
-            const fxPositions = mapPositionToSoundParams(
-                bodyPartPositions['nose'].x, //pan
-                bodyPartPositions['nose'].y, //gain
-                bodyPartPositions['leftWrist'].x, //crossSynthesis
-                bodyPartPositions['leftWrist'].y, //distortion
-                bodyPartPositions['rightWrist'].x, //feedback
-                bodyPartPositions['rightWrist'].y, //reverb
-            )
+            const fxPositions = mapPositionToSoundParams({
+                pan: bodyPartPositions['nose'].x,
+                gain: bodyPartPositions['nose'].y,
+                crossSynthesis: bodyPartPositions['leftWrist'].x,
+                distortion: bodyPartPositions['leftWrist'].y,
+                feedback: bodyPartPositions['rightWrist'].x,
+                reverb: bodyPartPositions['rightWrist'].y,
+            })
+
             setAudio(fxPositions, audioCtx, sounds[idx]);
         }
     }
