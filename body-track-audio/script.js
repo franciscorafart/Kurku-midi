@@ -1,6 +1,6 @@
 import { drawKeypoints, drawSkeleton, getBodyParts } from './utils.js';
 import { initAudio, initMicAudio } from './audio-ctx.js';
-import { setAudio } from './audio-utils.js'
+import { setAudio, mapPositionToSoundParams } from './audio-utils.js'
 
 const videoWidth = window.innerWidth;
 const videoHeight = window.innerHeight;
@@ -123,7 +123,14 @@ async function poseDetectionFrame(video, net, ctx, sounds, audioCtx, flipPoseHor
 
         // Set sounds.
         if (sounds && sounds[idx]) {
-            const fxPositions = mapPositionToSoundParams(bodyPartPositions);
+            const fxPositions = mapPositionToSoundParams(
+                bodyPartPositions['nose'].x, //pan
+                bodyPartPositions['nose'].y, //gain
+                bodyPartPositions['leftWrist'].x, //crossSynthesis
+                bodyPartPositions['leftWrist'].y, //distortion
+                bodyPartPositions['rightWrist'].x, //feedback
+                bodyPartPositions['rightWrist'].y, //reverb
+            )
             setAudio(fxPositions, audioCtx, sounds[idx]);
         }
     }
@@ -158,13 +165,4 @@ function detectPoseInRealTime(video, net, sounds, audioCtx) {
     );
 }
 
-// Interface between audio controls and position
-const mapPositionToSoundParams = bodyPartPositions => ({
-    pan: bodyPartPositions['nose'][0],
-    gain: bodyPartPositions['nose'][1],
-    crossSynthesis: bodyPartPositions['leftWrist'][0],
-    distortion: bodyPartPositions['leftWrist'][1],
-    feedback: bodyPartPositions['rightWrist'][0],
-    reverb: bodyPartPositions['rightWrist'][1],
-});
 

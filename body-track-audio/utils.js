@@ -51,10 +51,14 @@ export function drawKeypoints(keypoints, minConfidence, ctx, scale = 1) {
 
 export const getBodyParts = (keypoints, minPoseConfidence, videoHeight, videoWidth) =>
     keypoints.reduce(
-        (acc, k) => ({
-            ...acc,
-            [k.part]: translatePosition(k, minPoseConfidence, videoHeight, videoWidth)
-        }),
+        (acc, k) => {
+            const position = translatePosition(k, minPoseConfidence, videoHeight, videoWidth)
+
+            return ({
+                ...acc,
+                [k.part]: {x: position[0], y: position[1]},
+            });
+    },
     {});
 
 const translatePosition = (bodyPart, minPoseConfidence, videoHeight, videoWidth) => {

@@ -19,6 +19,24 @@ let previousFeedback = 0;
 let targetCross = 0;
 let previousCross = 0;
 
+export function mapPositionToSoundParams(
+    pan,
+    gain,
+    crossSynthesis,
+    distortion,
+    feedback,
+    reverb,
+) { 
+    return ({
+        pan,
+        gain,
+        crossSynthesis,
+        distortion,
+        feedback,
+        reverb,
+    })
+};
+
 export function setAudio(
     fxPositions,
     audioCtx, 
