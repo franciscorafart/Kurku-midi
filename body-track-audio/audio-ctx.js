@@ -66,6 +66,11 @@ const prepareAudioSource = async (audioCtx, masterGainNode, buffer=null) => {
 
     const distortionNode = audioCtx.createWaveShaper();
 
+    const lpfNode = audioCtx.createBiquadFilter();
+    lpfNode.type = 'highpass';
+    lpfNode.frequency.value = 0;
+    lpfNode.gain.setValueAtTime(25, 0);
+
     const analyser = audioCtx.createAnalyser();
     analyser.fftSize = 2048;
 
@@ -81,8 +86,8 @@ const prepareAudioSource = async (audioCtx, masterGainNode, buffer=null) => {
     feedback.connect(delayNode);
 
     // panNode.connect(distortionNode);
-    delayNode.connect(distortionNode);
-
+    delayNode.connect(lpfNode);
+    lpfNode.connect(distortionNode);
     distortionNode.connect(outputGainNode);
 
     //Reverb sends
@@ -93,6 +98,7 @@ const prepareAudioSource = async (audioCtx, masterGainNode, buffer=null) => {
     distortionNode.connect(crossSynthesisNode);
     crossSynthesisNode.connect(crossSynthesisLevelNode);
     crossSynthesisLevelNode.connect(outputGainNode);
+    // lpfNode.connect(outputGainNode);
 
     outputGainNode.connect(masterGainNode);
 
@@ -105,6 +111,7 @@ const prepareAudioSource = async (audioCtx, masterGainNode, buffer=null) => {
         reverbLevelNode,
         crossSynthesisLevelNode,
         distortionNode,
+        lpfNode,
         analyser,
         source,
     ];
@@ -123,47 +130,38 @@ export const initAudio = async () => {
     const allSounds = [];
 
     for (const file of files) {
-        await addAudioBuffer(context, file).then(buffer => {
+        await addAudioBuffer(context, file).then(async audioBuffer => {
+            const [
+                panNode,
+                gainNode,
+                delayNode,
+                feedback,
+                reverbLevelNode,
+                crossSynthesisNode,
+                distortionNode,
+                lpfNode,
+                analyser,
+                source,
+            ] = await prepareAudioSource(
+                context,
+                masterGainNode,
+                audioBuffer,
+            );
+
             allSounds.push({
-                panNode: undefined,
-                gainNode: undefined,
-                delayNode: undefined,
-                feedback: undefined,
-                distortionNode: undefined,
-                reverbLevelNode: undefined,
-                crossSynthesisNode: undefined,
-                analyser: undefined,
-                audioBuffer: buffer,
-                source: undefined,
+                panNode,
+                gainNode,
+                delayNode,
+                feedback,
+                distortionNode,
+                reverbLevelNode,
+                crossSynthesisNode,
+                lpfNode,
+                analyser,
+                audioBuffer,
+                source,
             })
         })
-    }
-    for (const [idx, sound] of allSounds.entries()) {
-        const [
-            panNode,
-            gainNode,
-            delayNode,
-            feedback,
-            reverbLevelNode,
-            crossSynthesisNode,
-            distortionNode,
-            analyser,
-            source,
-        ] = await prepareAudioSource(
-            context,
-            masterGainNode,
-            sound.audioBuffer,
-        );
-
-        allSounds[idx].panNode = panNode;
-        allSounds[idx].gainNode = gainNode;
-        allSounds[idx].delayNode = delayNode;
-        allSounds[idx].feedback = feedback;
-        allSounds[idx].distortionNode = distortionNode;
-        allSounds[idx].reverbLevelNode = reverbLevelNode;
-        allSounds[idx].crossSynthesisNode = crossSynthesisNode;
-        allSounds[idx].analyser = analyser;
-        allSounds[idx].source = source;
     }
 
     // Play all stems at time 0
@@ -191,6 +189,7 @@ export const initMicAudio = async () => {
         reverbLevelNode,
         crossSynthesisNode,
         distortionNode,
+        lpfNode,
         analyser,
         source,
     ] = await prepareAudioSource(
@@ -206,6 +205,7 @@ export const initMicAudio = async () => {
         micStream.distortionNode = distortionNode;
         micStream.reverbLevelNode = reverbLevelNode;
         micStream.crossSynthesisNode = crossSynthesisNode;
+        micStream.lpfNode = lpfNode;
         micStream.analyser = analyser;
         micStream.source = source;
 

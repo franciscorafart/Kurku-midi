@@ -7,17 +7,20 @@ const videoHeight = window.innerHeight;
 
 let net;
 navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
+let frame = 0;
 
 export async function initBodyTracking(sounds, audioCtx) {
-    net = await posenet.load();
+    // Faster model / less accurate
+    // net = await posenet.load();
 
     // Better accuracy model / slower to load
-    // net = await posenet.load({
-    //     architecture: 'ResNet50',
-    //     outputStride: 32,
-    //     inputResolution: { width: 640, height:480 },
-    //     quantBytes: 2,
-    // });
+    // inputResolution changes the image size before sending it to the model, making it faster
+    net = await posenet.load({
+        architecture: 'ResNet50',
+        outputStride: 32,
+        inputResolution: { width: 320, height: 240 },
+        quantBytes: 2,
+    });
 
     let video;
 
@@ -74,13 +77,27 @@ const resetCanvas = (ctx) => {
 }
 
 async function poseDetectionFrame(video, net, ctx, sounds, audioCtx, flipPoseHorizontal) {
+    // TODO: Tune this.
+    // % executes the calculation every `skipSize` number of frames 
+    const skipSize = 10;
+    if (frame%skipSize !== 0){
+        requestAnimationFrame(() => poseDetectionFrame(
+            video,
+            net,
+            ctx,
+            sounds,
+            audioCtx,
+            flipPoseHorizontal,
+        ));
+    }
+
     const poses = await net.estimateMultiplePoses(video, {
         flipHorizontal: flipPoseHorizontal,
         scroreThreshold: 0.7,
     });
 
-    const minPoseConfidence = 0.5;
-    const minPartConfidence = 0.5;
+    const minPoseConfidence = 0.9;
+    const minPartConfidence = 0.9;
 
     resetCanvas(ctx);
 
@@ -101,8 +118,10 @@ async function poseDetectionFrame(video, net, ctx, sounds, audioCtx, flipPoseHor
                 gain: bodyPartPositions['nose'].y,
                 crossSynthesis: bodyPartPositions['leftWrist'].x,
                 distortion: bodyPartPositions['leftWrist'].y,
-                feedback: bodyPartPositions['rightWrist'].x,
+                // feedback: bodyPartPositions['rightWrist'].x,
                 reverb: bodyPartPositions['rightWrist'].y,
+                lpf: bodyPartPositions['rightKnee'].y,
+                // add bitcrusher
             })
 
             setAudio(fxPositions, audioCtx, sounds[idx]);

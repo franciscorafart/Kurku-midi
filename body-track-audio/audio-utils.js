@@ -19,6 +19,9 @@ let previousFeedback = 0;
 let targetCross = 0;
 let previousCross = 0;
 
+let targetLpf = 0;
+let previousLpf = 0;
+
 export function mapPositionToSoundParams(params) { 
     return {
         pan: params.pan,
@@ -27,6 +30,7 @@ export function mapPositionToSoundParams(params) {
         distortion: params.distortion,
         feedback: params.feedback,
         reverb: params.reverb,
+        lpf: params.lpf,
     }
 };
 
@@ -43,6 +47,7 @@ export function setAudio(
     const reverbControl = sound.reverbLevelNode;
     const crossSynthesisNode = sound.crossSynthesisNode;
     const delayNode = sound.delayNode;
+    const lpfNode = sound.lpfNode;
 
     const panPos = fxPositions.pan;
     const gainPos = fxPositions.gain;
@@ -51,6 +56,7 @@ export function setAudio(
     const feedbackPos = fxPositions.feedback;
     const reverbPos = fxPositions.reverb;
     // const delayPos = fxPositions.delay;
+    const lpfPos = fxPositions.lpf;
 
     // TODO: Implement more complex/interesting interactions.
     // 1. Distance from camera => Filter
@@ -127,6 +133,18 @@ export function setAudio(
         const nextCross = moveTowardsPoint(previousCross, targetCross);
         crossSynthesisNode.gain.setValueAtTime(nextCross, audioCtx.currentTime);
         previousCross = nextCross;
+    }
+
+    if (lpfNode) {
+        if (lpfPos !== undefined) {
+            targetLpf = lpfPos;
+        }
+
+        const nextLpf = moveTowardsPoint(previousLpf, targetLpf);
+        const frequency = scaleWindow(0.1, 0.3, nextLpf) * 15000;
+        lpfNode.frequency.setValueAtTime(frequency, audioCtx.currentTime);
+
+        previousLpf = nextLpf;
     }
 }
 
