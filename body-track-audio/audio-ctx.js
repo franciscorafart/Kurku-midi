@@ -66,10 +66,10 @@ const prepareAudioSource = async (audioCtx, masterGainNode, buffer=null) => {
 
     const distortionNode = audioCtx.createWaveShaper();
 
-    const lpfNode = audioCtx.createBiquadFilter();
-    lpfNode.type = 'highpass';
-    lpfNode.frequency.value = 0;
-    lpfNode.gain.setValueAtTime(25, 0);
+    const hpfNode = audioCtx.createBiquadFilter();
+    hpfNode.type = 'highpass';
+    hpfNode.frequency.value = 0;
+    hpfNode.gain.setValueAtTime(25, 0);
 
     const analyser = audioCtx.createAnalyser();
     analyser.fftSize = 2048;
@@ -86,8 +86,8 @@ const prepareAudioSource = async (audioCtx, masterGainNode, buffer=null) => {
     feedback.connect(delayNode);
 
     // panNode.connect(distortionNode);
-    delayNode.connect(lpfNode);
-    lpfNode.connect(distortionNode);
+    delayNode.connect(hpfNode);
+    hpfNode.connect(distortionNode);
     distortionNode.connect(outputGainNode);
 
     //Reverb sends
@@ -98,7 +98,7 @@ const prepareAudioSource = async (audioCtx, masterGainNode, buffer=null) => {
     distortionNode.connect(crossSynthesisNode);
     crossSynthesisNode.connect(crossSynthesisLevelNode);
     crossSynthesisLevelNode.connect(outputGainNode);
-    // lpfNode.connect(outputGainNode);
+    // hpfNode.connect(outputGainNode);
 
     outputGainNode.connect(masterGainNode);
 
@@ -111,7 +111,7 @@ const prepareAudioSource = async (audioCtx, masterGainNode, buffer=null) => {
         reverbLevelNode,
         crossSynthesisLevelNode,
         distortionNode,
-        lpfNode,
+        hpfNode,
         analyser,
         source,
     ];
@@ -139,7 +139,7 @@ export const initAudio = async () => {
                 reverbLevelNode,
                 crossSynthesisNode,
                 distortionNode,
-                lpfNode,
+                hpfNode,
                 analyser,
                 source,
             ] = await prepareAudioSource(
@@ -156,7 +156,7 @@ export const initAudio = async () => {
                 distortionNode,
                 reverbLevelNode,
                 crossSynthesisNode,
-                lpfNode,
+                hpfNode,
                 analyser,
                 audioBuffer,
                 source,
@@ -189,7 +189,7 @@ export const initMicAudio = async () => {
         reverbLevelNode,
         crossSynthesisNode,
         distortionNode,
-        lpfNode,
+        hpfNode,
         analyser,
         source,
     ] = await prepareAudioSource(
@@ -205,7 +205,7 @@ export const initMicAudio = async () => {
         micStream.distortionNode = distortionNode;
         micStream.reverbLevelNode = reverbLevelNode;
         micStream.crossSynthesisNode = crossSynthesisNode;
-        micStream.lpfNode = lpfNode;
+        micStream.hpfNode = hpfNode;
         micStream.analyser = analyser;
         micStream.source = source;
 

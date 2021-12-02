@@ -120,7 +120,7 @@ async function poseDetectionFrame(video, net, ctx, sounds, audioCtx, flipPoseHor
                 distortion: bodyPartPositions['leftWrist'].y,
                 // feedback: bodyPartPositions['rightWrist'].x,
                 reverb: bodyPartPositions['rightWrist'].y,
-                lpf: bodyPartPositions['rightKnee'].y,
+                hpf: bodyPartPositions['rightKnee'].y,
                 // add bitcrusher
             })
 

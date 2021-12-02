@@ -19,8 +19,8 @@ let previousFeedback = 0;
 let targetCross = 0;
 let previousCross = 0;
 
-let targetLpf = 0;
-let previousLpf = 0;
+let targetHpf = 0;
+let previousHpf = 0;
 
 export function mapPositionToSoundParams(params) { 
     return {
@@ -30,7 +30,7 @@ export function mapPositionToSoundParams(params) {
         distortion: params.distortion,
         feedback: params.feedback,
         reverb: params.reverb,
-        lpf: params.lpf,
+        hpf: params.hpf,
     }
 };
 
@@ -47,7 +47,7 @@ export function setAudio(
     const reverbControl = sound.reverbLevelNode;
     const crossSynthesisNode = sound.crossSynthesisNode;
     const delayNode = sound.delayNode;
-    const lpfNode = sound.lpfNode;
+    const hpfNode = sound.hpfNode;
 
     const panPos = fxPositions.pan;
     const gainPos = fxPositions.gain;
@@ -56,7 +56,7 @@ export function setAudio(
     const feedbackPos = fxPositions.feedback;
     const reverbPos = fxPositions.reverb;
     // const delayPos = fxPositions.delay;
-    const lpfPos = fxPositions.lpf;
+    const hpfPos = fxPositions.hpf;
 
     // TODO: Implement more complex/interesting interactions.
     // 1. Distance from camera => Filter
@@ -69,7 +69,7 @@ export function setAudio(
         }
 
         const nextPan = moveTowardsPoint(previousPan, targetPan);
-        panNode.pan.value = (nextPan * 2) - 1;
+        panNode.pan.value = nextPan;
         previousPan = nextPan;
     }
 
@@ -135,16 +135,16 @@ export function setAudio(
         previousCross = nextCross;
     }
 
-    if (lpfNode) {
-        if (lpfPos !== undefined) {
-            targetLpf = lpfPos;
+    if (hpfNode) {
+        if (hpfPos !== undefined) {
+            targetHpf = hpfPos;
         }
 
-        const nextLpf = moveTowardsPoint(previousLpf, targetLpf);
-        const frequency = scaleWindow(0.1, 0.3, nextLpf) * 15000;
-        lpfNode.frequency.setValueAtTime(frequency, audioCtx.currentTime);
+        const nextHpf = moveTowardsPoint(previousHpf, targetHpf);
+        const frequency = scaleWindow(0.1, 0.3, nextHpf) * 15000;
+        hpfNode.frequency.setValueAtTime(frequency, audioCtx.currentTime);
 
-        previousLpf = nextLpf;
+        previousHpf = nextHpf;
     }
 }
 
@@ -152,12 +152,12 @@ export function setAudio(
 const moveTowardsPoint = (origin, destination) => {
     const distance = Math.abs(destination - origin)
     
-    if (distance <= 0.01) {
+    if (distance <= 0.1) {
         return destination
     }
 
     const sign = destination > origin ? 1 : -1;
-    return boundOneAndZero(origin+(sign*0.01));
+    return boundOneAndZero(origin+(sign*0.1));
 }
 
 const zeroCenter = coordinate => coordinate - 0.5;
