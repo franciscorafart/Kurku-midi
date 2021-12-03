@@ -38,6 +38,7 @@ export function setAudio(
     fxPositions,
     audioCtx, 
     sound,
+    audioSkipSize,
 ){
 
     const panNode = sound.panNode;
@@ -68,17 +69,17 @@ export function setAudio(
             targetPan = scaleCenterdWindow(-0.2, 0.2, zeroCenter(panPos));;
         }
 
-        const nextPan = moveTowardsPoint(previousPan, targetPan);
+        const nextPan = moveTowardsPoint(previousPan, targetPan, audioSkipSize);
         panNode.pan.value = nextPan;
         previousPan = nextPan;
     }
 
     if (gainNode) {
         if (gainPos !== undefined) {
-            targetLevel = scaleWindow(0.5, 1, gainPos);
+            targetLevel = scaleWindow(0.5, 0.8, gainPos);
         }
 
-        const nextLevel = moveTowardsPoint(previousLevel, targetLevel);
+        const nextLevel = moveTowardsPoint(previousLevel, targetLevel, audioSkipSize);
         gainNode.gain.setValueAtTime(nextLevel, audioCtx.currentTime);
         previousLevel = nextLevel;
     }
@@ -88,7 +89,7 @@ export function setAudio(
             targetDistortion = scaleWindow(0.75, 1, distortionPos);
         }
 
-        const nextPosition = moveTowardsPoint(prevDistortion, targetDistortion);
+        const nextPosition = moveTowardsPoint(prevDistortion, targetDistortion, audioSkipSize);
         distortionNode.curve = makeDistortionCurve(nextPosition * 200);
         prevDistortion = nextPosition;
         distortionNode.oversample = '4x';
@@ -99,7 +100,7 @@ export function setAudio(
             targetRev = scaleWindow(0.5, 1, reverbPos);
         }
 
-        const nextRev = moveTowardsPoint(previousRev, targetRev);
+        const nextRev = moveTowardsPoint(previousRev, targetRev, audioSkipSize);
         reverbControl.gain.setValueAtTime(nextRev, audioCtx.currentTime);
         previousRev = nextRev;
     }
@@ -110,7 +111,7 @@ export function setAudio(
     //         targetDelay = delayPos;
     //     }
 
-    //     const nextDelay = moveTowardsPoint(previousDelay, targetDelay);
+    //     const nextDelay = moveTowardsPoint(previousDelay, targetDelay, moveTowardsPoint);
     //     delayNode.delayTime.setValueAtTime(nextDelay * 10, audioCtx.currentTime);
     //     previousDelay = nextDelay;
     // }
@@ -120,7 +121,7 @@ export function setAudio(
             targetFeedback = scaleWindow(0, 0.1, zeroToOneScaleCentered(feedbackPos));
         }
 
-        const nextFeedback = moveTowardsPoint(previousFeedback, targetFeedback);
+        const nextFeedback = moveTowardsPoint(previousFeedback, targetFeedback, audioSkipSize);
         feedbackNode.gain.setValueAtTime(nextFeedback, audioCtx.currentTime);
         previousFeedback = nextFeedback;
     }
@@ -130,7 +131,7 @@ export function setAudio(
             targetCross = scaleWindow(0.2, 0.4, zeroToOneScaleCentered(crossSynthPos));
         }
 
-        const nextCross = moveTowardsPoint(previousCross, targetCross);
+        const nextCross = moveTowardsPoint(previousCross, targetCross, audioSkipSize);
         crossSynthesisNode.gain.setValueAtTime(nextCross, audioCtx.currentTime);
         previousCross = nextCross;
     }
@@ -140,8 +141,8 @@ export function setAudio(
             targetHpf = hpfPos;
         }
 
-        const nextHpf = moveTowardsPoint(previousHpf, targetHpf);
-        const frequency = scaleWindow(0.1, 0.3, nextHpf) * 15000;
+        const nextHpf = moveTowardsPoint(previousHpf, targetHpf, audioSkipSize);
+        const frequency = scaleWindow(0.25, 0.35, nextHpf) * 10000;
         hpfNode.frequency.setValueAtTime(frequency, audioCtx.currentTime);
 
         previousHpf = nextHpf;
@@ -149,15 +150,15 @@ export function setAudio(
 }
 
 // TODO: Problem with artifacts at limit of screen likely here
-const moveTowardsPoint = (origin, destination) => {
+const moveTowardsPoint = (origin, destination, skipSize) => {
     const distance = Math.abs(destination - origin)
     
-    if (distance <= 0.1) {
+    if (distance <= skipSize) {
         return destination
     }
 
     const sign = destination > origin ? 1 : -1;
-    return boundOneAndZero(origin+(sign*0.1));
+    return boundOneAndZero(origin+(sign*skipSize));
 }
 
 const zeroCenter = coordinate => coordinate - 0.5;

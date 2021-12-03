@@ -9,18 +9,47 @@ let net;
 navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
 let frame = 0;
 
-export async function initBodyTracking(sounds, audioCtx) {
-    // Faster model / less accurate
-    // net = await posenet.load();
-
-    // Better accuracy model / slower to load
-    // inputResolution changes the image size before sending it to the model, making it faster
-    net = await posenet.load({
-        architecture: 'ResNet50',
-        outputStride: 32,
-        inputResolution: { width: 320, height: 240 },
+const machineConfig = {
+    slow: {
+        arch: 'MobileNetV1',
+        skipSize: 5,
+        audioSkipSize: 0.05,
+        confidence: 0.5,
+    },
+    decent: {
+        arch: 'MobileNetV1',
+        skipSize: 2,
+        audioSkipSize: 0.1,
+        confidence: 0.7,
+    },
+    fast: { // Tested ok
+        arch: 'ResNet50',
+        skipSize: 5,
+        audioSkipSize: 0.05,
+        confidence: 0.9,
         quantBytes: 2,
-    });
+    },
+}
+export async function initBodyTracking(sounds, audioCtx, machineType) {
+    const config = machineConfig[machineType];
+    if (config.arch === 'MobileNetV1') {
+        // Faster model / less accurate
+        net = await posenet.load(
+            {
+                architecture: config.arch,
+                inputResolution: { width: 320, height: 240 },
+            }
+        );
+    } else {
+        // Better accuracy model / slower to load
+        // inputResolution changes the image size before sending it to the model, making it faster
+        net = await posenet.load({
+            architecture: config.arch,
+            outputStride: 32,
+            inputResolution: { width: 320, height: 240 },
+            quantBytes: config.quantBytes,
+        });
+    }
 
     let video;
 
@@ -30,7 +59,7 @@ export async function initBodyTracking(sounds, audioCtx) {
         throw e;
     }
 
-    detectPoseInRealTime(video, net, sounds, audioCtx);
+    detectPoseInRealTime(video, net, sounds, audioCtx, config);
 }
 
 async function loadVideo() {
@@ -76,58 +105,54 @@ const resetCanvas = (ctx) => {
     ctx.restore();
 }
 
-async function poseDetectionFrame(video, net, ctx, sounds, audioCtx, flipPoseHorizontal) {
+async function poseDetectionFrame(
+    video, 
+    net, 
+    ctx, 
+    sounds, 
+    audioCtx, 
+    flipPoseHorizontal, 
+    config) {
     // TODO: Tune this.
     // % executes the calculation every `skipSize` number of frames 
-    const skipSize = 10;
-    if (frame%skipSize !== 0){
-        requestAnimationFrame(() => poseDetectionFrame(
-            video,
-            net,
-            ctx,
-            sounds,
-            audioCtx,
-            flipPoseHorizontal,
-        ));
-    }
-
-    const poses = await net.estimateMultiplePoses(video, {
-        flipHorizontal: flipPoseHorizontal,
-        scroreThreshold: 0.7,
-    });
-
-    const minPoseConfidence = 0.9;
-    const minPartConfidence = 0.9;
-
-    resetCanvas(ctx);
-
-    for (const [idx, pose] of poses.entries()) {
-        const bodyPartPositions = getBodyParts(pose.keypoints, minPoseConfidence, videoHeight, videoWidth);
-
-        // Draw tracking figure
-        // TODO: Remove when application finished
-        drawKeypoints(pose.keypoints, minPoseConfidence, ctx);
-        drawSkeleton(pose.keypoints, minPartConfidence, ctx);
-
-        // TODO: Set visuals.
-
-        // Set sounds.
-        if (sounds && sounds[idx]) {
-            const fxPositions = mapPositionToSoundParams({
-                pan: bodyPartPositions['nose'].x,
-                gain: bodyPartPositions['nose'].y,
-                crossSynthesis: bodyPartPositions['leftWrist'].x,
-                distortion: bodyPartPositions['leftWrist'].y,
-                // feedback: bodyPartPositions['rightWrist'].x,
-                reverb: bodyPartPositions['rightWrist'].y,
-                hpf: bodyPartPositions['rightKnee'].y,
-                // add bitcrusher
-            })
-
-            setAudio(fxPositions, audioCtx, sounds[idx]);
+    if (frame%config.skipSize === 0) {
+        const poses = await net.estimateMultiplePoses(video, {
+            flipHorizontal: flipPoseHorizontal,
+            scroreThreshold: 0.7,
+        });
+        
+        resetCanvas(ctx);
+        
+        for (const [idx, pose] of poses.entries()) {
+            const bodyPartPositions = getBodyParts(pose.keypoints, config.confidence, videoHeight, videoWidth);
+            
+            // Draw tracking figure
+            // TODO: Remove when application finished
+            drawKeypoints(pose.keypoints, config.confidence, ctx);
+            drawSkeleton(pose.keypoints, config.confidence, ctx);
+            
+            // TODO: Set visuals.
+            
+            // Set sounds.
+            if (sounds && sounds[idx]) {
+                const fxPositions = mapPositionToSoundParams({
+                    pan: bodyPartPositions['nose'].x,
+                    gain: bodyPartPositions['nose'].y,
+                    crossSynthesis: bodyPartPositions['leftWrist'].x,
+                    distortion: bodyPartPositions['leftWrist'].y,
+                    // feedback: bodyPartPositions['rightWrist'].x,
+                    reverb: bodyPartPositions['rightWrist'].y,
+                    hpf: bodyPartPositions['rightKnee'].y,
+                    // add bitcrusher
+                })
+                
+                setAudio(fxPositions, audioCtx, sounds[idx], config.audioSkipSize);
+            }
         }
     }
 
+    frame++;
+        
     requestAnimationFrame(() => poseDetectionFrame(
         video,
         net,
@@ -135,10 +160,11 @@ async function poseDetectionFrame(video, net, ctx, sounds, audioCtx, flipPoseHor
         sounds,
         audioCtx,
         flipPoseHorizontal,
+        config,
     ));
 }
 
-function detectPoseInRealTime(video, net, sounds, audioCtx) {
+function detectPoseInRealTime(video, net, sounds, audioCtx, config) {
     const canvas = document.getElementById('output');
     const ctx = canvas.getContext('2d');
 
@@ -155,5 +181,6 @@ function detectPoseInRealTime(video, net, sounds, audioCtx) {
         sounds, 
         audioCtx, 
         flipPoseHorizontal,
+        config,
     );
 }
