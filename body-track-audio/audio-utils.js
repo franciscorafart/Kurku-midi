@@ -216,3 +216,4 @@ function makeDistortionCurve(amount) {
 
     return curve;
 };
+
