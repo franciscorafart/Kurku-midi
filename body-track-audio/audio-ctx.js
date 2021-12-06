@@ -70,6 +70,9 @@ const prepareAudioSource = async (audioCtx, masterGainNode, buffer=null) => {
 
     const distortionNode = audioCtx.createWaveShaper();
 
+    await audioCtx.audioWorklet.addModule('bitcrusher-processor.js')
+    const bitCrushNode = new AudioWorkletNode(audioCtx, 'bitcrusher-processor')
+
     const hpfNode = audioCtx.createBiquadFilter();
     hpfNode.type = 'highpass';
     hpfNode.frequency.value = 0;
@@ -105,7 +108,9 @@ const prepareAudioSource = async (audioCtx, masterGainNode, buffer=null) => {
     crossSynthesisNode.connect(crossSynthesisLevelNode);
     crossSynthesisLevelNode.connect(outputGainNode);
 
-    outputGainNode.connect(masterGainNode);
+    outputGainNode.connect(bitCrushNode);
+
+    bitCrushNode.connect(masterGainNode);
 
     // Return gain and panning controls so that the UI can manipulate them
     return [
@@ -129,7 +134,7 @@ export const initAudio = async (bpm) => {
     const masterGainNode = context.createGain();
     masterGainNode.connect(context.destination);
     masterGainNode.gain.setValueAtTime(1, context.currentTime);
-    console.log('audio context', context)
+
     const files = [
         'assets/beat-128.wav',
     ]

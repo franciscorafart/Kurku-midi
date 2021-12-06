@@ -3,7 +3,7 @@ import { initBodyTracking } from './bodytracking.js';
 
 const btnStems = document.getElementById('btn');
 const btnMic = document.getElementById('btn-mic');
-let machineType = 'fast'; // fast / decent / slow
+let machineType = 'slow'; // fast / decent / slow
 
 // TODO: Add radio buttons to chose machine speed
 

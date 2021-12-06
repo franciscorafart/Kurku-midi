@@ -145,7 +145,6 @@ async function poseDetectionFrame(
                     reverb: bodyPartPositions['rightWrist'].y,
                     hpf: bodyPartPositions['rightKnee'].y,
                     bitCrusher: bodyPartPositions['leftKnee'].y,
-                    // add bitcrusher
                 })
                 
                 setAudio(fxPositions, audioCtx, sounds[idx], config.audioSkipSize);
