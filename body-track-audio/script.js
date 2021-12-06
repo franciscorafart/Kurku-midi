@@ -3,13 +3,13 @@ import { initBodyTracking } from './bodytracking.js';
 
 const btnStems = document.getElementById('btn');
 const btnMic = document.getElementById('btn-mic');
-let machineType = 'slow'; // fast / decent / slow
+let machineType = 'fast'; // fast / decent / slow
 
 // TODO: Add radio buttons to chose machine speed
 
 btnStems.addEventListener('click', async () => {
     try {
-        const [audioCtx, sounds, playAll] = await initAudio();
+        const [audioCtx, sounds, playAll] = await initAudio(128);
         await initBodyTracking(sounds, audioCtx, machineType);
         playAll();
     } catch (e) {

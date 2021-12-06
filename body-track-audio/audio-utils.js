@@ -22,12 +22,15 @@ let previousCross = 0;
 let targetHpf = 0;
 let previousHpf = 0;
 
+const fixedDelay = true;
+
 export function mapPositionToSoundParams(params) { 
     return {
         pan: params.pan,
         gain: params.gain,
         crossSynthesis: params.crossSynthesis,
         distortion: params.distortion,
+        delay: params.delay,
         feedback: params.feedback,
         reverb: params.reverb,
         hpf: params.hpf,
@@ -56,13 +59,10 @@ export function setAudio(
     const distortionPos = fxPositions.distortion;
     const feedbackPos = fxPositions.feedback;
     const reverbPos = fxPositions.reverb;
-    // const delayPos = fxPositions.delay;
+    const delayPos = fxPositions.delay;
     const hpfPos = fxPositions.hpf;
 
-    // TODO: Implement more complex/interesting interactions.
     // 1. Distance from camera => Filter
-    // 2. Hand howizontal => Delay and feedback
-    // Feet => Delay / Filter / Bitcrusher
 
     if (panNode){
         if (panPos !== undefined) {
@@ -106,19 +106,22 @@ export function setAudio(
     }
 
 
-    // if (delayNode) {
-    //     if (delayPos !== undefined) {
-    //         targetDelay = delayPos;
-    //     }
-
-    //     const nextDelay = moveTowardsPoint(previousDelay, targetDelay, moveTowardsPoint);
-    //     delayNode.delayTime.setValueAtTime(nextDelay * 10, audioCtx.currentTime);
-    //     previousDelay = nextDelay;
-    // }
+    if (delayNode) {
+        if (!fixedDelay) {
+            if (delayPos !== undefined) {
+                targetDelay = scaleWindow(0.2, 0.4, delayPos);
+            }
+            const nextDelay = moveTowardsPoint(previousDelay, targetDelay, audioSkipSize);
+            console.log('next Delay', nextDelay)
+            delayNode.delayTime.setValueAtTime(nextDelay, audioCtx.currentTime);
+            previousDelay = nextDelay;
+        }
+        
+    }
 
     if (feedbackNode) {
         if (feedbackPos !== undefined) {
-            targetFeedback = scaleWindow(0, 0.1, zeroToOneScaleCentered(feedbackPos));
+            targetFeedback = scaleWindow(0, 0.6, zeroToOneScaleCentered(feedbackPos));
         }
 
         const nextFeedback = moveTowardsPoint(previousFeedback, targetFeedback, audioSkipSize);

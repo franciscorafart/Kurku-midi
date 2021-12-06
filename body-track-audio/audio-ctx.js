@@ -1,3 +1,6 @@
+const _bpmToSec = bpm => 60/bpm;
+export const delaySubdivison = (bpm, num, denominator) => _bpmToSec(bpm) * (num/denominator);
+
 const _getFile = async (audioCtx, filepath) => {
     const response = await fetch(filepath);
     const arrayBuffer = await response.arrayBuffer();
@@ -45,24 +48,25 @@ const prepareAudioSource = async (audioCtx, masterGainNode, buffer=null) => {
     }
 
     const inputGainNode = audioCtx.createGain();
-    inputGainNode.gain.setValueAtTime(1, audioCtx.currentTime);
+    inputGainNode.gain.setValueAtTime(0.5, audioCtx.currentTime);
 
     const outputGainNode = audioCtx.createGain();
-    outputGainNode.gain.setValueAtTime(0.7, audioCtx.currentTime);
+    outputGainNode.gain.setValueAtTime(1, audioCtx.currentTime);
 
     // FXs
     const panNode = audioCtx.createStereoPanner();
     panNode.pan.setValueAtTime(0, audioCtx.currentTime);
 
     // TODO: Work out delay with feedback
-    const delayNode = audioCtx.createDelay(0.5);
-    const feedback = audioCtx.createGain(0);
+    const delayInSec = delaySubdivison(audioCtx.bpm, 3, 4);
+    const delayNode = audioCtx.createDelay(delayInSec);
+    const feedback = audioCtx.createGain(0.5);
 
     const crossSynthesisNode = await createConvolution(audioCtx, 'assets/sound1.wav');
     const crossSynthesisLevelNode = audioCtx.createGain();
 
     const reverbNode = await createConvolution(audioCtx, 'assets/impulse-response.wav')
-    const reverbLevelNode = audioCtx.createGain();
+    const reverbLevelNode = audioCtx.createGain(0.2);
 
     const distortionNode = audioCtx.createWaveShaper();
 
@@ -79,26 +83,27 @@ const prepareAudioSource = async (audioCtx, masterGainNode, buffer=null) => {
     // Singal chain
     inputGainNode.connect(analyser);
     analyser.connect(panNode);
-    panNode.connect(delayNode);
 
-    // Feedback delay
-    delayNode.connect(feedback);
-    feedback.connect(delayNode);
-
-    // panNode.connect(distortionNode);
-    delayNode.connect(hpfNode);
+    panNode.connect(hpfNode);
     hpfNode.connect(distortionNode);
+
     distortionNode.connect(outputGainNode);
 
     //Reverb sends
     distortionNode.connect(reverbNode);
     reverbNode.connect(reverbLevelNode);
     reverbLevelNode.connect(outputGainNode);
+    
+    // Delay sends
+    distortionNode.connect(delayNode);
+    delayNode.connect(feedback);
+    feedback.connect(delayNode);
+    delayNode.connect(outputGainNode);
 
+    // Cross synthesis sends
     distortionNode.connect(crossSynthesisNode);
     crossSynthesisNode.connect(crossSynthesisLevelNode);
     crossSynthesisLevelNode.connect(outputGainNode);
-    // hpfNode.connect(outputGainNode);
 
     outputGainNode.connect(masterGainNode);
 
@@ -117,14 +122,16 @@ const prepareAudioSource = async (audioCtx, masterGainNode, buffer=null) => {
     ];
 }
 
-export const initAudio = async () => {
+export const initAudio = async (bpm) => {
     const context = new (window.AudioContext || window.webkitAudioContext)();
+    context.bpm = bpm;
+
     const masterGainNode = context.createGain();
     masterGainNode.connect(context.destination);
     masterGainNode.gain.setValueAtTime(1, context.currentTime);
-
+    console.log('audio context', context)
     const files = [
-        'assets/sound2.wav',
+        'assets/beat-128.wav',
     ]
 
     const allSounds = [];

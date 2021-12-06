@@ -25,7 +25,7 @@ const machineConfig = {
     fast: { // Tested ok
         arch: 'ResNet50',
         skipSize: 5,
-        audioSkipSize: 0.05,
+        audioSkipSize: 0.2,
         confidence: 0.9,
         quantBytes: 2,
     },
@@ -140,9 +140,11 @@ async function poseDetectionFrame(
                     gain: bodyPartPositions['nose'].y,
                     crossSynthesis: bodyPartPositions['leftWrist'].x,
                     distortion: bodyPartPositions['leftWrist'].y,
-                    // feedback: bodyPartPositions['rightWrist'].x,
+                    delay: bodyPartPositions['leftWrist'].x,
+                    feedback: bodyPartPositions['rightWrist'].x,
                     reverb: bodyPartPositions['rightWrist'].y,
                     hpf: bodyPartPositions['rightKnee'].y,
+                    bitCrusher: bodyPartPositions['leftKnee'].y,
                     // add bitcrusher
                 })
                 
