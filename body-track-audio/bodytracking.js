@@ -140,11 +140,11 @@ async function poseDetectionFrame(
                     gain: bodyPartPositions['nose'].y,
                     crossSynthesis: bodyPartPositions['leftWrist'].x,
                     distortion: bodyPartPositions['leftWrist'].y,
+                    bitCrusher: bodyPartPositions['leftWrist'].y,
                     delay: bodyPartPositions['leftWrist'].x,
                     feedback: bodyPartPositions['rightWrist'].x,
                     reverb: bodyPartPositions['rightWrist'].y,
                     hpf: bodyPartPositions['rightKnee'].y,
-                    bitCrusher: bodyPartPositions['leftKnee'].y,
                 })
                 
                 setAudio(fxPositions, audioCtx, sounds[idx], config.audioSkipSize);

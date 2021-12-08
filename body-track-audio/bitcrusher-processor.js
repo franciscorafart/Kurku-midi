@@ -29,10 +29,15 @@ const sampleBitCrusher = bitSize => {
 }
 
 class BitCrusherProcessor extends AudioWorkletProcessor {
+    static get parameterDescriptors () {
+        return [{
+          name: 'bitSize',
+          defaultValue: 16,
+        }]
+      }
     process (inputs, outputs, parameters) {
-        console.log('parameters', parameters)
         const input = inputs[0];
-        const bitCrush = sampleBitCrusher(16);
+        const bitCrush = sampleBitCrusher(parameters.bitSize[0]);
     
         const output = outputs[0]
 

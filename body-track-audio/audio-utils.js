@@ -2,6 +2,9 @@
 let prevDistortion = 0;
 let targetDistortion = 0;
 
+let prevCrush = 1;
+let targetCrush = 1;
+
 let previousLevel = 0;
 let targetLevel = 0;
 
@@ -30,6 +33,7 @@ export function mapPositionToSoundParams(params) {
         gain: params.gain,
         crossSynthesis: params.crossSynthesis,
         distortion: params.distortion,
+        bitCrusher: params.bitCrusher,
         delay: params.delay,
         feedback: params.feedback,
         reverb: params.reverb,
@@ -48,6 +52,7 @@ export function setAudio(
     const gainNode = sound.gainNode;
     const feedbackNode = sound.feedback;
     const distortionNode = sound.distortionNode;
+    const bitCrushNode = sound.bitCrushNode;
     const reverbControl = sound.reverbLevelNode;
     const crossSynthesisNode = sound.crossSynthesisNode;
     const delayNode = sound.delayNode;
@@ -57,6 +62,7 @@ export function setAudio(
     const gainPos = fxPositions.gain;
     const crossSynthPos = fxPositions.crossSynthesis;
     const distortionPos = fxPositions.distortion;
+    const bitCrushPos = fxPositions.bitCrusher;
     const feedbackPos = fxPositions.feedback;
     const reverbPos = fxPositions.reverb;
     const delayPos = fxPositions.delay;
@@ -93,6 +99,17 @@ export function setAudio(
         distortionNode.curve = makeDistortionCurve(nextPosition * 200);
         prevDistortion = nextPosition;
         distortionNode.oversample = '4x';
+    }
+
+    const bitSizeParam = bitCrushNode.parameters.get('bitSize')
+
+    if (bitCrushNode) {
+        if (bitCrushPos !== undefined) {
+            targetCrush = scaleWindow(0.1, 0.3, bitCrushPos);
+        }
+        const nextCrush = moveTowardsPoint(prevCrush, targetCrush, audioSkipSize);
+        bitSizeParam.setValueAtTime(Math.max(4, Math.ceil(nextCrush * 16)), audioCtx.currentTime);
+        prevCrush = nextCrush;
     }
     
     if (reverbControl) {
