@@ -71,7 +71,6 @@ export function setAudio(
 
     if (panNode){
         if (panPos !== undefined) {
-            // targetPan = scaleCenterdWindow(-0.2, 0.2, zeroCenter(panPos));;
             targetPan = scaleWindowToRange(-0.2, 0.2, -1, 1, panPos);
         }
 
@@ -83,7 +82,6 @@ export function setAudio(
     if (gainNode) {
         if (gainPos !== undefined) {
             targetLevel = scaleWindowToRange(0.5, 0.8, 0, 1, gainPos);
-            // targetLevel = scaleWindow(0.5, 0.8, gainPos);
         }
 
         const nextLevel = moveTowardsPoint(previousLevel, targetLevel, audioSkipSize);
@@ -94,7 +92,6 @@ export function setAudio(
     if(distortionNode) {
         if (distortionPos !== undefined) {
             targetDistortion = scaleWindowToRange(0.75, 1, 0, 1, distortionPos);
-            // targetDistortion = scaleWindow(0.75, 1, distortionPos);
         }
 
         const nextPosition = moveTowardsPoint(prevDistortion, targetDistortion, audioSkipSize);
@@ -108,7 +105,6 @@ export function setAudio(
     if (bitCrushNode) {
         if (bitCrushPos !== undefined) {
             targetCrush = scaleWindowToRange(0.1, 0.3, 0, 1, bitCrushPos);
-            // targetCrush = scaleWindow(0.1, 0.3, bitCrushPos);
         }
         const nextCrush = moveTowardsPoint(prevCrush, targetCrush, audioSkipSize);
         bitSizeParam.setValueAtTime(Math.max(4, Math.ceil(nextCrush * 16)), audioCtx.currentTime);
@@ -118,7 +114,6 @@ export function setAudio(
     if (reverbControl) {
         if (reverbPos !== undefined) {
             targetRev = scaleWindowToRange(0.5, 0.8, 0, 1, reverbPos);
-            // targetRev = scaleWindow(0.5, 1, reverbPos);
         }
 
         const nextRev = moveTowardsPoint(previousRev, targetRev, audioSkipSize);
@@ -131,7 +126,6 @@ export function setAudio(
         if (!fixedDelay) {
             if (delayPos !== undefined) {
                 targetDelay = scaleWindowToRange(0.2, 0.4, 0, 1, delayPos);
-                // targetDelay = scaleWindow(0.2, 0.4, delayPos);
             }
             const nextDelay = moveTowardsPoint(previousDelay, targetDelay, audioSkipSize);
             delayNode.delayTime.setValueAtTime(nextDelay, audioCtx.currentTime);
@@ -143,7 +137,6 @@ export function setAudio(
     if (feedbackNode) {
         if (feedbackPos !== undefined) {
             targetFeedback = scaleWindowToRange(0, 0.6, -1, 1, feedbackPos);
-            // targetFeedback = scaleWindow(0, 0.6, zeroToOneScaleCentered(feedbackPos));
         }
 
         const nextFeedback = moveTowardsPoint(previousFeedback, targetFeedback, audioSkipSize);
@@ -154,7 +147,6 @@ export function setAudio(
     if (crossSynthesisNode) {
         if (crossSynthPos !== undefined) {
             targetCross = scaleWindowToRange(0.2, 0.4, -1, 1, crossSynthPos);
-            // targetCross = scaleWindow(0.2, 0.4, zeroToOneScaleCentered(crossSynthPos));
         }
 
         const nextCross = moveTowardsPoint(previousCross, targetCross, audioSkipSize);
@@ -169,7 +161,6 @@ export function setAudio(
 
         const nextHpf = moveTowardsPoint(previousHpf, targetHpf, audioSkipSize);
         const frequency = scaleWindowToRange(0.25, 0.35, 0, 10000, nextHpf);
-        // const frequency = scaleWindow(0.25, 0.35, nextHpf) * 10000;
         hpfNode.frequency.setValueAtTime(frequency, audioCtx.currentTime);
 
         previousHpf = nextHpf;
