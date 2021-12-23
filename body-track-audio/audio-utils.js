@@ -47,7 +47,6 @@ export function setAudio(
     sound,
     audioSkipSize,
 ){
-
     const panNode = sound.panNode;
     const gainNode = sound.gainNode;
     const feedbackNode = sound.feedback;
@@ -72,7 +71,8 @@ export function setAudio(
 
     if (panNode){
         if (panPos !== undefined) {
-            targetPan = scaleCenterdWindow(-0.2, 0.2, zeroCenter(panPos));;
+            // targetPan = scaleCenterdWindow(-0.2, 0.2, zeroCenter(panPos));;
+            targetPan = scaleWindowToRange(-0.2, 0.2, -1, 1, panPos);
         }
 
         const nextPan = moveTowardsPoint(previousPan, targetPan, audioSkipSize);
@@ -82,7 +82,8 @@ export function setAudio(
 
     if (gainNode) {
         if (gainPos !== undefined) {
-            targetLevel = scaleWindow(0.5, 0.8, gainPos);
+            targetLevel = scaleWindowToRange(0.5, 0.8, 0, 1, gainPos);
+            // targetLevel = scaleWindow(0.5, 0.8, gainPos);
         }
 
         const nextLevel = moveTowardsPoint(previousLevel, targetLevel, audioSkipSize);
@@ -92,7 +93,8 @@ export function setAudio(
 
     if(distortionNode) {
         if (distortionPos !== undefined) {
-            targetDistortion = scaleWindow(0.75, 1, distortionPos);
+            targetDistortion = scaleWindowToRange(0.75, 1, 0, 1, distortionPos);
+            // targetDistortion = scaleWindow(0.75, 1, distortionPos);
         }
 
         const nextPosition = moveTowardsPoint(prevDistortion, targetDistortion, audioSkipSize);
@@ -105,7 +107,8 @@ export function setAudio(
 
     if (bitCrushNode) {
         if (bitCrushPos !== undefined) {
-            targetCrush = scaleWindow(0.1, 0.3, bitCrushPos);
+            targetCrush = scaleWindowToRange(0.1, 0.3, 0, 1, bitCrushPos);
+            // targetCrush = scaleWindow(0.1, 0.3, bitCrushPos);
         }
         const nextCrush = moveTowardsPoint(prevCrush, targetCrush, audioSkipSize);
         bitSizeParam.setValueAtTime(Math.max(4, Math.ceil(nextCrush * 16)), audioCtx.currentTime);
@@ -114,7 +117,8 @@ export function setAudio(
     
     if (reverbControl) {
         if (reverbPos !== undefined) {
-            targetRev = scaleWindow(0.5, 1, reverbPos);
+            targetRev = scaleWindowToRange(0.5, 0.8, 0, 1, reverbPos);
+            // targetRev = scaleWindow(0.5, 1, reverbPos);
         }
 
         const nextRev = moveTowardsPoint(previousRev, targetRev, audioSkipSize);
@@ -126,10 +130,10 @@ export function setAudio(
     if (delayNode) {
         if (!fixedDelay) {
             if (delayPos !== undefined) {
-                targetDelay = scaleWindow(0.2, 0.4, delayPos);
+                targetDelay = scaleWindowToRange(0.2, 0.4, 0, 1, delayPos);
+                // targetDelay = scaleWindow(0.2, 0.4, delayPos);
             }
             const nextDelay = moveTowardsPoint(previousDelay, targetDelay, audioSkipSize);
-            console.log('next Delay', nextDelay)
             delayNode.delayTime.setValueAtTime(nextDelay, audioCtx.currentTime);
             previousDelay = nextDelay;
         }
@@ -138,7 +142,8 @@ export function setAudio(
 
     if (feedbackNode) {
         if (feedbackPos !== undefined) {
-            targetFeedback = scaleWindow(0, 0.6, zeroToOneScaleCentered(feedbackPos));
+            targetFeedback = scaleWindowToRange(0, 0.6, -1, 1, feedbackPos);
+            // targetFeedback = scaleWindow(0, 0.6, zeroToOneScaleCentered(feedbackPos));
         }
 
         const nextFeedback = moveTowardsPoint(previousFeedback, targetFeedback, audioSkipSize);
@@ -148,7 +153,8 @@ export function setAudio(
 
     if (crossSynthesisNode) {
         if (crossSynthPos !== undefined) {
-            targetCross = scaleWindow(0.2, 0.4, zeroToOneScaleCentered(crossSynthPos));
+            targetCross = scaleWindowToRange(0.2, 0.4, -1, 1, crossSynthPos);
+            // targetCross = scaleWindow(0.2, 0.4, zeroToOneScaleCentered(crossSynthPos));
         }
 
         const nextCross = moveTowardsPoint(previousCross, targetCross, audioSkipSize);
@@ -162,7 +168,8 @@ export function setAudio(
         }
 
         const nextHpf = moveTowardsPoint(previousHpf, targetHpf, audioSkipSize);
-        const frequency = scaleWindow(0.25, 0.35, nextHpf) * 10000;
+        const frequency = scaleWindowToRange(0.25, 0.35, 0, 10000, nextHpf);
+        // const frequency = scaleWindow(0.25, 0.35, nextHpf) * 10000;
         hpfNode.frequency.setValueAtTime(frequency, audioCtx.currentTime);
 
         previousHpf = nextHpf;
@@ -181,9 +188,6 @@ const moveTowardsPoint = (origin, destination, skipSize) => {
     return boundOneAndZero(origin+(sign*skipSize));
 }
 
-const zeroCenter = coordinate => coordinate - 0.5;
-const zeroToOneScaleCentered = v => Math.abs(zeroCenter(v))*2;
-
 const boundToValues = (start, finish, v) => {
     if (v < start) {
         return start;
@@ -196,25 +200,14 @@ const boundToValues = (start, finish, v) => {
     return v;
 }
 
-// Takes a segment (windowStart:windowEnd) of a 0 to 1 range, and scale it to be 0 to 1
-const scaleWindow = (windowStart, windowEnd, v) => {
-    const windowedValue = boundToValues(windowStart, windowEnd, v);
-
-    // scale
-    const windowRange = Math.abs(windowEnd - windowStart); 
-    const scaleFactor = 1 / windowRange;
-    const shiftedZero = windowedValue - windowStart;
-
-    return boundOneAndZero(shiftedZero * scaleFactor);
-}
-
-// Takes a segment (windowStart:windowEnd) of a -1 to 1 range, and scale it to be -1 to 1
-const scaleCenterdWindow = (windowStart, windowEnd, v) => {
+// TODO: Test
+// Takes a segment (windowStart:windowEnd) of a 0 to 1 range, and scales it to go from (rangeStart:rangeEnd)
+const scaleWindowToRange = (windowStart, windowEnd, rangeStart, rangeEnd, v) => {
     const windowedValue = boundToValues(windowStart, windowEnd, v);
     const windowRange = Math.abs(windowEnd - windowStart); 
-    const scaleFactor = 1 / windowRange * 2;
+    const scaleFactor = 1 / windowRange * (rangeEnd - rangeStart);
 
-    return boundToValues(-1, 1, windowedValue * scaleFactor);
+    return boundToValues(rangeStart, rangeEnd, rangeStart + (windowedValue * scaleFactor));
 }
 
 const boundOneAndZero = n => boundToValues(0, 1, n);
