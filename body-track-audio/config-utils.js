@@ -5,22 +5,30 @@
 
 // 2. Load audio ctx from configs instead of harcoded
 // 3. Process nodes and positions dinamically
-// 4. Build config interface in React: Make draggable interface for screen range
-// 5. Migrate to Typescript
+// 4. Build config interface in React-typescript: Make draggable interface for screen range
+// 6. Add Midi CC functionality
 
-const globalConfig = {
+export const globalConfig = {
     effects: [],
-    machineType: 'fast',
+    machineType: 'slow',
     bmp: 60,
     skipSize: 0.1,
 }
 
-const effectConfig = {
+export const effectConfig = {
     direction: 'vertical', // or horizontal
     screenRange: { a: 0, b: 1},
     valueRange: { x: 0, y: 0 },
     effect: 'gain',
     bodyPart: 'rightWrist',
+    previousValue: 0,
+    defaultValues: {
+        gain: 1,
+        delayInSec: 1,
+        file: '',
+        fftSize: 2948,
+    },
+    node: undefined,
 }
 
 const createOrUpdateConfig = config => (

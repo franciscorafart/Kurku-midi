@@ -1,5 +1,6 @@
 import { initAudio, initMicAudio } from './audio-ctx.js';
 import { initBodyTracking } from './bodytracking.js';
+import { globalConfig } from './config-utils.js';
 
 const btnStems = document.getElementById('btn');
 const btnMic = document.getElementById('btn-mic');
@@ -7,11 +8,99 @@ let machineType = 'slow'; // fast / decent / slow
 
 // TODO: Add radio buttons to chose machine speed
 
+// TODO: 1. Create sequence of effects 
+// 2. Adjust ranges
+globalConfig.effects = [
+    {
+        direction: 'horizontal', // or vertical
+        screenRange: { a: -0.2, b: 0.2},
+        valueRange: { x: -1, y: 1 },
+        effect: 'pan',
+        bodyPart: 'nose',
+        defaultValues: {
+            gain: 1,
+            delayInSec: 1,
+            file: '',
+            fftSize: 2948,
+        },
+        node: undefined,
+    },
+    {
+        direction: 'vertical', // or vertical
+        screenRange: { a: 0.5, b: 0.8},
+        valueRange: { x: 0, y: 1 },
+        effect: 'gain',
+        bodyPart: 'nose',
+        defaultValues: {
+            gain: 1,
+            delayInSec: 1,
+            file: '',
+            fftSize: 2948,
+        },
+        node: undefined,
+    },
+    {
+        direction: 'vertical', // or horizontal
+        screenRange: { a: 0.75, b: 1},
+        valueRange: { x: 0, y: 1 },
+        effect: 'distortion',
+        bodyPart: 'leftWrist',
+        defaultValues: {
+            gain: 1,
+            delayInSec: 1,
+            file: '',
+            fftSize: 2948,
+        },
+        node: undefined,
+    },
+    {
+        direction: 'vertical', // or horizontal
+        screenRange: { a: 0.1, b: 0.3},
+        valueRange: { x: 0, y: 1 },
+        effect: 'bitcrusher',
+        bodyPart: 'leftWrist',
+        defaultValues: {
+            gain: 1,
+            delayInSec: 1,
+            file: '',
+            fftSize: 2948,
+        },
+        node: undefined,
+    },
+    {
+        direction: 'vertical', // or horizontal
+        screenRange: { a: 0.25, b: 0.35},
+        valueRange: { x: 0, y: 10000 },
+        effect: 'hpf',
+        bodyPart: 'rightKnee',
+        defaultValues: {
+            gain: 1,
+            delayInSec: 1,
+            file: '',
+            fftSize: 2948,
+        },
+        node: undefined,
+    },
+    // {
+    //     direction: 'vertical', // or horizontal
+    //     screenRange: { a: 0, b: 1},
+    //     valueRange: { x: 0, y: 0 },
+    //     effect: 'analyser',
+    //     bodyPart: 'rightWrist',
+    //     defaultValues: {
+    //         gain: 1,
+    //         delayInSec: 1,
+    //         file: '',
+    //         fftSize: 2948,
+    //     },
+    //     node: undefined,
+    // },
+]
+
 btnStems.addEventListener('click', async () => {
     try {
-        const [audioCtx, sounds, playAll] = await initAudio(128);
-        await initBodyTracking(sounds, audioCtx, machineType);
-        playAll();
+        const audioCtx = await initAudio(globalConfig);
+        await initBodyTracking(globalConfig, audioCtx, globalConfig.machineType);
     } catch (e) {
         throw e;
     }
@@ -22,8 +111,8 @@ btnStems.addEventListener('click', async () => {
 
 btnMic.addEventListener('click', async () => {
     try {
-        const [audioCtx, sounds] = await initMicAudio();
-        await initBodyTracking(sounds, audioCtx, machineType);
+        const audioCtx = await initMicAudio(globalConfig);
+        await initBodyTracking(globalConfig, audioCtx, globalConfig.machineType);
     } catch (e) {
         throw e;
     }

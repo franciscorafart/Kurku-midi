@@ -41,6 +41,36 @@ export function mapPositionToSoundParams(params) {
     }
 };
 
+export const mapGlobalConfigsToSound = (globalConfig, bodyPartPositions, audioCtx) => {
+    for (effect in globalConfig.effects) {
+        const bodyPart = effect.bodyPart;
+        const direction = effect.direction === 'vertical' ? 'y' : 'x';
+        const position = bodyPartPositions[bodyPart][direction];
+
+        const node = effect.node;
+        const previousValue = effect.previousValue;
+        
+        const screenRange = effect.screenRange;
+        const valueRange = effect.valueRange;
+
+        if (node){
+            if (position !== undefined) {
+                targetValue = scaleWindowToRange(
+                    screenRange.a, 
+                    screenRange.b, 
+                    valueRange.x,
+                    valueRange.y, 
+                    panPos
+                );
+            }
+    
+            const nextValue = moveTowardsPoint(previousValue, targetValue, audioSkipSize);
+            panNode[effect.effect].setValueAtTime(nextValue, audioCtx.currentTime);
+            effect.previousValue = nextValue;
+        }
+    }
+}
+
 export function setAudio(
     fxPositions,
     audioCtx, 
@@ -75,7 +105,7 @@ export function setAudio(
         }
 
         const nextPan = moveTowardsPoint(previousPan, targetPan, audioSkipSize);
-        panNode.pan.value = nextPan;
+        node.pan.value = nextPan;
         previousPan = nextPan;
     }
 

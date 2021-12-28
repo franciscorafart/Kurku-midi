@@ -1,5 +1,5 @@
 
-import { setAudio, mapPositionToSoundParams } from './audio-utils.js'
+import { setAudio, mapPositionToSoundParams, mapGlobalConfigsToSound } from './audio-utils.js'
 import { drawKeypoints, drawSkeleton, getBodyParts } from './utils.js';
 
 const videoWidth = window.innerWidth;
@@ -30,8 +30,9 @@ const machineConfig = {
         quantBytes: 2,
     },
 }
-export async function initBodyTracking(sounds, audioCtx, machineType) {
+export async function initBodyTracking(globalConfig, audioCtx, machineType) {
     const config = machineConfig[machineType];
+
     if (config.arch === 'MobileNetV1') {
         // Faster model / less accurate
         net = await posenet.load(
@@ -50,7 +51,7 @@ export async function initBodyTracking(sounds, audioCtx, machineType) {
             quantBytes: config.quantBytes,
         });
     }
-
+    console.log('start running video')
     let video;
 
     try {
@@ -59,7 +60,7 @@ export async function initBodyTracking(sounds, audioCtx, machineType) {
         throw e;
     }
 
-    detectPoseInRealTime(video, net, sounds, audioCtx, config);
+    detectPoseInRealTime(video, net, globalConfig, audioCtx, config);
 }
 
 async function loadVideo() {
@@ -109,14 +110,14 @@ async function poseDetectionFrame(
     video, 
     net, 
     ctx, 
-    sounds, 
+    globalConfig, 
     audioCtx, 
     flipPoseHorizontal, 
     config) {
     // TODO: Tune this.
     // % executes the calculation every `skipSize` number of frames 
     if (frame%config.skipSize === 0) {
-        const poses = await net.estimateMultiplePoses(video, {
+        const poses = await net.estimateMultiplePoses(video, { // TODO: Change to 1 pose while only one input
             flipHorizontal: flipPoseHorizontal,
             scroreThreshold: 0.7,
         });
@@ -126,29 +127,34 @@ async function poseDetectionFrame(
         for (const [idx, pose] of poses.entries()) {
             const bodyPartPositions = getBodyParts(pose.keypoints, config.confidence, videoHeight, videoWidth);
             
-            // Draw tracking figure
-            // TODO: Remove when application finished
+            // Draw tracking figure TODO: Remove when application finished
             drawKeypoints(pose.keypoints, config.confidence, ctx);
             drawSkeleton(pose.keypoints, config.confidence, ctx);
             
             // TODO: Set visuals.
-            
+            console.log('globalConfig', globalConfig);
+            mapGlobalConfigsToSound(
+                globalConfig, 
+                bodyPartPositions, 
+                audioCtx
+            );
+
             // Set sounds.
-            if (sounds && sounds[idx]) {
-                const fxPositions = mapPositionToSoundParams({
-                    pan: bodyPartPositions['nose'].x,
-                    gain: bodyPartPositions['nose'].y,
-                    crossSynthesis: bodyPartPositions['leftWrist'].x,
-                    distortion: bodyPartPositions['leftWrist'].y,
-                    bitCrusher: bodyPartPositions['leftWrist'].y,
-                    delay: bodyPartPositions['leftWrist'].x,
-                    feedback: bodyPartPositions['rightWrist'].x,
-                    reverb: bodyPartPositions['rightWrist'].y,
-                    hpf: bodyPartPositions['rightKnee'].y,
-                })
+            // if (sounds && sounds[idx]) {
+            //     const fxPositions = mapPositionToSoundParams({
+            //         pan: bodyPartPositions['nose'].x,
+            //         gain: bodyPartPositions['nose'].y,
+            //         crossSynthesis: bodyPartPositions['leftWrist'].x,
+            //         distortion: bodyPartPositions['leftWrist'].y,
+            //         bitCrusher: bodyPartPositions['leftWrist'].y,
+            //         delay: bodyPartPositions['leftWrist'].x,
+            //         feedback: bodyPartPositions['rightWrist'].x,
+            //         reverb: bodyPartPositions['rightWrist'].y,
+            //         hpf: bodyPartPositions['rightKnee'].y,
+            //     })
                 
-                setAudio(fxPositions, audioCtx, sounds[idx], config.audioSkipSize);
-            }
+            //     setAudio(fxPositions, audioCtx, sounds[idx], config.audioSkipSize);
+            // }
         }
     }
 
@@ -165,7 +171,7 @@ async function poseDetectionFrame(
     ));
 }
 
-function detectPoseInRealTime(video, net, sounds, audioCtx, config) {
+function detectPoseInRealTime(video, net, globalConfig, audioCtx, config) {
     const canvas = document.getElementById('output');
     const ctx = canvas.getContext('2d');
 
@@ -179,7 +185,7 @@ function detectPoseInRealTime(video, net, sounds, audioCtx, config) {
         video, 
         net, 
         ctx, 
-        sounds, 
+        globalConfig, 
         audioCtx, 
         flipPoseHorizontal,
         config,

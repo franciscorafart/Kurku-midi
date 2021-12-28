@@ -29,7 +29,40 @@ async function createConvolution(audioCtx, impulseFile) {
     return convolver;
 }
 
-const prepareAudioSource = async (audioCtx, masterGainNode, buffer=null) => {
+const initializeEffect = async (audioCtx, effectConfig) => {
+    let effect;
+    const defaultValues = effectConfig.defaultValues;
+
+    if (effectConfig.effect === 'gain') {
+        effect = audioCtx.createGain(defaultValues.gain);
+    } else if (effectConfig.effect === 'pan') {
+        effect = audioCtx.createStereoPanner();
+        effect.pan.setValueAtTime(0, audioCtx.currentTime);
+    } else if (effectConfig.effect === 'delay') {
+        effect = audioCtx.createDelay(defaultValues.delayInSec);
+    } else if (effectConfig.effect === 'distortion') {
+        effect = audioCtx.createWaveShaper();
+    } else if (effectConfig.effect === 'reverb') {
+        effect = createConvolution(audioCtx, defaultValues.file);
+    } else if (effectConfig.effect === 'analyser') {
+        effect = audioCtx.createAnalyser();
+        effect.fftSize = defaultValues.fftSize;
+    } else if (effectConfig.effect === 'bitcrusher') {
+        await audioCtx.audioWorklet.addModule('bitcrusher-processor.js')
+        effect = new AudioWorkletNode(audioCtx, 'bitcrusher-processor')
+    } else if (effectConfig.effect === 'hpf') {
+        effect = audioCtx.createBiquadFilter();
+        effect.type = 'highpass';
+        effect.frequency.value = 0;
+        effect.gain.setValueAtTime(25, 0);
+    } else if (effectConfig.effect === 'crosssynth') {
+        effect = await createConvolution(audioCtx, 'assets/sound1.wav');
+    }
+
+    return effect;
+}
+
+const prepareAudioSource = async (audioCtx, masterGainNode, globalConfig, buffer=null) => {
     let source;
 
     if (buffer){
@@ -53,140 +86,47 @@ const prepareAudioSource = async (audioCtx, masterGainNode, buffer=null) => {
     const outputGainNode = audioCtx.createGain();
     outputGainNode.gain.setValueAtTime(1, audioCtx.currentTime);
 
-    // FXs
-    const panNode = audioCtx.createStereoPanner();
-    panNode.pan.setValueAtTime(0, audioCtx.currentTime);
-
-    // TODO: Work out delay with feedback
-    const delayInSec = delaySubdivison(audioCtx.bpm, 3, 4);
-    const delayNode = audioCtx.createDelay(delayInSec);
-    const feedback = audioCtx.createGain(0.5);
-
-    const crossSynthesisNode = await createConvolution(audioCtx, 'assets/sound1.wav');
-    const crossSynthesisLevelNode = audioCtx.createGain();
-
-    const reverbNode = await createConvolution(audioCtx, 'assets/impulse-response.wav')
-    const reverbLevelNode = audioCtx.createGain(0.2);
-
-    const distortionNode = audioCtx.createWaveShaper();
-
-    await audioCtx.audioWorklet.addModule('bitcrusher-processor.js')
-    const bitCrushNode = new AudioWorkletNode(audioCtx, 'bitcrusher-processor')
-
-    const hpfNode = audioCtx.createBiquadFilter();
-    hpfNode.type = 'highpass';
-    hpfNode.frequency.value = 0;
-    hpfNode.gain.setValueAtTime(25, 0);
-
-    const analyser = audioCtx.createAnalyser();
-    analyser.fftSize = 2048;
-
     source.connect(inputGainNode);
+    let previousEffect = inputGainNode;
 
-    // Singal chain
-    inputGainNode.connect(analyser);
-    analyser.connect(panNode);
+    // Interate through effects, intialize and connect
+    for (const effectConfig of globalConfig.effects) {
+        const effect = await initializeEffect(audioCtx, effectConfig);
+        previousEffect.connect(effect);
 
-    panNode.connect(hpfNode);
-    hpfNode.connect(distortionNode);
+        // Store node in global config
+        effectConfig.node = effect;
+        previousEffect = effect;
+    }
 
-    distortionNode.connect(outputGainNode);
+    previousEffect.connect(outputGainNode);
+    outputGainNode.connect(masterGainNode);
 
-    //Reverb sends
-    distortionNode.connect(reverbNode);
-    reverbNode.connect(reverbLevelNode);
-    reverbLevelNode.connect(outputGainNode);
-    
-    // Delay sends
-    distortionNode.connect(delayNode);
-    delayNode.connect(feedback);
-    feedback.connect(delayNode);
-    delayNode.connect(outputGainNode);
-
-    // Cross synthesis sends
-    distortionNode.connect(crossSynthesisNode);
-    crossSynthesisNode.connect(crossSynthesisLevelNode);
-    crossSynthesisLevelNode.connect(outputGainNode);
-
-    outputGainNode.connect(bitCrushNode);
-
-    bitCrushNode.connect(masterGainNode);
-
-    // Return gain and panning controls so that the UI can manipulate them
-    return [
-        panNode,
-        outputGainNode,
-        delayNode,
-        feedback,
-        reverbLevelNode,
-        crossSynthesisLevelNode,
-        distortionNode,
-        bitCrushNode,
-        hpfNode,
-        analyser,
-        source,
-    ];
+    return source;
 }
 
-export const initAudio = async (bpm) => {
+export const initAudio = async (globalConfig) => {
     const context = new (window.AudioContext || window.webkitAudioContext)();
-    context.bpm = bpm;
+    context.bpm = globalConfig.bpm;
 
     const masterGainNode = context.createGain();
     masterGainNode.connect(context.destination);
     masterGainNode.gain.setValueAtTime(1, context.currentTime);
 
-    const files = [
-        'assets/beat-128.wav',
-    ]
+    const file =  'assets/beat-128.wav';
+    let source;
 
-    const allSounds = [];
-
-    for (const file of files) {
-        await addAudioBuffer(context, file).then(async audioBuffer => {
-            const [
-                panNode,
-                gainNode,
-                delayNode,
-                feedback,
-                reverbLevelNode,
-                crossSynthesisNode,
-                distortionNode,
-                bitCrushNode,
-                hpfNode,
-                analyser,
-                source,
-            ] = await prepareAudioSource(
-                context,
-                masterGainNode,
-                audioBuffer,
-            );
-
-            allSounds.push({
-                panNode,
-                gainNode,
-                delayNode,
-                feedback,
-                distortionNode,
-                bitCrushNode,
-                reverbLevelNode,
-                crossSynthesisNode,
-                hpfNode,
-                analyser,
-                audioBuffer,
-                source,
-            })
-        })
-    }
-
-    // Play all stems at time 0
-    const playAll = () => {
-        for (const s of allSounds) {
-            s.source.start(0);
-        }
-    }
-
-    return [context, allSounds, playAll];
+    await addAudioBuffer(context, file).then(async audioBuffer => {
+        source = await prepareAudioSource(
+            context,
+            masterGainNode,
+            globalConfig,
+            audioBuffer,
+        );
+    });
+    
+    source.start(0);
+    return context;
 }
 
 export const initMicAudio = async () => {
@@ -195,34 +135,12 @@ export const initMicAudio = async () => {
     masterGainNode.connect(context.destination);
     masterGainNode.gain.setValueAtTime(1, context.currentTime);
 
-    const micStream = {};
-    const [
-        panNode,
-        gainNode,
-        delayNode,
-        feedback,
-        reverbLevelNode,
-        crossSynthesisNode,
-        distortionNode,
-        hpfNode,
-        analyser,
-        source,
-    ] = await prepareAudioSource(
+    await prepareAudioSource(
         context,
         masterGainNode,
+        globalConfig,
         null,
     );
 
-        micStream.panNode = panNode;
-        micStream.gainNode = gainNode;
-        micStream.delayNode = delayNode;
-        micStream.feedback = feedback;
-        micStream.distortionNode = distortionNode;
-        micStream.reverbLevelNode = reverbLevelNode;
-        micStream.crossSynthesisNode = crossSynthesisNode;
-        micStream.hpfNode = hpfNode;
-        micStream.analyser = analyser;
-        micStream.source = source;
-
-    return [context, [micStream]];
+    return context;
 }
