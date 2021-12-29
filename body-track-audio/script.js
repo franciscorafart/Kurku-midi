@@ -13,10 +13,13 @@ let machineType = 'slow'; // fast / decent / slow
 globalConfig.effects = [
     {
         direction: 'horizontal', // or vertical
-        screenRange: { a: -0.2, b: 0.2},
+        // screenRange: { a: -0.2, b: 0.2},
+        screenRange: { a: 0, b: 1},
         valueRange: { x: -1, y: 1 },
         effect: 'pan',
         bodyPart: 'nose',
+        previousValue: 0,
+        targetValue: 0,
         defaultValues: {
             gain: 1,
             delayInSec: 1,
@@ -27,10 +30,14 @@ globalConfig.effects = [
     },
     {
         direction: 'vertical', // or vertical
-        screenRange: { a: 0.5, b: 0.8},
+        // screenRange: { a: 0.5, b: 0.8},
+        screenRange: { a: 0, b: 1},
+
         valueRange: { x: 0, y: 1 },
         effect: 'gain',
         bodyPart: 'nose',
+        previousValue: 0,
+        targetValue: 0,
         defaultValues: {
             gain: 1,
             delayInSec: 1,
@@ -39,48 +46,54 @@ globalConfig.effects = [
         },
         node: undefined,
     },
-    {
-        direction: 'vertical', // or horizontal
-        screenRange: { a: 0.75, b: 1},
-        valueRange: { x: 0, y: 1 },
-        effect: 'distortion',
-        bodyPart: 'leftWrist',
-        defaultValues: {
-            gain: 1,
-            delayInSec: 1,
-            file: '',
-            fftSize: 2948,
-        },
-        node: undefined,
-    },
-    {
-        direction: 'vertical', // or horizontal
-        screenRange: { a: 0.1, b: 0.3},
-        valueRange: { x: 0, y: 1 },
-        effect: 'bitcrusher',
-        bodyPart: 'leftWrist',
-        defaultValues: {
-            gain: 1,
-            delayInSec: 1,
-            file: '',
-            fftSize: 2948,
-        },
-        node: undefined,
-    },
-    {
-        direction: 'vertical', // or horizontal
-        screenRange: { a: 0.25, b: 0.35},
-        valueRange: { x: 0, y: 10000 },
-        effect: 'hpf',
-        bodyPart: 'rightKnee',
-        defaultValues: {
-            gain: 1,
-            delayInSec: 1,
-            file: '',
-            fftSize: 2948,
-        },
-        node: undefined,
-    },
+    // {
+    //     direction: 'vertical', // or horizontal
+    //     screenRange: { a: 0.75, b: 1},
+    //     valueRange: { x: 0, y: 1 },
+    //     effect: 'distortion',
+    //     bodyPart: 'leftWrist',
+    //     previousValue: 0,
+    //     targetValue: 0,
+    //     defaultValues: {
+    //         gain: 1,
+    //         delayInSec: 1,
+    //         file: '',
+    //         fftSize: 2948,
+    //     },
+    //     node: undefined,
+    // },
+    // {
+    //     direction: 'vertical', // or horizontal
+    //     screenRange: { a: 0.1, b: 0.3},
+    //     valueRange: { x: 0, y: 1 },
+    //     effect: 'bitcrusher',
+    //     bodyPart: 'leftWrist',
+    //     previousValue: 0,
+    //     targetValue: 0,
+    //     defaultValues: {
+    //         gain: 1,
+    //         delayInSec: 1,
+    //         file: '',
+    //         fftSize: 2948,
+    //     },
+    //     node: undefined,
+    // },
+    // {
+    //     direction: 'vertical', // or horizontal
+    //     screenRange: { a: 0.25, b: 0.35},
+    //     valueRange: { x: 0, y: 10000 },
+    //     effect: 'hpf',
+    //     bodyPart: 'rightKnee',
+    //     previousValue: 0,
+    //     targetValue: 0,
+    //     defaultValues: {
+    //         gain: 1,
+    //         delayInSec: 1,
+    //         file: '',
+    //         fftSize: 2948,
+    //     },
+    //     node: undefined,
+    // },
     // {
     //     direction: 'vertical', // or horizontal
     //     screenRange: { a: 0, b: 1},

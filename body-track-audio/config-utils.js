@@ -22,6 +22,7 @@ export const effectConfig = {
     effect: 'gain',
     bodyPart: 'rightWrist',
     previousValue: 0,
+    targetValue: 0,
     defaultValues: {
         gain: 1,
         delayInSec: 1,

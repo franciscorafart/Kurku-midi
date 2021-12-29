@@ -42,30 +42,32 @@ export function mapPositionToSoundParams(params) {
 };
 
 export const mapGlobalConfigsToSound = (globalConfig, bodyPartPositions, audioCtx) => {
-    for (effect in globalConfig.effects) {
+    for (const effect of globalConfig.effects) {
         const bodyPart = effect.bodyPart;
         const direction = effect.direction === 'vertical' ? 'y' : 'x';
+
         const position = bodyPartPositions[bodyPart][direction];
 
         const node = effect.node;
-        const previousValue = effect.previousValue;
         
         const screenRange = effect.screenRange;
         const valueRange = effect.valueRange;
 
         if (node){
             if (position !== undefined) {
-                targetValue = scaleWindowToRange(
+                effect.targetValue = scaleWindowToRange(
                     screenRange.a, 
                     screenRange.b, 
                     valueRange.x,
                     valueRange.y, 
-                    panPos
+                    position,
                 );
             }
     
-            const nextValue = moveTowardsPoint(previousValue, targetValue, audioSkipSize);
-            panNode[effect.effect].setValueAtTime(nextValue, audioCtx.currentTime);
+            const nextValue = moveTowardsPoint(effect.previousValue, effect.targetValue, globalConfig.skipSize);
+            console.log('nextValue', nextValue, 'effect', effect.effect, 'targetValue', effect.targetValue, 'previousValue', effect.previousValue)
+            // TODO: Make value setter function
+            node[effect.effect].setValueAtTime(nextValue, audioCtx.currentTime);
             effect.previousValue = nextValue;
         }
     }

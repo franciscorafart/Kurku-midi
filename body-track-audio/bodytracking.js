@@ -132,29 +132,11 @@ async function poseDetectionFrame(
             drawSkeleton(pose.keypoints, config.confidence, ctx);
             
             // TODO: Set visuals.
-            console.log('globalConfig', globalConfig);
             mapGlobalConfigsToSound(
                 globalConfig, 
                 bodyPartPositions, 
                 audioCtx
             );
-
-            // Set sounds.
-            // if (sounds && sounds[idx]) {
-            //     const fxPositions = mapPositionToSoundParams({
-            //         pan: bodyPartPositions['nose'].x,
-            //         gain: bodyPartPositions['nose'].y,
-            //         crossSynthesis: bodyPartPositions['leftWrist'].x,
-            //         distortion: bodyPartPositions['leftWrist'].y,
-            //         bitCrusher: bodyPartPositions['leftWrist'].y,
-            //         delay: bodyPartPositions['leftWrist'].x,
-            //         feedback: bodyPartPositions['rightWrist'].x,
-            //         reverb: bodyPartPositions['rightWrist'].y,
-            //         hpf: bodyPartPositions['rightKnee'].y,
-            //     })
-                
-            //     setAudio(fxPositions, audioCtx, sounds[idx], config.audioSkipSize);
-            // }
         }
     }
 
@@ -164,7 +146,7 @@ async function poseDetectionFrame(
         video,
         net,
         ctx,
-        sounds,
+        globalConfig,
         audioCtx,
         flipPoseHorizontal,
         config,
