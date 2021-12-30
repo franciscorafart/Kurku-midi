@@ -1,17 +1,3 @@
-
-
-let prevCrush = 1;
-let targetCrush = 1;
-
-let previousRev = 0;
-let targetRev = 0;
-
-let targetFeedback = 0;
-let previousFeedback = 0;
-
-let targetCross = 0;
-let previousCross = 0;
-
 const setEffectValue = (effect, node, currentTime, value) => {
     if (effect === 'gain') {
         node.gain.setValueAtTime(value, currentTime);
@@ -33,9 +19,8 @@ const setEffectValue = (effect, node, currentTime, value) => {
 export const mapGlobalConfigsToSound = (globalConfig, bodyPartPositions, audioCtx) => {
     for (const effect of globalConfig.effects) {
         const bodyPart = effect.bodyPart;
-        const direction = effect.direction === 'vertical' ? 'y' : 'x';
 
-        const position = bodyPartPositions[bodyPart][direction];
+        const position = bodyPartPositions[bodyPart][effect.direction];
 
         const node = effect.node;
         
@@ -53,61 +38,46 @@ export const mapGlobalConfigsToSound = (globalConfig, bodyPartPositions, audioCt
                 );
             }
     
-            const nextValue = moveTowardsPoint(effect.previousValue, effect.targetValue, globalConfig.skipSize);
-            setEffectValue(effect.effect, node, audioCtx.currentTime, nextValue);
+            const nextValue = moveTowardsPoint(
+                effect.previousValue,
+                effect.targetValue,
+                globalConfig.skipSize,
+            );
+            setEffectValue(effect.key, node, audioCtx.currentTime, nextValue);
             effect.previousValue = nextValue;
         }
     }
 }
-
-export function setAudio(
-    fxPositions,
-    audioCtx, 
-    sound,
-    audioSkipSize,
-){
-
-    const bitSizeParam = bitCrushNode.parameters.get('bitSize')
-
-    if (bitCrushNode) {
-        if (bitCrushPos !== undefined) {
-            targetCrush = scaleWindowToRange(0.1, 0.3, 0, 1, bitCrushPos);
-        }
-        const nextCrush = moveTowardsPoint(prevCrush, targetCrush, audioSkipSize);
-        bitSizeParam.setValueAtTime(Math.max(4, Math.ceil(nextCrush * 16)), audioCtx.currentTime);
-        prevCrush = nextCrush;
-    }
     
-    if (reverbControl) {
-        if (reverbPos !== undefined) {
-            targetRev = scaleWindowToRange(0.5, 0.8, 0, 1, reverbPos);
-        }
+    // if (reverbControl) {
+    //     if (reverbPos !== undefined) {
+    //         targetRev = scaleWindowToRange(0.5, 0.8, 0, 1, reverbPos);
+    //     }
 
-        const nextRev = moveTowardsPoint(previousRev, targetRev, audioSkipSize);
-        reverbControl.gain.setValueAtTime(nextRev, audioCtx.currentTime);
-        previousRev = nextRev;
-    }
+    //     const nextRev = moveTowardsPoint(previousRev, targetRev, audioSkipSize);
+    //     reverbControl.gain.setValueAtTime(nextRev, audioCtx.currentTime);
+    //     previousRev = nextRev;
+    // }
 
-    if (feedbackNode) {
-        if (feedbackPos !== undefined) {
-            targetFeedback = scaleWindowToRange(0, 0.6, -1, 1, feedbackPos);
-        }
+    // if (feedbackNode) {
+    //     if (feedbackPos !== undefined) {
+    //         targetFeedback = scaleWindowToRange(0, 0.6, -1, 1, feedbackPos);
+    //     }
 
-        const nextFeedback = moveTowardsPoint(previousFeedback, targetFeedback, audioSkipSize);
-        feedbackNode.gain.setValueAtTime(nextFeedback, audioCtx.currentTime);
-        previousFeedback = nextFeedback;
-    }
+    //     const nextFeedback = moveTowardsPoint(previousFeedback, targetFeedback, audioSkipSize);
+    //     feedbackNode.gain.setValueAtTime(nextFeedback, audioCtx.currentTime);
+    //     previousFeedback = nextFeedback;
+    // }
 
-    if (crossSynthesisNode) {
-        if (crossSynthPos !== undefined) {
-            targetCross = scaleWindowToRange(0.2, 0.4, -1, 1, crossSynthPos);
-        }
+    // if (crossSynthesisNode) {
+    //     if (crossSynthPos !== undefined) {
+    //         targetCross = scaleWindowToRange(0.2, 0.4, -1, 1, crossSynthPos);
+    //     }
 
-        const nextCross = moveTowardsPoint(previousCross, targetCross, audioSkipSize);
-        crossSynthesisNode.gain.setValueAtTime(nextCross, audioCtx.currentTime);
-        previousCross = nextCross;
-    }
-}
+    //     const nextCross = moveTowardsPoint(previousCross, targetCross, audioSkipSize);
+    //     crossSynthesisNode.gain.setValueAtTime(nextCross, audioCtx.currentTime);
+    //     previousCross = nextCross;
+    // }
 
 // TODO: Problem with artifacts at limit of screen likely here
 const moveTowardsPoint = (origin, destination, skipSize) => {

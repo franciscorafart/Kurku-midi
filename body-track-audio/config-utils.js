@@ -19,7 +19,7 @@ export const effectConfig = {
     direction: 'vertical', // or horizontal
     screenRange: { a: 0, b: 1},
     valueRange: { x: 0, y: 0 },
-    effect: 'gain',
+    key: 'gain',
     bodyPart: 'rightWrist',
     previousValue: 0,
     targetValue: 0,

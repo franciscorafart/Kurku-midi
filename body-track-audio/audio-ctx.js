@@ -29,37 +29,37 @@ async function createConvolution(audioCtx, impulseFile) {
     return convolver;
 }
 
-const initializeEffect = async (audioCtx, effectConfig) => {
-    let effect;
-    const defaultValues = effectConfig.defaultValues;
+const initializeEffect = async (audioCtx, effect) => {
+    let node;
+    const defaultValues = effect.defaultValues;
 
-    if (effectConfig.effect === 'gain') {
-        effect = audioCtx.createGain(defaultValues.gain);
-    } else if (effectConfig.effect === 'pan') {
-        effect = audioCtx.createStereoPanner();
-        effect.pan.setValueAtTime(0, audioCtx.currentTime);
-    } else if (effectConfig.effect === 'delay') {
-        effect = audioCtx.createDelay(defaultValues.delayInSec);
-    } else if (effectConfig.effect === 'distortion') {
-        effect = audioCtx.createWaveShaper();
-    } else if (effectConfig.effect === 'reverb') {
-        effect = createConvolution(audioCtx, defaultValues.file);
-    } else if (effectConfig.effect === 'analyser') {
-        effect = audioCtx.createAnalyser();
-        effect.fftSize = defaultValues.fftSize;
-    } else if (effectConfig.effect === 'bitcrusher') {
+    if (effect.key === 'gain') {
+        node = audioCtx.createGain(defaultValues.gain);
+    } else if (effect.key === 'pan') {
+        node = audioCtx.createStereoPanner();
+        node.pan.setValueAtTime(0, audioCtx.currentTime);
+    } else if (effect.key === 'delay') {
+        node = audioCtx.createDelay(defaultValues.delayInSec);
+    } else if (effect.key === 'distortion') {
+        node = audioCtx.createWaveShaper();
+    } else if (effect.key === 'reverb') {
+        node = createConvolution(audioCtx, defaultValues.file);
+    } else if (effect.key === 'analyser') {
+        node = audioCtx.createAnalyser();
+        node.fftSize = defaultValues.fftSize;
+    } else if (effect.key === 'bitcrusher') {
         await audioCtx.audioWorklet.addModule('bitcrusher-processor.js')
-        effect = new AudioWorkletNode(audioCtx, 'bitcrusher-processor')
-    } else if (effectConfig.effect === 'hpf') {
-        effect = audioCtx.createBiquadFilter();
-        effect.type = 'highpass';
-        effect.frequency.value = 0;
-        effect.gain.setValueAtTime(25, 0);
-    } else if (effectConfig.effect === 'crosssynth') {
-        effect = await createConvolution(audioCtx, 'assets/sound1.wav');
+        node = new AudioWorkletNode(audioCtx, 'bitcrusher-processor')
+    } else if (effect.key === 'hpf') {
+        node = audioCtx.createBiquadFilter();
+        node.type = 'highpass';
+        node.frequency.value = 0;
+        node.gain.setValueAtTime(25, 0);
+    } else if (effect.key === 'crosssynth') {
+        node = await createConvolution(audioCtx, 'assets/sound1.wav');
     }
 
-    return effect;
+    return node;
 }
 
 const prepareAudioSource = async (audioCtx, masterGainNode, globalConfig, buffer=null) => {

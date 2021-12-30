@@ -132,6 +132,7 @@ async function poseDetectionFrame(
             drawSkeleton(pose.keypoints, config.confidence, ctx);
             
             // TODO: Set visuals.
+            
             mapGlobalConfigsToSound(
                 globalConfig, 
                 bodyPartPositions, 
