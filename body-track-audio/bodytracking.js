@@ -1,5 +1,5 @@
 
-import { setAudio, mapPositionToSoundParams, mapGlobalConfigsToSound } from './audio-utils.js'
+import { mapGlobalConfigsToSound } from './audio-utils.js'
 import { drawKeypoints, drawSkeleton, getBodyParts } from './utils.js';
 
 const videoWidth = window.innerWidth;

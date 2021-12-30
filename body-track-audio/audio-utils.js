@@ -1,43 +1,32 @@
-// Previous state
-let prevDistortion = 0;
-let targetDistortion = 0;
+
 
 let prevCrush = 1;
 let targetCrush = 1;
 
-let previousLevel = 0;
-let targetLevel = 0;
-
-let previousPan = 0;
-let targetPan = 0;
-
 let previousRev = 0;
 let targetRev = 0;
 
-let targetDelay = 0;
-let previousDelay = 0;
 let targetFeedback = 0;
 let previousFeedback = 0;
 
 let targetCross = 0;
 let previousCross = 0;
 
-let targetHpf = 0;
-let previousHpf = 0;
-
-const fixedDelay = true;
-
-export function mapPositionToSoundParams(params) { 
-    return {
-        pan: params.pan,
-        gain: params.gain,
-        crossSynthesis: params.crossSynthesis,
-        distortion: params.distortion,
-        bitCrusher: params.bitCrusher,
-        delay: params.delay,
-        feedback: params.feedback,
-        reverb: params.reverb,
-        hpf: params.hpf,
+const setEffectValue = (effect, node, currentTime, value) => {
+    if (effect === 'gain') {
+        node.gain.setValueAtTime(value, currentTime);
+    } else if (effect === 'pan') {
+        node.pan.setValueAtTime(value, currentTime);
+    } else if (effect === 'distortion') {
+        node.curve = makeDistortionCurve(value * 200);
+        node.oversample = '4x';
+    } else if (effect === 'bitcrusher') {
+        const bitSizeParam = node.parameters.get('bitSize')
+        bitSizeParam.setValueAtTime(Math.max(4, Math.ceil(value * 16)), currentTime);
+    } else if (effect === 'hpf') {
+        node.frequency.setValueAtTime(value, currentTime);
+    } else if (effect === 'delay') {
+        node.delayTime.setValueAtTime(value, currentTime);
     }
 };
 
@@ -65,9 +54,7 @@ export const mapGlobalConfigsToSound = (globalConfig, bodyPartPositions, audioCt
             }
     
             const nextValue = moveTowardsPoint(effect.previousValue, effect.targetValue, globalConfig.skipSize);
-            console.log('nextValue', nextValue, 'effect', effect.effect, 'targetValue', effect.targetValue, 'previousValue', effect.previousValue)
-            // TODO: Make value setter function
-            node[effect.effect].setValueAtTime(nextValue, audioCtx.currentTime);
+            setEffectValue(effect.effect, node, audioCtx.currentTime, nextValue);
             effect.previousValue = nextValue;
         }
     }
@@ -79,58 +66,6 @@ export function setAudio(
     sound,
     audioSkipSize,
 ){
-    const panNode = sound.panNode;
-    const gainNode = sound.gainNode;
-    const feedbackNode = sound.feedback;
-    const distortionNode = sound.distortionNode;
-    const bitCrushNode = sound.bitCrushNode;
-    const reverbControl = sound.reverbLevelNode;
-    const crossSynthesisNode = sound.crossSynthesisNode;
-    const delayNode = sound.delayNode;
-    const hpfNode = sound.hpfNode;
-
-    const panPos = fxPositions.pan;
-    const gainPos = fxPositions.gain;
-    const crossSynthPos = fxPositions.crossSynthesis;
-    const distortionPos = fxPositions.distortion;
-    const bitCrushPos = fxPositions.bitCrusher;
-    const feedbackPos = fxPositions.feedback;
-    const reverbPos = fxPositions.reverb;
-    const delayPos = fxPositions.delay;
-    const hpfPos = fxPositions.hpf;
-
-    // 1. Distance from camera => Filter
-
-    if (panNode){
-        if (panPos !== undefined) {
-            targetPan = scaleWindowToRange(-0.2, 0.2, -1, 1, panPos);
-        }
-
-        const nextPan = moveTowardsPoint(previousPan, targetPan, audioSkipSize);
-        node.pan.value = nextPan;
-        previousPan = nextPan;
-    }
-
-    if (gainNode) {
-        if (gainPos !== undefined) {
-            targetLevel = scaleWindowToRange(0.5, 0.8, 0, 1, gainPos);
-        }
-
-        const nextLevel = moveTowardsPoint(previousLevel, targetLevel, audioSkipSize);
-        gainNode.gain.setValueAtTime(nextLevel, audioCtx.currentTime);
-        previousLevel = nextLevel;
-    }
-
-    if(distortionNode) {
-        if (distortionPos !== undefined) {
-            targetDistortion = scaleWindowToRange(0.75, 1, 0, 1, distortionPos);
-        }
-
-        const nextPosition = moveTowardsPoint(prevDistortion, targetDistortion, audioSkipSize);
-        distortionNode.curve = makeDistortionCurve(nextPosition * 200);
-        prevDistortion = nextPosition;
-        distortionNode.oversample = '4x';
-    }
 
     const bitSizeParam = bitCrushNode.parameters.get('bitSize')
 
@@ -153,19 +88,6 @@ export function setAudio(
         previousRev = nextRev;
     }
 
-
-    if (delayNode) {
-        if (!fixedDelay) {
-            if (delayPos !== undefined) {
-                targetDelay = scaleWindowToRange(0.2, 0.4, 0, 1, delayPos);
-            }
-            const nextDelay = moveTowardsPoint(previousDelay, targetDelay, audioSkipSize);
-            delayNode.delayTime.setValueAtTime(nextDelay, audioCtx.currentTime);
-            previousDelay = nextDelay;
-        }
-        
-    }
-
     if (feedbackNode) {
         if (feedbackPos !== undefined) {
             targetFeedback = scaleWindowToRange(0, 0.6, -1, 1, feedbackPos);
@@ -185,18 +107,6 @@ export function setAudio(
         crossSynthesisNode.gain.setValueAtTime(nextCross, audioCtx.currentTime);
         previousCross = nextCross;
     }
-
-    if (hpfNode) {
-        if (hpfPos !== undefined) {
-            targetHpf = hpfPos;
-        }
-
-        const nextHpf = moveTowardsPoint(previousHpf, targetHpf, audioSkipSize);
-        const frequency = scaleWindowToRange(0.25, 0.35, 0, 10000, nextHpf);
-        hpfNode.frequency.setValueAtTime(frequency, audioCtx.currentTime);
-
-        previousHpf = nextHpf;
-    }
 }
 
 // TODO: Problem with artifacts at limit of screen likely here
@@ -208,7 +118,7 @@ const moveTowardsPoint = (origin, destination, skipSize) => {
     }
 
     const sign = destination > origin ? 1 : -1;
-    return boundOneAndZero(origin+(sign*skipSize));
+    return origin+(sign*skipSize);
 }
 
 const boundToValues = (start, finish, v) => {
@@ -230,7 +140,7 @@ const scaleWindowToRange = (windowStart, windowEnd, rangeStart, rangeEnd, v) => 
     const windowRange = Math.abs(windowEnd - windowStart); 
     const scaleFactor = 1 / windowRange * (rangeEnd - rangeStart);
 
-    return boundToValues(rangeStart, rangeEnd, rangeStart + (windowedValue * scaleFactor));
+    return boundToValues(rangeStart, rangeEnd, rangeStart + (windowedValue - windowStart) * scaleFactor);
 }
 
 const boundOneAndZero = n => boundToValues(0, 1, n);

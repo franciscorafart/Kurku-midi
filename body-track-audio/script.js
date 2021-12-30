@@ -13,8 +13,7 @@ let machineType = 'slow'; // fast / decent / slow
 globalConfig.effects = [
     {
         direction: 'horizontal', // or vertical
-        // screenRange: { a: -0.2, b: 0.2},
-        screenRange: { a: 0, b: 1},
+        screenRange: { a: 0.3, b: 0.7},
         valueRange: { x: -1, y: 1 },
         effect: 'pan',
         bodyPart: 'nose',
@@ -30,9 +29,7 @@ globalConfig.effects = [
     },
     {
         direction: 'vertical', // or vertical
-        // screenRange: { a: 0.5, b: 0.8},
-        screenRange: { a: 0, b: 1},
-
+        screenRange: { a: 0.5, b: 0.8},
         valueRange: { x: 0, y: 1 },
         effect: 'gain',
         bodyPart: 'nose',
@@ -46,22 +43,22 @@ globalConfig.effects = [
         },
         node: undefined,
     },
-    // {
-    //     direction: 'vertical', // or horizontal
-    //     screenRange: { a: 0.75, b: 1},
-    //     valueRange: { x: 0, y: 1 },
-    //     effect: 'distortion',
-    //     bodyPart: 'leftWrist',
-    //     previousValue: 0,
-    //     targetValue: 0,
-    //     defaultValues: {
-    //         gain: 1,
-    //         delayInSec: 1,
-    //         file: '',
-    //         fftSize: 2948,
-    //     },
-    //     node: undefined,
-    // },
+    {
+        direction: 'vertical', // or horizontal
+        screenRange: { a: 0.75, b: 1},
+        valueRange: { x: 0, y: 1 },
+        effect: 'distortion',
+        bodyPart: 'leftWrist',
+        previousValue: 0,
+        targetValue: 0,
+        defaultValues: {
+            gain: 1,
+            delayInSec: 1,
+            file: '',
+            fftSize: 2948,
+        },
+        node: undefined,
+    },
     // {
     //     direction: 'vertical', // or horizontal
     //     screenRange: { a: 0.1, b: 0.3},
