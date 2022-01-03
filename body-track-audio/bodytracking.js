@@ -30,7 +30,7 @@ const machineConfig = {
         quantBytes: 2,
     },
 }
-export async function initBodyTracking(globalConfig, audioCtx, machineType) {
+export async function initBodyTracking(sessionConfig, audioCtx, machineType) {
     const config = machineConfig[machineType];
 
     if (config.arch === 'MobileNetV1') {
@@ -60,7 +60,7 @@ export async function initBodyTracking(globalConfig, audioCtx, machineType) {
         throw e;
     }
 
-    detectPoseInRealTime(video, net, globalConfig, audioCtx, config);
+    detectPoseInRealTime(video, net, sessionConfig, audioCtx, config);
 }
 
 async function loadVideo() {
@@ -110,7 +110,7 @@ async function poseDetectionFrame(
     video, 
     net, 
     ctx, 
-    globalConfig, 
+    sessionConfig, 
     audioCtx, 
     flipPoseHorizontal, 
     config) {
@@ -134,7 +134,7 @@ async function poseDetectionFrame(
             // TODO: Set visuals.
             
             mapGlobalConfigsToSound(
-                globalConfig, 
+                sessionConfig, 
                 bodyPartPositions, 
                 audioCtx
             );
@@ -147,14 +147,14 @@ async function poseDetectionFrame(
         video,
         net,
         ctx,
-        globalConfig,
+        sessionConfig,
         audioCtx,
         flipPoseHorizontal,
         config,
     ));
 }
 
-function detectPoseInRealTime(video, net, globalConfig, audioCtx, config) {
+function detectPoseInRealTime(video, net, sessionConfig, audioCtx, config) {
     const canvas = document.getElementById('output');
     const ctx = canvas.getContext('2d');
 
@@ -168,7 +168,7 @@ function detectPoseInRealTime(video, net, globalConfig, audioCtx, config) {
         video, 
         net, 
         ctx, 
-        globalConfig, 
+        sessionConfig, 
         audioCtx, 
         flipPoseHorizontal,
         config,

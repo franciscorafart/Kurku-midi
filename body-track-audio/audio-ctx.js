@@ -29,6 +29,23 @@ async function createConvolution(audioCtx, impulseFile) {
     return convolver;
 }
 
+// TODO: Implement dry/wet node for reverb and delay
+function dryWetNode(audioCtx, wet, node, processedNode) {
+    this.original = node;
+    this.processed = processedNode;
+
+    this.setValueAtTime = function(wet, currentTime) {
+        const dry = 1 - wet;
+        this.original.setValueAtTime(dry, currentTime);
+        this.processed.setValueAtTime(wet, currentTime);
+    }
+
+    this.connect = function(){
+        // create to gains
+        
+    }
+}
+
 const initializeEffect = async (audioCtx, effect) => {
     let node;
     const defaultValues = effect.defaultValues;
@@ -62,7 +79,7 @@ const initializeEffect = async (audioCtx, effect) => {
     return node;
 }
 
-const prepareAudioSource = async (audioCtx, masterGainNode, globalConfig, buffer=null) => {
+const prepareAudioSource = async (audioCtx, masterGainNode, sessionConfig, buffer=null) => {
     let source;
 
     if (buffer){
@@ -90,7 +107,7 @@ const prepareAudioSource = async (audioCtx, masterGainNode, globalConfig, buffer
     let previousEffect = inputGainNode;
 
     // Interate through effects, intialize and connect
-    for (const effectConfig of globalConfig.effects) {
+    for (const effectConfig of sessionConfig.effects) {
         const effect = await initializeEffect(audioCtx, effectConfig);
         previousEffect.connect(effect);
 
@@ -105,9 +122,9 @@ const prepareAudioSource = async (audioCtx, masterGainNode, globalConfig, buffer
     return source;
 }
 
-export const initAudio = async (globalConfig) => {
+export const initAudio = async (sessionConfig) => {
     const context = new (window.AudioContext || window.webkitAudioContext)();
-    context.bpm = globalConfig.bpm;
+    context.bpm = sessionConfig.bpm;
 
     const masterGainNode = context.createGain();
     masterGainNode.connect(context.destination);
@@ -120,7 +137,7 @@ export const initAudio = async (globalConfig) => {
         source = await prepareAudioSource(
             context,
             masterGainNode,
-            globalConfig,
+            sessionConfig,
             audioBuffer,
         );
     });
@@ -138,7 +155,7 @@ export const initMicAudio = async () => {
     await prepareAudioSource(
         context,
         masterGainNode,
-        globalConfig,
+        sessionConfig,
         null,
     );
 

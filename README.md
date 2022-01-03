@@ -2,9 +2,8 @@
 
 
 # TODO:
-1. Create global config object that stores the effects configuration for 1 signal chain
-2. Modify setAudio so that it responds to this global config object and maps the corresponding body part in the config
-3. Write generic effect value setter
-4. Implement sends
-5. Migrate to Typescript React app
-6. Implement multiple audio sources / multiple poses
+1. Migrate to Typescript React app
+2. Implement Reverb and Delay
+3. Implement sends
+4. Implement multiple audio sources / multiple poses
+5. Implement MIDI

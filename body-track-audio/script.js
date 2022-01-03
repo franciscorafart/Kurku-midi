@@ -1,16 +1,13 @@
 import { initAudio, initMicAudio } from './audio-ctx.js';
 import { initBodyTracking } from './bodytracking.js';
-import { globalConfig } from './config-utils.js';
+import { sessionConfig } from './config-utils.js';
 
 const btnStems = document.getElementById('btn');
 const btnMic = document.getElementById('btn-mic');
-let machineType = 'slow'; // fast / decent / slow
 
 // TODO: Add radio buttons to chose machine speed
 
-// TODO: 1. Create sequence of effects 
-// 2. Adjust ranges
-globalConfig.effects = [
+sessionConfig.effects = [
     {
         direction: 'x', // horizontal
         screenRange: { a: 0.3, b: 0.7},
@@ -91,26 +88,13 @@ globalConfig.effects = [
         },
         node: undefined,
     },
-    // {
-    //     direction: 'y', // or horizontal
-    //     screenRange: { a: 0, b: 1},
-    //     valueRange: { x: 0, y: 0 },
-    //     key: 'analyser',
-    //     bodyPart: 'rightWrist',
-    //     defaultValues: {
-    //         gain: 1,
-    //         delayInSec: 1,
-    //         file: '',
-    //         fftSize: 2948,
-    //     },
-    //     node: undefined,
-    // },
+    // TODO: Add Reverb and Delay
 ]
 
 btnStems.addEventListener('click', async () => {
     try {
-        const audioCtx = await initAudio(globalConfig);
-        await initBodyTracking(globalConfig, audioCtx, globalConfig.machineType);
+        const audioCtx = await initAudio(sessionConfig);
+        await initBodyTracking(sessionConfig, audioCtx, sessionConfig.machineType);
     } catch (e) {
         throw e;
     }
@@ -121,8 +105,8 @@ btnStems.addEventListener('click', async () => {
 
 btnMic.addEventListener('click', async () => {
     try {
-        const audioCtx = await initMicAudio(globalConfig);
-        await initBodyTracking(globalConfig, audioCtx, globalConfig.machineType);
+        const audioCtx = await initMicAudio(sessionConfig);
+        await initBodyTracking(sessionConfig, audioCtx, sessionConfig.machineType);
     } catch (e) {
         throw e;
     }

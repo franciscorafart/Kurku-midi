@@ -16,8 +16,8 @@ const setEffectValue = (effect, node, currentTime, value) => {
     }
 };
 
-export const mapGlobalConfigsToSound = (globalConfig, bodyPartPositions, audioCtx) => {
-    for (const effect of globalConfig.effects) {
+export const mapGlobalConfigsToSound = (sessionConfig, bodyPartPositions, audioCtx) => {
+    for (const effect of sessionConfig.effects) {
         const bodyPart = effect.bodyPart;
 
         const position = bodyPartPositions[bodyPart][effect.direction];
@@ -41,7 +41,7 @@ export const mapGlobalConfigsToSound = (globalConfig, bodyPartPositions, audioCt
             const nextValue = moveTowardsPoint(
                 effect.previousValue,
                 effect.targetValue,
-                globalConfig.skipSize,
+                sessionConfig.skipSize,
             );
             setEffectValue(effect.key, node, audioCtx.currentTime, nextValue);
             effect.previousValue = nextValue;
