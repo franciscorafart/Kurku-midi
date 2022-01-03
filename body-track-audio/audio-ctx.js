@@ -28,24 +28,6 @@ async function createConvolution(audioCtx, impulseFile) {
 
     return convolver;
 }
-
-// TODO: Implement dry/wet node for reverb and delay
-function dryWetNode(audioCtx, wet, node, processedNode) {
-    this.original = node;
-    this.processed = processedNode;
-
-    this.setValueAtTime = function(wet, currentTime) {
-        const dry = 1 - wet;
-        this.original.setValueAtTime(dry, currentTime);
-        this.processed.setValueAtTime(wet, currentTime);
-    }
-
-    this.connect = function(){
-        // create to gains
-        
-    }
-}
-
 const initializeEffect = async (audioCtx, effect) => {
     let node;
     const defaultValues = effect.defaultValues;
@@ -79,6 +61,34 @@ const initializeEffect = async (audioCtx, effect) => {
     return node;
 }
 
+const wrapAndConnectEffect = (previousEffect, effect, audioCtx, effectConfig) => {
+    if(effectConfig.key === 'reverb') {
+        const wrappedEffect = audioCtx.createGain(1);
+        wrappedEffect.originalGain = audioCtx.createGain(0.5);
+        wrappedEffect.processedGain = audioCtx.createGain(0.5);
+
+        // Dry
+        previousEffect.connect(wrappedEffect.originalGain);
+        // Wet
+        previousEffect.connect(effect);
+        effect.connect(wrappedEffect.processedGain);
+
+        wrappedEffect.originalGain.connect(wrappedEffect);
+        wrappedEffect.processedGain.connect(wrappedEffect);
+
+        wrappedEffect.setValueAtTime = function(wet, currentTime) {
+            const dry = 1 - wet;
+            wrappedEffect.originalGain.gain.setValueAtTime(dry, currentTime);
+            wrappedEffect.processedGain.gain.setValueAtTime(wet, currentTime);
+        }
+
+        return wrappedEffect;
+    }
+
+    previousEffect.connect(effect);
+    return effect;
+}
+
 const prepareAudioSource = async (audioCtx, masterGainNode, sessionConfig, buffer=null) => {
     let source;
 
@@ -109,11 +119,18 @@ const prepareAudioSource = async (audioCtx, masterGainNode, sessionConfig, buffe
     // Interate through effects, intialize and connect
     for (const effectConfig of sessionConfig.effects) {
         const effect = await initializeEffect(audioCtx, effectConfig);
-        previousEffect.connect(effect);
+
+        // Wrap in dryWet node if a complex effect (Reverb)
+        const wrappedEffect = wrapAndConnectEffect(
+            previousEffect,
+            effect,
+            audioCtx,
+            effectConfig,
+        );
 
         // Store node in global config
-        effectConfig.node = effect;
-        previousEffect = effect;
+        effectConfig.node = wrappedEffect;
+        previousEffect = wrappedEffect;
     }
 
     previousEffect.connect(outputGainNode);

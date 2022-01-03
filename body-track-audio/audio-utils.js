@@ -1,18 +1,21 @@
-const setEffectValue = (effect, node, currentTime, value) => {
-    if (effect === 'gain') {
+const setEffectValue = (effectKey, node, currentTime, value) => {
+    if (effectKey === 'gain') {
         node.gain.setValueAtTime(value, currentTime);
-    } else if (effect === 'pan') {
+    } else if (effectKey === 'pan') {
         node.pan.setValueAtTime(value, currentTime);
-    } else if (effect === 'distortion') {
+    } else if (effectKey === 'distortion') {
         node.curve = makeDistortionCurve(value * 200);
         node.oversample = '4x';
-    } else if (effect === 'bitcrusher') {
+    } else if (effectKey === 'bitcrusher') {
         const bitSizeParam = node.parameters.get('bitSize')
         bitSizeParam.setValueAtTime(Math.max(4, Math.ceil(value * 16)), currentTime);
-    } else if (effect === 'hpf') {
+    } else if (effectKey === 'hpf') {
         node.frequency.setValueAtTime(value, currentTime);
-    } else if (effect === 'delay') {
+    } else if (effectKey === 'delay') {
         node.delayTime.setValueAtTime(value, currentTime);
+    } else if (effectKey === 'reverb') {
+        console.log('Reverb value', value)
+        node.setValueAtTime(value, currentTime);
     }
 };
 
