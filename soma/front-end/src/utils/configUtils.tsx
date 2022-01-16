@@ -15,15 +15,17 @@ interface valueRange {
     y: number;
 }
 
-export type effectKeyType = 'gain' | 'pan' | 'reverb' | 'bitcrusher' | 'hpf' | 'distortion' | 'delay' | 'crossSynthesis';
-export type bodyPartType = 'nose' | 'rightWrist' | 'leftWrist' | 'rightKnee' | 'leftKnee';
+export type effectKeyType = 'gain' | 'pan' | 'reverb' | 'bitcrusher' | 'hpf' | 'distortion' | 'delay' | 'crosssynth' | 'analyser';
+export type BodyPartKey = 'nose' | 'rightWrist' | 'leftWrist' | 'rightKnee' | 'leftKnee';
+
+export type BodyPartType = any; // TODO: Implement type correctly
 
 export interface effectConfigType {
     direction: 'x' | 'y';
     screenRange: screenRange;
     valueRange: valueRange;
     key: effectKeyType;
-    bodyPart: bodyPartType;
+    bodyPart: BodyPartKey;
     previousValue: number;
     targetValue: number,
     defaultValues: {
@@ -41,17 +43,3 @@ export interface sessionConfigType {
     bpm: number;
     skipSize: number;
 }
-
-// const createOrUpdateConfig = config => (
-//     direction,
-//     screenRange,
-//     valueRange,
-//     effect,
-//     bodyPart,
-// ) => ({
-//     direction: direction || config.direction || 'vertical', // or horizontal
-//     screenRange: screenRange || config.screenRange || { a: 0, b: 1},
-//     valueRange: valueRange || config.valueRange || { x: 0, y: 0 },
-//     effect: effect || config.effect || 'gain',
-//     bodyPart: bodyPart || config.bodyPart || 'rightWrist',
-// });
