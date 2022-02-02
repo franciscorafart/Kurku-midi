@@ -1,5 +1,5 @@
 import * as posenet from '@tensorflow-models/posenet';
-import { BodyPartType } from "./utils/configUtils";
+import { BodyPartType } from "./configUtils";
 
 const color = 'red';
 const lineWidth = 2;

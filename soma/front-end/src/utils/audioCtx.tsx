@@ -206,6 +206,7 @@ const prepareAudioSource = async (
 }
 
 export const initAudio = async (sessionConfig: sessionConfigType) => {
+    // @ts-ignore
     const context = new (window.AudioContext || window.webkitAudioContext)();
     // context.bpm = sessionConfig.bpm;
 
@@ -231,6 +232,7 @@ export const initAudio = async (sessionConfig: sessionConfigType) => {
 }
 
 export const initMicAudio = async (sessionConfig: sessionConfigType) => {
+    // @ts-ignore
     const context = new (window.AudioContext || window.webkitAudioContext)();
     const masterGainNode = context.createGain();
     masterGainNode.connect(context.destination);
