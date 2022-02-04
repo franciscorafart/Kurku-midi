@@ -48,22 +48,22 @@ export const sessionConfig: sessionConfigType = {
             },
             node: undefined,
         },
-        {
-            direction: 'y', // or horizontal
-            screenRange: { a: 0.1, b: 0.3},
-            valueRange: { x: 0, y: 1 },
-            key: 'bitcrusher',
-            bodyPart: 'leftWrist',
-            previousValue: 0,
-            targetValue: 0,
-            defaultValues: {
-                gain: 1,
-                delayInSec: 1,
-                file: '',
-                fftSize: 2948,
-            },
-            node: undefined,
-        },
+        // {
+        //     direction: 'y', // or horizontal
+        //     screenRange: { a: 0.1, b: 0.3},
+        //     valueRange: { x: 0, y: 1 },
+        //     key: 'bitcrusher',
+        //     bodyPart: 'leftWrist',
+        //     previousValue: 0,
+        //     targetValue: 0,
+        //     defaultValues: {
+        //         gain: 1,
+        //         delayInSec: 1,
+        //         file: '',
+        //         fftSize: 2948,
+        //     },
+        //     node: undefined,
+        // },
         {
             direction: 'y', // vertical
             screenRange: { a: 0.25, b: 0.35},
@@ -80,22 +80,22 @@ export const sessionConfig: sessionConfigType = {
             },
             node: undefined,
         },
-        {
-            direction: 'y', // vertical
-            screenRange: { a: 0.6, b: 1},
-            valueRange: { x: 0, y: 0.6 },
-            key: 'reverb',
-            bodyPart: 'rightWrist',
-            previousValue: 0,
-            targetValue: 0,
-            defaultValues: {
-                gain: 1,
-                delayInSec: 1,
-                file: 'assets/impulse-response.wav',
-                fftSize: 2948,
-            },
-            node: undefined,
-        },
+        // {
+        //     direction: 'y', // vertical
+        //     screenRange: { a: 0.6, b: 1},
+        //     valueRange: { x: 0, y: 0.6 },
+        //     key: 'reverb',
+        //     bodyPart: 'rightWrist',
+        //     previousValue: 0,
+        //     targetValue: 0,
+        //     defaultValues: {
+        //         gain: 1,
+        //         delayInSec: 1,
+        //         file: 'assets/impulse-response.wav', // TODO: Fix file import issue
+        //         fftSize: 2948,
+        //     },
+        //     node: undefined,
+        // },
     ],
     machineType: 'slow', // fast / decent / slow
     bpm: 60,

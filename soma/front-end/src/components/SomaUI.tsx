@@ -1,74 +1,63 @@
-import React, { useEffect } from 'react';
-import styled from 'styled-components';
-import { initAudio, initMicAudio } from '../utils/audioCtx';
-import { sessionConfig } from '../utils/configUtils';
-import AudioFXPanel from './AudioFXPanel';
-import BodyTrackingPanel from './BodyTrackingPanel';
-import { initBodyTracking, setupCamera } from '../utils/bodytracking'
+import { useRef } from "react";
+import styled from "styled-components";
+import { initAudio, initMicAudio } from "../utils/audioCtx";
+import { sessionConfig } from "../utils/configUtils";
+import AudioFXPanel from "./AudioFXPanel";
+import BodyTrackingPanel from "./BodyTrackingPanel";
+import { initBodyTracking, setupCamera } from "../utils/bodytracking";
 
 const Container = styled.div`
-    width: 100%;
-    height: 700px;
-    display: flex;
+  width: 100%;
+  height: 700px;
+  display: flex;
 `;
 
 const BodyTrackingContainer = styled.div`
-    width: 75%;
-    display: flex;
-    flex-direction: column;
+  width: 75%;
+  display: flex;
+  flex-direction: column;
 `;
 
-// const Video = styled.video``
-// const Canvas = styled.canvas``
-
-const canvas = document.createElement('canvas');
-const video = document.createElement('video');
-
-// const makeVideo = ({w, h}: {w: number, h: number}) => (<Video width={w} height={h}/>)
-// const makeCanvas = ({w, h}: {w: number, h: number}) => (<Canvas width={w} height={h}/>)
+const Video = styled.video``;
+const Canvas = styled.canvas``;
 
 function SomaUI() {
-    // const video = makeVideo({w: window.innerWidth, h: window.innerHeight});
-    // const video = document.createElement('video');
-    // const canvas = makeCanvas({w: window.innerWidth, h: window.innerHeight});
-    // const canvas = document.createElement('canvas');
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
+  const initAll = async (source: "audio" | "mic") => {
+    const video = videoRef.current;
+    const canvas = canvasRef.current;
 
-    useEffect(() => {
-        const initAll = async () => {
-            const audioCtx = await initAudio(sessionConfig);
-            await setupCamera(video);
+    if (video && canvas) {
+      const audioCtx =
+        source === "audio"
+          ? await initAudio(sessionConfig)
+          : await initMicAudio(sessionConfig);
+      await setupCamera(video);
 
-            video.width = window.innerWidth;
-            video.height = window.innerHeight;
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-            // TODO: hide video
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
 
-            video.play();
-            
-            initBodyTracking(
-                sessionConfig, 
-                audioCtx, 
-                'slow',
-                canvas,
-                video,
-            )
-        }
+      video.play();
+      video.hidden = true;
 
-        initAll();
-    }, [])
+      initBodyTracking(sessionConfig, audioCtx, "slow", canvas, video);
+    }
+  };
 
-    return (<Container>
-        <BodyTrackingContainer>
-            {video}
-            {canvas}
-            <BodyTrackingPanel />
-        </BodyTrackingContainer>
-        <AudioFXPanel />
+  return (
+    <Container>
+      <BodyTrackingContainer>
+        <button onClick={() => initAll("audio")}>Start audio</button>
+        <button onClick={() => initAll("mic")}>Start mic</button>
+        <Video ref={videoRef} />
+        <Canvas ref={canvasRef} />
+        <BodyTrackingPanel />
+      </BodyTrackingContainer>
+      <AudioFXPanel />
     </Container>
-
-    );  
+  );
 }
 
 export default SomaUI;
