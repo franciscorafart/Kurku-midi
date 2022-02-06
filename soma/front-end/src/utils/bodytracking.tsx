@@ -1,8 +1,8 @@
 import { mapGlobalConfigsToSound } from "./audioUtils";
-import { drawKeypoints, drawSkeleton, getBodyParts } from "./utils";
+import { drawKeypoints, drawSkeleton, getBodyParts} from "./utils";
 import * as posenet from "@tensorflow-models/posenet";
 import "@tensorflow/tfjs";
-import { MachineType, sessionConfigType } from "./configUtils";
+import { MachineType, SessionConfigType } from "./configUtils";
 import { PoseNetQuantBytes } from "@tensorflow-models/posenet/dist/types";
 
 const videoWidth = window.innerWidth;
@@ -45,7 +45,7 @@ const machineConfig: { [index: string]: PosenetConfigType } = {
   }
 };
 export async function initBodyTracking(
-  sessionConfig: sessionConfigType,
+  sessionConfig: SessionConfigType,
   audioCtx: AudioContext,
   machineType: MachineType,
   canvas: HTMLCanvasElement,
@@ -115,7 +115,7 @@ async function poseDetectionFrame(
   video: HTMLVideoElement,
   net: posenet.PoseNet,
   ctx: CanvasRenderingContext2D,
-  sessionConfig: sessionConfigType,
+  sessionConfig: SessionConfigType,
   audioCtx: AudioContext,
   flipPoseHorizontal: boolean,
   config: PosenetConfigType
@@ -167,7 +167,7 @@ async function poseDetectionFrame(
 function detectPoseInRealTime(
   video: HTMLVideoElement,
   net: posenet.PoseNet,
-  sessionConfig: sessionConfigType,
+  sessionConfig: SessionConfigType,
   audioCtx: AudioContext,
   config: PosenetConfigType,
   canvas: HTMLCanvasElement

@@ -1,4 +1,4 @@
-import { effectConfigType, sessionConfigType } from "./configUtils";
+import { effectConfigType, SessionConfigType } from "./configUtils";
 const file = require("../assets/beat-128.wav"); // NOTE: Having problems making it work with import
 
 const _bpmToSec = (bpm: number): number => 60 / bpm;
@@ -132,7 +132,7 @@ const attachEffects = async (
   audioCtx: AudioContext,
   source: AudioBufferSourceNode | MediaStreamAudioSourceNode,
   masterGainNode: AudioNode,
-  sessionConfig: sessionConfigType
+  sessionConfig: SessionConfigType
 ) => {
   const inputGainNode = audioCtx.createGain();
   inputGainNode.gain.setValueAtTime(0.5, audioCtx.currentTime);
@@ -171,7 +171,7 @@ const attachEffects = async (
 const prepareMicSource = async (
   audioCtx: AudioContext,
   masterGainNode: AudioNode,
-  sessionConfig: sessionConfigType
+  sessionConfig: SessionConfigType
 ): Promise<MediaStreamAudioSourceNode> => {
   const stream = await navigator.mediaDevices.getUserMedia({
     audio: true
@@ -186,7 +186,7 @@ const prepareMicSource = async (
 const prepareAudioSource = async (
   audioCtx: AudioContext,
   masterGainNode: AudioNode,
-  sessionConfig: sessionConfigType,
+  sessionConfig: SessionConfigType,
   buffer: AudioBuffer | null = null
 ): Promise<AudioBufferSourceNode> => {
   const stemAudioSource = audioCtx.createBufferSource();
@@ -198,7 +198,7 @@ const prepareAudioSource = async (
   return attachEffects(audioCtx, source, masterGainNode, sessionConfig);
 };
 
-export const initAudio = async (sessionConfig: sessionConfigType) => {
+export const initAudio = async (sessionConfig: SessionConfigType) => {
   // @ts-ignore
   const context = new (window.AudioContext || window.webkitAudioContext)();
 
@@ -206,7 +206,6 @@ export const initAudio = async (sessionConfig: sessionConfigType) => {
   masterGainNode.connect(context.destination);
   masterGainNode.gain.setValueAtTime(1, context.currentTime);
 
-  //   const file = "./src/assets/beat-128.wav";
   let source: AudioBufferSourceNode;
 
   await addAudioBuffer(context, file).then(async (audioBuffer) => {
@@ -223,7 +222,7 @@ export const initAudio = async (sessionConfig: sessionConfigType) => {
   return context;
 };
 
-export const initMicAudio = async (sessionConfig: sessionConfigType) => {
+export const initMicAudio = async (sessionConfig: SessionConfigType) => {
   // @ts-ignore
   const context = new (window.AudioContext || window.webkitAudioContext)();
   const masterGainNode = context.createGain();

@@ -1,4 +1,4 @@
-import { effectKeyType, sessionConfigType } from "./configUtils";
+import { effectKeyType, SessionConfigType } from "./configUtils";
 
 const setEffectValue = (
   effectKey: effectKeyType,
@@ -29,7 +29,7 @@ const setEffectValue = (
 };
 
 export const mapGlobalConfigsToSound = (
-  sessionConfig: sessionConfigType,
+  sessionConfig: SessionConfigType,
   bodyPartPositions: any, // TODO: create body part positions type
   audioCtx: BaseAudioContext
 ) => {

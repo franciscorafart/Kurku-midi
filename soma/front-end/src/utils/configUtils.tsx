@@ -1,4 +1,9 @@
-export const sessionConfig: sessionConfigType = {
+import * as posenet from "@tensorflow-models/posenet";
+const impulseResponse = require('../assets/impulse-response.wav');
+
+export type Keypoints = posenet.Keypoint[];
+
+export const sessionConfig: SessionConfigType = {
     effects: [
         {
             direction: 'x', // horizontal
@@ -91,7 +96,7 @@ export const sessionConfig: sessionConfigType = {
         //     defaultValues: {
         //         gain: 1,
         //         delayInSec: 1,
-        //         file: 'assets/impulse-response.wav', // TODO: Fix file import issue
+        //         file: impulseResponse,
         //         fftSize: 2948,
         //     },
         //     node: undefined,
@@ -102,25 +107,32 @@ export const sessionConfig: sessionConfigType = {
     skipSize: 0.1,
 }
 
-interface screenRange {
+interface ScreenRange {
     a: number;
     b: number;
 }
 
-interface valueRange {
+interface ValueRange {
     x: number;
     y: number;
 }
 
-export type effectKeyType = 'gain' | 'pan' | 'reverb' | 'bitcrusher' | 'hpf' | 'distortion' | 'delay' | 'crosssynth' | 'analyser';
-export type BodyPartKey = 'nose' | 'rightWrist' | 'leftWrist' | 'rightKnee' | 'leftKnee';
+interface BodyPartValueRange {
+    x: number| undefined;
+    y: number | undefined;
+}
 
-export type BodyPartType = any; // TODO: Implement type correctly
+export type effectKeyType = 'gain' | 'pan' | 'reverb' | 'bitcrusher' | 'hpf' | 'distortion' | 'delay' | 'crosssynth' | 'analyser';
+export type BodyPartKey = 'nose' | 'rightAnkle' | 'rightEar' | 'rightElbow' | 'rightEye' | 'rightHip' | 'rightShoulder' |'rightWrist' | 'rightKnee' | 'leftKnee' | 'leftAnkle' | 'leftElbow' | 'leftEye' | 'leftHip' | 'leftWrist' | 'leftShoulder';
+
+export type BodyPartPositionType = {
+    [index in BodyPartKey]: BodyPartValueRange;
+};
 
 export interface effectConfigType {
     direction: 'x' | 'y';
-    screenRange: screenRange;
-    valueRange: valueRange;
+    screenRange: ScreenRange;
+    valueRange: ValueRange;
     key: effectKeyType;
     bodyPart: BodyPartKey;
     previousValue: number;
@@ -136,7 +148,7 @@ export interface effectConfigType {
 
 export type MachineType = 'slow' | 'decent' | 'fast';
 
-export interface sessionConfigType {
+export interface SessionConfigType {
     effects: effectConfigType[];
     machineType: MachineType;
     bpm: number;

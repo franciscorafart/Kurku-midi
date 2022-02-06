@@ -1,17 +1,15 @@
 import * as posenet from '@tensorflow-models/posenet';
-import { BodyPartType } from "./configUtils";
+import { BodyPartPositionType, Keypoints } from "./configUtils";
 
 const color = 'red';
 const lineWidth = 2;
 
 type Tuple = [number, number];
-type Keypoint = any; // TODO: implement type Keypoint
-type Keypoints = Keypoint[];
 
 const toTuple = ({x, y}: {x: number, y: number}): Tuple => [y, x];
 
 function drawPoint(
-    ctx: CanvasRenderingContext2D, 
+    ctx: CanvasRenderingContext2D,
     y: number,
     x: number,
     r: number,
@@ -24,9 +22,9 @@ function drawPoint(
 }
 
 function drawSegment(
-    [ay, ax]: Tuple, 
-    [by, bx]: Tuple, 
-    color: string, 
+    [ay, ax]: Tuple,
+    [by, bx]: Tuple,
+    color: string,
     scale: number,
     ctx: CanvasRenderingContext2D,
 ): void {
@@ -40,8 +38,8 @@ function drawSegment(
 
 export function drawSkeleton(
     keypoints: Keypoints,
-    minConfidence: number, 
-    ctx: CanvasRenderingContext2D, 
+    minConfidence: number,
+    ctx: CanvasRenderingContext2D,
     scale: number = 1,
 ){
     const adjacentKeyPoints = posenet.getAdjacentKeyPoints(
@@ -61,7 +59,7 @@ export function drawSkeleton(
 }
 
 export function drawKeypoints(
-    keypoints: Keypoints, 
+    keypoints: Keypoints,
     minConfidence: number,
     ctx: CanvasRenderingContext2D,
     scale: number = 1
@@ -79,11 +77,11 @@ export function drawKeypoints(
 }
 
 export const getBodyParts = (
-    keypoints: Keypoints, 
+    keypoints: Keypoints,
     minPoseConfidence: number,
     videoHeight: number,
     videoWidth: number
-) =>
+): BodyPartPositionType =>
     keypoints.reduce(
         (acc, k) => {
             const position = translatePosition(k, minPoseConfidence, videoHeight, videoWidth)
@@ -93,16 +91,16 @@ export const getBodyParts = (
                 [k.part]: {x: position[0], y: position[1]},
             });
     },
-    {});
+    {} as BodyPartPositionType);
 
 const translatePosition = (
-    bodyPart: BodyPartType,
+    keypoint: posenet.Keypoint,
     minPoseConfidence: number,
     videoHeight: number,
     videoWidth: number,
 ): Tuple | [undefined, undefined] => {
-    if (bodyPart && bodyPart.score > minPoseConfidence) {
-        return [Math.abs(bodyPart.position.x / videoWidth), Math.abs((bodyPart.position.y / videoHeight - 1))]
+    if (keypoint && keypoint.score > minPoseConfidence) {
+        return [Math.abs(keypoint.position.x / videoWidth), Math.abs((keypoint.position.y / videoHeight - 1))]
     }
 
     return [undefined, undefined];
