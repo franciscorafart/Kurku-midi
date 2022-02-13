@@ -1,5 +1,5 @@
 import { effectConfigType, SessionConfigType } from "./configUtils";
-const file = require("../assets/beat-128.wav"); // NOTE: Having problems making it work with import
+import file from "assets/beat-128.wav";
 
 const _bpmToSec = (bpm: number): number => 60 / bpm;
 
@@ -100,7 +100,7 @@ const wrapAndConnectEffect = (
 ): AudioNode | WrappedEffect => {
   if (effectConfig.key === "reverb") {
     const wrappedEffect: WrappedEffect = {
-      ...audioCtx.createGain()
+      ...audioCtx.createGain(),
     };
 
     wrappedEffect.originalGain = audioCtx.createGain();
@@ -112,6 +112,7 @@ const wrapAndConnectEffect = (
     previousEffect.connect(effect);
     effect.connect(wrappedEffect.processedGain);
 
+    // TODO: Problem here
     wrappedEffect.originalGain.connect(wrappedEffect);
     wrappedEffect.processedGain.connect(wrappedEffect);
 
@@ -174,7 +175,7 @@ const prepareMicSource = async (
   sessionConfig: SessionConfigType
 ): Promise<MediaStreamAudioSourceNode> => {
   const stream = await navigator.mediaDevices.getUserMedia({
-    audio: true
+    audio: true,
   });
 
   const micSource = audioCtx.createMediaStreamSource(stream);

@@ -1,10 +1,10 @@
 import { useRef } from "react";
 import styled from "styled-components";
-import { initAudio, initMicAudio } from "../utils/audioCtx";
-import { sessionConfig } from "../utils/configUtils";
+import { initAudio, initMicAudio } from "utils/audioCtx";
+import { sessionConfig } from "utils/configUtils";
 import AudioFXPanel from "./AudioFXPanel";
 import BodyTrackingPanel from "./BodyTrackingPanel";
-import { initBodyTracking, setupCamera } from "../utils/bodytracking";
+import { initBodyTracking, setupCamera } from "utils/bodytracking";
 
 const Container = styled.div`
   width: 100%;
