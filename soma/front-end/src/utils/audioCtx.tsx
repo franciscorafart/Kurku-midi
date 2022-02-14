@@ -99,9 +99,7 @@ const wrapAndConnectEffect = (
   effectConfig: effectConfigType
 ): AudioNode | WrappedEffect => {
   if (effectConfig.key === "reverb") {
-    const wrappedEffect: WrappedEffect = {
-      ...audioCtx.createGain(),
-    };
+    const wrappedEffect: WrappedEffect = audioCtx.createGain();
 
     wrappedEffect.originalGain = audioCtx.createGain();
     wrappedEffect.processedGain = audioCtx.createGain();
@@ -112,7 +110,6 @@ const wrapAndConnectEffect = (
     previousEffect.connect(effect);
     effect.connect(wrappedEffect.processedGain);
 
-    // TODO: Problem here
     wrappedEffect.originalGain.connect(wrappedEffect);
     wrappedEffect.processedGain.connect(wrappedEffect);
 
