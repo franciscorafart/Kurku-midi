@@ -11,8 +11,8 @@ const setEffectValue = (
   } else if (effectKey === "pan") {
     node.pan.setValueAtTime(value, currentTime);
   } else if (effectKey === "distortion") {
-    node.curve = makeDistortionCurve(value * 200);
-    node.oversample = "4x";
+    // NOTE: Setting dry/wet value on the gain wrapper
+    node.setValueAtTime(value, currentTime);
   } else if (effectKey === "bitcrusher") {
     const bitSizeParam = node.parameters.get("bitSize");
     bitSizeParam.setValueAtTime(
@@ -24,6 +24,7 @@ const setEffectValue = (
   } else if (effectKey === "delay") {
     node.delayTime.setValueAtTime(value, currentTime);
   } else if (effectKey === "reverb") {
+    // NOTE: Setting dry/wet value on the gain wrapper
     node.setValueAtTime(value, currentTime);
   }
 };
@@ -119,7 +120,7 @@ const scaleWindowToRange = (
   ];
 };
 
-function makeDistortionCurve(amount: number): Float32Array {
+export function makeDistortionCurve(amount: number): Float32Array {
   var k = typeof amount === "number" ? amount : 50,
     n_samples = 44100,
     curve = new Float32Array(n_samples),

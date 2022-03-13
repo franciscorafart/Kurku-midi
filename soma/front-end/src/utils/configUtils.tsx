@@ -108,7 +108,7 @@ export const sessionConfig: SessionConfigType = {
       node: undefined
     }
   ],
-  machineType: "slow", // fast / decent / slow
+  machineType: "fast", // fast / decent / slow
   bpm: 60,
   skipSize: 0.1
 };

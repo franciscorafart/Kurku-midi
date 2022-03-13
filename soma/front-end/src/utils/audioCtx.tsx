@@ -1,4 +1,5 @@
 import { effectConfigType, SessionConfigType } from "./configUtils";
+import { makeDistortionCurve } from "./audioUtils";
 import file from "assets/beat-128.wav";
 
 const _bpmToSec = (bpm: number): number => 60 / bpm;
@@ -66,6 +67,8 @@ const initializeEffect = async (
     node = audioCtx.createDelay(defaultValues.delayInSec);
   } else if (effect.key === "distortion") {
     node = audioCtx.createWaveShaper();
+    node.curve = makeDistortionCurve(200);
+    node.oversample = "4x";
   } else if (effect.key === "reverb" && defaultValues.file !== undefined) {
     node = createConvolution(audioCtx, defaultValues.file);
   } else if (effect.key === "analyser" && defaultValues.fftSize !== undefined) {
@@ -92,13 +95,15 @@ type WrappedEffect = GainNode & {
   setValueAtTime?: (wet: number, currentTime: number) => void;
 };
 
+// NOTE: A wrapped effect's output value is determined by two gain nodes, dry and wet
+const wrappedEffectKeys = ["reverb", "distortion", "crosssynth"];
 const wrapAndConnectEffect = (
   previousEffect: AudioNode,
   effect: Effect,
   audioCtx: AudioContext,
   effectConfig: effectConfigType
 ): AudioNode | WrappedEffect => {
-  if (effectConfig.key === "reverb") {
+  if (!wrappedEffectKeys.includes(effectConfig.key)) {
     const wrappedEffect: WrappedEffect = audioCtx.createGain();
 
     wrappedEffect.originalGain = audioCtx.createGain();
@@ -113,6 +118,7 @@ const wrapAndConnectEffect = (
     wrappedEffect.originalGain.connect(wrappedEffect);
     wrappedEffect.processedGain.connect(wrappedEffect);
 
+    // Replace original setValueAtTime with function that acts on two gain nodes
     wrappedEffect.setValueAtTime = function (wet: number, currentTime: number) {
       const dry = 1 - wet;
       wrappedEffect.originalGain?.gain.setValueAtTime(dry, currentTime);
