@@ -1,5 +1,6 @@
 import * as posenet from "@tensorflow-models/posenet";
 import impulseResponse from "assets/impulse-response.wav";
+import soprano from "assets/sound1.wav";
 
 export type Keypoints = posenet.Keypoint[];
 
@@ -92,6 +93,23 @@ export const sessionConfig: SessionConfigType = {
     },
     {
       direction: "y", // vertical
+      screenRange: { a: 0.25, b: 0.35 },
+      valueRange: { x: 0, y: 10000 },
+      scaleFactor: 1,
+      key: "crosssynth",
+      bodyPart: "leftKnee",
+      previousValue: 0,
+      targetValue: 0,
+      defaultValues: {
+        gain: 1,
+        delayInSec: 1,
+        file: soprano,
+        fftSize: 2948
+      },
+      node: undefined
+    },
+    {
+      direction: "y", // vertical
       screenRange: { a: 0.6, b: 1 },
       valueRange: { x: 0, y: 0.6 },
       scaleFactor: 1,
@@ -108,7 +126,7 @@ export const sessionConfig: SessionConfigType = {
       node: undefined
     }
   ],
-  machineType: "fast", // fast / decent / slow
+  machineType: "slow", // fast / decent / slow
   bpm: 60,
   skipSize: 0.1
 };

@@ -82,8 +82,8 @@ const initializeEffect = async (
     node.type = "highpass";
     node.frequency.value = 0;
     node.gain.setValueAtTime(25, 0);
-  } else if (effect.key === "crosssynth") {
-    node = await createConvolution(audioCtx, "assets/sound1.wav");
+  } else if (effect.key === "crosssynth" && defaultValues.file !== undefined) {
+    node = await createConvolution(audioCtx, defaultValues.file);
   }
 
   return node;
@@ -103,7 +103,7 @@ const wrapAndConnectEffect = (
   audioCtx: AudioContext,
   effectConfig: effectConfigType
 ): AudioNode | WrappedEffect => {
-  if (!wrappedEffectKeys.includes(effectConfig.key)) {
+  if (wrappedEffectKeys.includes(effectConfig.key)) {
     const wrappedEffect: WrappedEffect = audioCtx.createGain();
 
     wrappedEffect.originalGain = audioCtx.createGain();
