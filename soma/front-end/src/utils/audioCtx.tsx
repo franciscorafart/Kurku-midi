@@ -172,7 +172,7 @@ const prepareMicSource = async (
   sessionConfig: SessionConfigType
 ): Promise<MediaStreamAudioSourceNode> => {
   const stream = await navigator.mediaDevices.getUserMedia({
-    audio: true,
+    audio: true
   });
 
   const micSource = audioCtx.createMediaStreamSource(stream);

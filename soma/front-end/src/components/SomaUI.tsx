@@ -42,7 +42,7 @@ function SomaUI() {
       video.play();
       video.hidden = true;
 
-      initBodyTracking(sessionConfig, audioCtx, "slow", canvas, video);
+      initBodyTracking(sessionConfig, audioCtx, "fast", canvas, video);
     }
   };
 

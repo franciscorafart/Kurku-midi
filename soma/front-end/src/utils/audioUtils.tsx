@@ -45,20 +45,23 @@ export const mapGlobalConfigsToSound = (
 
     if (node) {
       if (position !== undefined) {
-        effect.targetValue = scaleWindowToRange(
+        const [scaledValue, scaleFactor] = scaleWindowToRange(
           screenRange.a,
           screenRange.b,
           valueRange.x,
           valueRange.y,
           position
         );
+        effect.targetValue = scaledValue;
+        effect.scaleFactor = scaleFactor;
       }
 
       const nextValue = moveTowardsPoint(
         effect.previousValue,
         effect.targetValue,
-        sessionConfig.skipSize
+        sessionConfig.skipSize * effect.scaleFactor
       );
+
       setEffectValue(effect.key, node, audioCtx.currentTime, nextValue);
       effect.previousValue = nextValue;
     }
@@ -101,16 +104,19 @@ const scaleWindowToRange = (
   rangeStart: number,
   rangeEnd: number,
   v: number
-): number => {
+): [number, number] => {
   const windowedValue = boundToValues(windowStart, windowEnd, v);
   const windowRange = Math.abs(windowEnd - windowStart);
   const scaleFactor = (1 / windowRange) * (rangeEnd - rangeStart);
 
-  return boundToValues(
-    rangeStart,
-    rangeEnd,
-    rangeStart + (windowedValue - windowStart) * scaleFactor
-  );
+  return [
+    boundToValues(
+      rangeStart,
+      rangeEnd,
+      rangeStart + (windowedValue - windowStart) * scaleFactor
+    ),
+    scaleFactor
+  ];
 };
 
 function makeDistortionCurve(amount: number): Float32Array {
