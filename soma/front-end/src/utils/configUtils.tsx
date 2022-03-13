@@ -94,7 +94,7 @@ export const sessionConfig: SessionConfigType = {
     {
       direction: "y", // vertical
       screenRange: { a: 0.25, b: 0.35 },
-      valueRange: { x: 0, y: 10000 },
+      valueRange: { x: 0, y: 1 },
       scaleFactor: 1,
       key: "crosssynth",
       bodyPart: "leftKnee",
@@ -126,7 +126,7 @@ export const sessionConfig: SessionConfigType = {
       node: undefined
     }
   ],
-  machineType: "slow", // fast / decent / slow
+  machineType: "fast", // fast / decent / slow
   bpm: 60,
   skipSize: 0.1
 };
