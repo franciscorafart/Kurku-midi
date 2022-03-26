@@ -9,10 +9,12 @@ const setEffectValue = (
   if (effectKey === "gain") {
     node.gain.setValueAtTime(value, currentTime);
   } else if (effectKey === "pan") {
-    console.log("gets here 1");
     node.pan.setValueAtTime(value, currentTime);
-    console.log("gets here 2");
-  } else if (effectKey === "distortion") {
+  } else if (
+    effectKey === "distortion" ||
+    effectKey === "reverb" ||
+    effectKey === "crosssynth"
+  ) {
     // NOTE: Setting dry/wet value on the gain wrapper
     node.setValueAtTime(value, currentTime);
   } else if (effectKey === "bitcrusher") {
@@ -25,9 +27,6 @@ const setEffectValue = (
     node.frequency.setValueAtTime(value, currentTime);
   } else if (effectKey === "delay") {
     node.delayTime.setValueAtTime(value, currentTime);
-  } else if (effectKey === "reverb" || effectKey === "crosssynth") {
-    // NOTE: Setting dry/wet value on the gain wrapper
-    node.setValueAtTime(value, currentTime);
   }
 };
 

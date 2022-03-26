@@ -1,9 +1,11 @@
 import { mapGlobalConfigsToSound } from "./audioUtils";
-import { drawKeypoints, drawSkeleton, getBodyParts} from "./utils";
+import { drawKeypoints, drawSkeleton, getBodyParts } from "./utils";
 import * as posenet from "@tensorflow-models/posenet";
 import "@tensorflow/tfjs";
-import { MachineType, SessionConfigType } from "./configUtils";
+import { Keypoints, MachineType, SessionConfigType } from "./configUtils";
 import { PoseNetQuantBytes } from "@tensorflow-models/posenet/dist/types";
+import { useSetRecoilState } from "recoil";
+import keypoints from "atoms/keypoints";
 
 const videoWidth = window.innerWidth;
 const videoHeight = window.innerHeight;
@@ -22,7 +24,7 @@ export type PosenetConfigType = {
   quantBytes?: PoseNetQuantBytes;
 };
 
-const machineConfig: { [index: string]: PosenetConfigType } = {
+export const machineConfig: { [index: string]: PosenetConfigType } = {
   slow: {
     arch: "MobileNetV1",
     skipSize: 5,
@@ -44,12 +46,11 @@ const machineConfig: { [index: string]: PosenetConfigType } = {
     quantBytes: 2
   }
 };
+
 export async function initBodyTracking(
-  sessionConfig: SessionConfigType,
-  audioCtx: AudioContext,
   machineType: MachineType,
-  canvas: HTMLCanvasElement,
-  video: HTMLVideoElement
+  video: HTMLVideoElement,
+  setKeypoints: (kps: Keypoints) => void
 ) {
   const config = machineConfig[machineType];
   let net: posenet.PoseNet;
@@ -72,7 +73,7 @@ export async function initBodyTracking(
     });
   }
 
-  detectPoseInRealTime(video, net, sessionConfig, audioCtx, config, canvas);
+  detectPoseInRealTime(video, net, config, setKeypoints);
 }
 
 export async function setupCamera(
@@ -99,96 +100,54 @@ export async function setupCamera(
   );
 }
 
-const resetCanvas = (
-  ctx: CanvasRenderingContext2D,
-  video: HTMLVideoElement
-) => {
-  ctx.clearRect(0, 0, videoWidth, videoHeight);
-  ctx.save();
-  ctx.scale(-1, 1);
-  ctx.translate(-videoWidth, 0);
-  ctx.drawImage(video, 0, 0, window.innerWidth, window.innerHeight);
-  ctx.restore();
-};
-
 async function poseDetectionFrame(
   video: HTMLVideoElement,
   net: posenet.PoseNet,
-  ctx: CanvasRenderingContext2D,
-  sessionConfig: SessionConfigType,
-  audioCtx: AudioContext,
+  // sessionConfig: SessionConfigType,
+  // audioCtx: AudioContext,
   flipPoseHorizontal: boolean,
-  config: PosenetConfigType
+  config: PosenetConfigType,
+  setKeypoints: (kps: Keypoints) => void
 ) {
-  // TODO: Tune this.
+  // TODO: Move this to a higher level in a react component
   // % executes the calculation every `skipSize` number of frames
   if (frame % config.skipSize === 0) {
-    const poses = await net.estimateMultiplePoses(video, {
-      // TODO: Change to 1 pose while only one input
-      flipHorizontal: flipPoseHorizontal,
-      scoreThreshold: 0.7
+    const pose = await net.estimateSinglePose(video, {
+      flipHorizontal: flipPoseHorizontal
+      // scoreThreshold: 0.7
     });
 
-    resetCanvas(ctx, video);
+    setKeypoints(pose.keypoints);
 
-    for (const pose of poses) {
-      const bodyPartPositions = getBodyParts(
-        pose.keypoints,
-        config.confidence,
-        videoHeight,
-        videoWidth
-      );
+    // TODO: decouple audio
 
-      // Draw tracking figure TODO: Remove when application finished
-      drawKeypoints(pose.keypoints, config.confidence, ctx);
-      drawSkeleton(pose.keypoints, config.confidence, ctx);
+    // Audio portion
 
-      // TODO: Set visuals.
+    // const bodyPartPositions = getBodyParts(
+    //   pose.keypoints,
+    //   config.confidence,
+    //   videoHeight,
+    //   videoWidth
+    // );
 
-      mapGlobalConfigsToSound(sessionConfig, bodyPartPositions, audioCtx);
-    }
+    // mapGlobalConfigsToSound(sessionConfig, bodyPartPositions, audioCtx);
   }
 
   frame++;
 
   requestAnimationFrame(() =>
-    poseDetectionFrame(
-      video,
-      net,
-      ctx,
-      sessionConfig,
-      audioCtx,
-      flipPoseHorizontal,
-      config
-    )
+    poseDetectionFrame(video, net, flipPoseHorizontal, config, setKeypoints)
   );
 }
 
 function detectPoseInRealTime(
   video: HTMLVideoElement,
   net: posenet.PoseNet,
-  sessionConfig: SessionConfigType,
-  audioCtx: AudioContext,
   config: PosenetConfigType,
-  canvas: HTMLCanvasElement
+  setKeypoints: (kps: Keypoints) => void
 ) {
-  const ctx: CanvasRenderingContext2D | null = canvas.getContext("2d");
-
   const flipPoseHorizontal = true;
 
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
-
-  if (ctx) {
-    // Draw video pixels on canvas, draw keypoints, and set audio state
-    poseDetectionFrame(
-      video,
-      net,
-      ctx,
-      sessionConfig,
-      audioCtx,
-      flipPoseHorizontal,
-      config
-    );
-  }
+  // Draw video pixels on canvas, draw keypoints, and set audio state
+  poseDetectionFrame(video, net, flipPoseHorizontal, config, setKeypoints);
 }
