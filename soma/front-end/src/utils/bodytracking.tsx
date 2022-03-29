@@ -1,20 +1,16 @@
-import { mapGlobalConfigsToSound } from "./audioUtils";
-import { drawKeypoints, drawSkeleton, getBodyParts } from "./utils";
 import * as posenet from "@tensorflow-models/posenet";
 import "@tensorflow/tfjs";
-import { Keypoints, MachineType, SessionConfigType } from "./configUtils";
+import { Keypoints, MachineType } from "./configUtils";
 import { PoseNetQuantBytes } from "@tensorflow-models/posenet/dist/types";
-import { useSetRecoilState } from "recoil";
-import keypoints from "atoms/keypoints";
-
-const videoWidth = window.innerWidth;
-const videoHeight = window.innerHeight;
 
 // @ts-ignore
 // prettier-ignore
 navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
 
 let frame = 0;
+
+const videoWidth = window.innerWidth;
+const videoHeight = window.innerHeight;
 
 export type PosenetConfigType = {
   arch: "MobileNetV1" | "ResNet50";
@@ -38,7 +34,6 @@ export const machineConfig: { [index: string]: PosenetConfigType } = {
     confidence: 0.7
   },
   fast: {
-    // Tested ok
     arch: "ResNet50",
     skipSize: 5,
     audioSkipSize: 0.2,
@@ -103,13 +98,10 @@ export async function setupCamera(
 async function poseDetectionFrame(
   video: HTMLVideoElement,
   net: posenet.PoseNet,
-  // sessionConfig: SessionConfigType,
-  // audioCtx: AudioContext,
   flipPoseHorizontal: boolean,
   config: PosenetConfigType,
   setKeypoints: (kps: Keypoints) => void
 ) {
-  // TODO: Move this to a higher level in a react component
   // % executes the calculation every `skipSize` number of frames
   if (frame % config.skipSize === 0) {
     const pose = await net.estimateSinglePose(video, {
@@ -118,19 +110,6 @@ async function poseDetectionFrame(
     });
 
     setKeypoints(pose.keypoints);
-
-    // TODO: decouple audio
-
-    // Audio portion
-
-    // const bodyPartPositions = getBodyParts(
-    //   pose.keypoints,
-    //   config.confidence,
-    //   videoHeight,
-    //   videoWidth
-    // );
-
-    // mapGlobalConfigsToSound(sessionConfig, bodyPartPositions, audioCtx);
   }
 
   frame++;

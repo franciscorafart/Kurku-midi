@@ -1,4 +1,4 @@
-import { useRef, useEffect } from "react";
+import { useRef, useState, useEffect } from "react";
 import styled from "styled-components";
 import { initAudio, initMicAudio } from "utils/audioCtx";
 import { sessionConfig } from "utils/configUtils";
@@ -11,7 +11,16 @@ import {
 } from "utils/bodytracking";
 import { useRecoilValue, useSetRecoilState } from "recoil";
 import keypoints from "atoms/keypoints";
-import { drawKeypoints, drawSkeleton, resetCanvas } from "utils/utils";
+import {
+  drawKeypoints,
+  drawSkeleton,
+  getBodyParts,
+  resetCanvas
+} from "utils/utils";
+import { mapGlobalConfigsToSound } from "utils/audioUtils";
+
+const videoWidth = window.innerWidth;
+const videoHeight = window.innerHeight;
 
 const Container = styled.div`
   width: 100%;
@@ -63,12 +72,39 @@ function VideoCanvas({
   );
 }
 
+function UIAudioBridge({ audioCtx }: { audioCtx: AudioContext }) {
+  const kpValues = useRecoilValue(keypoints);
+  const config = machineConfig["fast"]; // TODO: This should come from the global state
+
+  useEffect(() => {
+    const bodyPartPositions = getBodyParts(
+      kpValues,
+      config.confidence,
+      videoHeight,
+      videoWidth
+    );
+
+    mapGlobalConfigsToSound(sessionConfig, bodyPartPositions, audioCtx);
+  }, [kpValues]);
+
+  return <div></div>;
+}
+
 function SomaUI() {
   const setKeypoints = useSetRecoilState(keypoints);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const [audioCtx, setAudioCtx] = useState<AudioContext | undefined>(undefined);
 
-  const initAll = async (source: "audio" | "mic") => {
+  const initAudioSource = async (source: "audio" | "mic") => {
+    const audioCtx =
+      source === "audio"
+        ? await initAudio(sessionConfig)
+        : await initMicAudio(sessionConfig);
+    setAudioCtx(audioCtx);
+  };
+
+  const initTracking = async () => {
     const video = videoRef.current;
     const canvas = canvasRef.current;
 
@@ -79,13 +115,12 @@ function SomaUI() {
       video.hidden = true;
 
       initBodyTracking("fast", video, setKeypoints);
-
-      // TODO: Handle audio separately
-      const audioCtx =
-        source === "audio"
-          ? await initAudio(sessionConfig)
-          : await initMicAudio(sessionConfig);
     }
+  };
+
+  const initAll = async (source: "audio" | "mic") => {
+    await initTracking();
+    await initAudioSource(source);
   };
 
   return (
@@ -95,6 +130,7 @@ function SomaUI() {
         <button onClick={() => initAll("mic")}>Start mic</button>
         <VideoCanvas canvasRef={canvasRef} videoRef={videoRef} />
         <BodyTrackingPanel />
+        {audioCtx && <UIAudioBridge audioCtx={audioCtx} />}
       </BodyTrackingContainer>
       <AudioFXPanel />
     </Container>
