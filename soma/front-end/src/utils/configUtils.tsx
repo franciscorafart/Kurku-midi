@@ -4,7 +4,7 @@ import soprano from "assets/sound1.wav";
 
 export type Keypoints = posenet.Keypoint[];
 
-export const sessionConfig: SessionConfigType = {
+export const defaultSessionConfig: SessionConfigType = {
   effects: [
     {
       direction: "x", // horizontal

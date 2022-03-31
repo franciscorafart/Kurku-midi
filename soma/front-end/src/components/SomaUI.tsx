@@ -1,7 +1,6 @@
 import { useRef, useState, useEffect } from "react";
 import styled from "styled-components";
 import { initAudio, initMicAudio } from "utils/audioCtx";
-import { sessionConfig } from "utils/configUtils";
 import AudioFXPanel from "./AudioFXPanel";
 import BodyTrackingPanel from "./BodyTrackingPanel";
 import {
@@ -11,6 +10,7 @@ import {
 } from "utils/bodytracking";
 import { useRecoilValue, useSetRecoilState } from "recoil";
 import keypoints from "atoms/keypoints";
+import sessionConfig from "atoms/sessionConfig";
 import {
   drawKeypoints,
   drawSkeleton,
@@ -74,6 +74,8 @@ function VideoCanvas({
 
 function UIAudioBridge({ audioCtx }: { audioCtx: AudioContext }) {
   const kpValues = useRecoilValue(keypoints);
+  const sessionCfg = useRecoilValue(sessionConfig);
+
   const config = machineConfig["fast"]; // TODO: This should come from the global state
 
   useEffect(() => {
@@ -84,14 +86,16 @@ function UIAudioBridge({ audioCtx }: { audioCtx: AudioContext }) {
       videoWidth
     );
 
-    mapGlobalConfigsToSound(sessionConfig, bodyPartPositions, audioCtx);
-  }, [kpValues]);
+    mapGlobalConfigsToSound(sessionCfg, bodyPartPositions, audioCtx);
+  }, [kpValues, sessionCfg]);
 
   return <div></div>;
 }
 
 function SomaUI() {
   const setKeypoints = useSetRecoilState(keypoints);
+  const sessionCfg = useRecoilValue(sessionConfig);
+
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [audioCtx, setAudioCtx] = useState<AudioContext | undefined>(undefined);
@@ -99,8 +103,8 @@ function SomaUI() {
   const initAudioSource = async (source: "audio" | "mic") => {
     const audioCtx =
       source === "audio"
-        ? await initAudio(sessionConfig)
-        : await initMicAudio(sessionConfig);
+        ? await initAudio(sessionCfg)
+        : await initMicAudio(sessionCfg);
     setAudioCtx(audioCtx);
   };
 
