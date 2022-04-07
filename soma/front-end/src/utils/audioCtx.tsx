@@ -1,6 +1,7 @@
 import { effectConfigType, SessionConfigType } from "./configUtils";
 import { makeDistortionCurve } from "./audioUtils";
 import file from "assets/beat-128.wav";
+import { KeyedEffectType } from "./types";
 
 const _bpmToSec = (bpm: number): number => 60 / bpm;
 
@@ -89,7 +90,7 @@ const initializeEffect = async (
   return node;
 };
 
-type WrappedEffect = GainNode & {
+export type WrappedEffect = GainNode & {
   originalGain?: GainNode;
   processedGain?: GainNode;
   setValueAtTime?: (wet: number, currentTime: number) => void;
@@ -136,7 +137,8 @@ const attachEffects = async (
   audioCtx: AudioContext,
   source: AudioBufferSourceNode | MediaStreamAudioSourceNode,
   masterGainNode: AudioNode,
-  sessionConfig: SessionConfigType
+  sessionConfig: SessionConfigType,
+  audioFXs: KeyedEffectType
 ) => {
   const inputGainNode = audioCtx.createGain();
   inputGainNode.gain.setValueAtTime(0.5, audioCtx.currentTime);
@@ -149,6 +151,7 @@ const attachEffects = async (
 
   // Interate through effects, intialize and connect
   for (const effectConfig of sessionConfig.effects) {
+    console.log("effectConfig", effectConfig);
     const effect = await initializeEffect(audioCtx, effectConfig);
 
     if (effect) {
@@ -161,7 +164,9 @@ const attachEffects = async (
       );
 
       // Store node in global config
-      effectConfig.node = wrappedEffect;
+      const effectKey = `${effectConfig.key}-${effectConfig.bodyPart}`;
+
+      audioFXs[effectKey] = wrappedEffect;
       previousEffect = wrappedEffect;
     }
   }
@@ -175,7 +180,8 @@ const attachEffects = async (
 const prepareMicSource = async (
   audioCtx: AudioContext,
   masterGainNode: AudioNode,
-  sessionConfig: SessionConfigType
+  sessionConfig: SessionConfigType,
+  audioFXs: KeyedEffectType
 ): Promise<MediaStreamAudioSourceNode> => {
   const stream = await navigator.mediaDevices.getUserMedia({
     audio: true
@@ -184,14 +190,21 @@ const prepareMicSource = async (
   const micSource = audioCtx.createMediaStreamSource(stream);
   const source = micSource;
   // @ts-ignore
-  return attachEffects(audioCtx, source, masterGainNode, sessionConfig);
+  return attachEffects(
+    audioCtx,
+    source,
+    masterGainNode,
+    sessionConfig,
+    audioFXs
+  );
 };
 
 const prepareAudioSource = async (
   audioCtx: AudioContext,
   masterGainNode: AudioNode,
   sessionConfig: SessionConfigType,
-  buffer: AudioBuffer | null = null
+  buffer: AudioBuffer | null = null,
+  audioFXs: KeyedEffectType
 ): Promise<AudioBufferSourceNode> => {
   const stemAudioSource = audioCtx.createBufferSource();
   stemAudioSource.buffer = buffer;
@@ -199,10 +212,19 @@ const prepareAudioSource = async (
 
   const source = stemAudioSource;
   // @ts-ignore
-  return attachEffects(audioCtx, source, masterGainNode, sessionConfig);
+  return attachEffects(
+    audioCtx,
+    source,
+    masterGainNode,
+    sessionConfig,
+    audioFXs
+  );
 };
 
-export const initAudio = async (sessionConfig: SessionConfigType) => {
+export const initAudio = async (
+  sessionConfig: SessionConfigType,
+  audioFXs: KeyedEffectType
+) => {
   // @ts-ignore
   const context = new (window.AudioContext || window.webkitAudioContext)();
 
@@ -217,7 +239,8 @@ export const initAudio = async (sessionConfig: SessionConfigType) => {
       context,
       masterGainNode,
       sessionConfig,
-      audioBuffer
+      audioBuffer,
+      audioFXs
     );
 
     source.start(0);
@@ -226,14 +249,17 @@ export const initAudio = async (sessionConfig: SessionConfigType) => {
   return context;
 };
 
-export const initMicAudio = async (sessionConfig: SessionConfigType) => {
+export const initMicAudio = async (
+  sessionConfig: SessionConfigType,
+  audioFXs: KeyedEffectType
+) => {
   // @ts-ignore
   const context = new (window.AudioContext || window.webkitAudioContext)();
   const masterGainNode = context.createGain();
   masterGainNode.connect(context.destination);
   masterGainNode.gain.setValueAtTime(1, context.currentTime);
 
-  await prepareMicSource(context, masterGainNode, sessionConfig);
+  await prepareMicSource(context, masterGainNode, sessionConfig, audioFXs);
 
   return context;
 };

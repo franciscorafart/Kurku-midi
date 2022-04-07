@@ -1,4 +1,5 @@
 import { effectKeyType, SessionConfigType } from "./configUtils";
+import { KeyedEffectType } from "./types";
 
 const setEffectValue = (
   effectKey: effectKeyType,
@@ -33,20 +34,18 @@ const setEffectValue = (
 export const mapGlobalConfigsToSound = (
   sessionConfig: SessionConfigType,
   bodyPartPositions: any, // TODO: create body part positions type
-  audioCtx: BaseAudioContext
+  audioCtx: BaseAudioContext,
+  audioFXs: KeyedEffectType
 ) => {
   for (const effect of sessionConfig.effects) {
     const bodyPart = effect.bodyPart;
-
     const position = bodyPartPositions[bodyPart][effect.direction];
-
-    const node = effect.node;
-
-    const screenRange = effect.screenRange;
-    const valueRange = effect.valueRange;
+    const node = audioFXs[`${effect.key}-${bodyPart}`];
 
     if (node) {
       if (position !== undefined) {
+        const screenRange = effect.screenRange;
+        const valueRange = effect.valueRange;
         const [scaledValue, scaleFactor] = scaleWindowToRange(
           screenRange.a,
           screenRange.b,
@@ -54,18 +53,18 @@ export const mapGlobalConfigsToSound = (
           valueRange.y,
           position
         );
-        effect.targetValue = scaledValue;
-        effect.scaleFactor = scaleFactor;
+
+        // TODO: How to re-implement gradual moveTowardsPoint without mutable state?
+        // Maybe when I implement interface, every time there's a configuration change we can store previous value
+
+        // const nextValue = moveTowardsPoint(
+        //   effect.previousValue,
+        //   scaledValue,
+        //   sessionConfig.skipSize * effectScaleFactor
+        // );
+
+        setEffectValue(effect.key, node, audioCtx.currentTime, scaledValue);
       }
-
-      const nextValue = moveTowardsPoint(
-        effect.previousValue,
-        effect.targetValue,
-        sessionConfig.skipSize * effect.scaleFactor
-      );
-
-      setEffectValue(effect.key, node, audioCtx.currentTime, nextValue);
-      effect.previousValue = nextValue;
     }
   }
 };

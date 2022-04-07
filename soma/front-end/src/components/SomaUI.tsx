@@ -18,6 +18,7 @@ import {
   resetCanvas
 } from "utils/utils";
 import { mapGlobalConfigsToSound } from "utils/audioUtils";
+import { KeyedEffectType } from "~/utils/types";
 
 const videoWidth = window.innerWidth;
 const videoHeight = window.innerHeight;
@@ -62,7 +63,7 @@ function VideoCanvas({
       drawKeypoints(kpValues, config.confidence, ctx);
       drawSkeleton(kpValues, config.confidence, ctx);
     }
-  }, [kpValues]);
+  }, [kpValues, ctx, video, config.confidence]);
 
   return (
     <div>
@@ -72,7 +73,13 @@ function VideoCanvas({
   );
 }
 
-function UIAudioBridge({ audioCtx }: { audioCtx: AudioContext }) {
+function UIAudioBridge({
+  audioCtx,
+  audioFXs
+}: {
+  audioCtx: AudioContext;
+  audioFXs: KeyedEffectType;
+}) {
   const kpValues = useRecoilValue(keypoints);
   const sessionCfg = useRecoilValue(sessionConfig);
 
@@ -86,8 +93,9 @@ function UIAudioBridge({ audioCtx }: { audioCtx: AudioContext }) {
       videoWidth
     );
 
-    mapGlobalConfigsToSound(sessionCfg, bodyPartPositions, audioCtx);
-  }, [kpValues, sessionCfg]);
+    //TODO: pass only skip size from config and deal with FX with ref
+    mapGlobalConfigsToSound(sessionCfg, bodyPartPositions, audioCtx, audioFXs);
+  }, [kpValues, sessionCfg, audioCtx, audioFXs, config.confidence]);
 
   return <div></div>;
 }
@@ -96,15 +104,18 @@ function SomaUI() {
   const setKeypoints = useSetRecoilState(keypoints);
   const sessionCfg = useRecoilValue(sessionConfig);
 
+  const audioFXs = useRef<KeyedEffectType>({}); // keyed store of audio nodes
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+
   const [audioCtx, setAudioCtx] = useState<AudioContext | undefined>(undefined);
 
   const initAudioSource = async (source: "audio" | "mic") => {
     const audioCtx =
       source === "audio"
-        ? await initAudio(sessionCfg)
-        : await initMicAudio(sessionCfg);
+        ? await initAudio(sessionCfg, audioFXs.current)
+        : await initMicAudio(sessionCfg, audioFXs.current);
+
     setAudioCtx(audioCtx);
   };
 
@@ -134,7 +145,9 @@ function SomaUI() {
         <button onClick={() => initAll("mic")}>Start mic</button>
         <VideoCanvas canvasRef={canvasRef} videoRef={videoRef} />
         <BodyTrackingPanel />
-        {audioCtx && <UIAudioBridge audioCtx={audioCtx} />}
+        {audioCtx && (
+          <UIAudioBridge audioCtx={audioCtx} audioFXs={audioFXs.current} />
+        )}
       </BodyTrackingContainer>
       <AudioFXPanel />
     </Container>
