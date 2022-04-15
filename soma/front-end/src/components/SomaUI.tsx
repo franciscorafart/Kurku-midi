@@ -18,7 +18,7 @@ import {
   resetCanvas
 } from "utils/utils";
 import { mapGlobalConfigsToSound } from "utils/audioUtils";
-import { KeyedEffectType } from "~/utils/types";
+import { KeyedEffectType } from "utils/types";
 
 const videoWidth = window.innerWidth;
 const videoHeight = window.innerHeight;

@@ -97,7 +97,7 @@ const boundToValues = (start: number, finish: number, v: number): number => {
   return v;
 };
 
-// TODO: Test
+// TODO: Unit Test
 // Takes a segment (windowStart:windowEnd) of a 0 to 1 range, and scales it to go from (rangeStart:rangeEnd)
 const scaleWindowToRange = (
   windowStart: number,
