@@ -144,12 +144,12 @@ function SomaUI() {
         <button onClick={() => initAll("audio")}>Start audio</button>
         <button onClick={() => initAll("mic")}>Start mic</button>
         <VideoCanvas canvasRef={canvasRef} videoRef={videoRef} />
-        <BodyTrackingPanel />
+        <AudioFXPanel />
         {audioCtx && (
           <UIAudioBridge audioCtx={audioCtx} audioFXs={audioFXs.current} />
-        )}
-      </BodyTrackingContainer>
-      <AudioFXPanel />
+          )}
+        </BodyTrackingContainer>
+        <BodyTrackingPanel />
     </Container>
   );
 }

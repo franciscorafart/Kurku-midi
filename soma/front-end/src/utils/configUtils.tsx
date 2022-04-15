@@ -156,6 +156,7 @@ export type effectKeyType =
   | "delay"
   | "crosssynth"
   | "analyser";
+  
 export type BodyPartKey =
   | "nose"
   | "rightAnkle"
