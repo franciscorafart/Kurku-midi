@@ -9,9 +9,6 @@ navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia 
 
 let frame = 0;
 
-const videoWidth = window.innerWidth;
-const videoHeight = window.innerHeight;
-
 export type PosenetConfigType = {
   arch: "MobileNetV1" | "ResNet50";
   skipSize: number;
@@ -45,7 +42,8 @@ export const machineConfig: { [index: string]: PosenetConfigType } = {
 export async function initBodyTracking(
   machineType: MachineType,
   video: HTMLVideoElement,
-  setKeypoints: (kps: Keypoints) => void
+  setKeypoints: (kps: Keypoints) => void,
+  ratio: number,
 ) {
   const config = machineConfig[machineType];
   let net: posenet.PoseNet;
@@ -54,7 +52,7 @@ export async function initBodyTracking(
     // Faster model / less accurate
     net = await posenet.load({
       architecture: config.arch,
-      inputResolution: { width: 320, height: 240 },
+      inputResolution: { width: 320, height: 320 / ratio },
       outputStride: 16
     });
   } else {
@@ -63,7 +61,7 @@ export async function initBodyTracking(
     net = await posenet.load({
       architecture: config.arch,
       outputStride: 32,
-      inputResolution: { width: 320, height: 240 },
+      inputResolution: { width: 320, height: 320 / ratio },
       quantBytes: config.quantBytes
     });
   }
@@ -79,12 +77,12 @@ export async function setupCamera(
       "Browser API navigator.mediaDevices.getUserMedia not available"
     );
   }
-  video.width = videoWidth;
-  video.height = videoHeight;
 
   const stream = await navigator.mediaDevices.getUserMedia({
     audio: false,
-    video: { facingMode: "user", width: videoWidth, height: videoHeight }
+    video: { facingMode: "user", width: video.height, height: video.height }
+    // video: { facingMode: "user",}
+
   });
 
   // @ts-ignore
@@ -108,7 +106,6 @@ async function poseDetectionFrame(
       flipHorizontal: flipPoseHorizontal
       // scoreThreshold: 0.7
     });
-
     setKeypoints(pose.keypoints);
   }
 

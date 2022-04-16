@@ -1,11 +1,8 @@
 import * as posenet from "@tensorflow-models/posenet";
 import { BodyPartPositionType, Keypoints } from "./configUtils";
 
-const color = "red";
+const color = "green";
 const lineWidth = 2;
-
-const videoWidth = window.innerWidth;
-const videoHeight = window.innerHeight;
 
 type Tuple = [number, number];
 
@@ -83,11 +80,11 @@ export const resetCanvas = (
   ctx: CanvasRenderingContext2D,
   video: HTMLVideoElement
 ) => {
-  ctx.clearRect(0, 0, videoWidth, videoHeight);
+  ctx.clearRect(0, 0, video.height, video.width);
   ctx.save();
   ctx.scale(-1, 1);
-  ctx.translate(-videoWidth, 0);
-  ctx.drawImage(video, 0, 0, window.innerWidth, window.innerHeight);
+  ctx.translate(-video.width, 0);
+  ctx.drawImage(video, 0, 0, video.width, video.height);
   ctx.restore();
 };
 
@@ -102,7 +99,7 @@ export const getBodyParts = (
       k,
       minPoseConfidence,
       videoHeight,
-      videoWidth
+      videoWidth,
     );
 
     return {

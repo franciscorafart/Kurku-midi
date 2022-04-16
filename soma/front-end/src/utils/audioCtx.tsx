@@ -151,7 +151,7 @@ const attachEffects = async (
 
   // Interate through effects, intialize and connect
   for (const effectConfig of sessionConfig.effects) {
-    console.log("effectConfig", effectConfig);
+    // console.log("effectConfig", effectConfig);
     const effect = await initializeEffect(audioCtx, effectConfig);
 
     if (effect) {

@@ -20,9 +20,6 @@ import {
 import { mapGlobalConfigsToSound } from "utils/audioUtils";
 import { KeyedEffectType } from "utils/types";
 
-const videoWidth = window.innerWidth;
-const videoHeight = window.innerHeight;
-
 const Container = styled.div`
   width: 100%;
   height: 700px;
@@ -34,6 +31,11 @@ const BodyTrackingContainer = styled.div`
   display: flex;
   flex-direction: column;
 `;
+const VideoCanvasContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  min-height: 500px;
+`
 
 const Video = styled.video``;
 const Canvas = styled.canvas``;
@@ -48,12 +50,6 @@ function VideoCanvas({
   const kpValues = useRecoilValue(keypoints);
   const video = videoRef.current;
   const canvas = canvasRef.current;
-
-  if (canvas) {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-  }
-
   const ctx: CanvasRenderingContext2D | null = canvas?.getContext("2d") || null;
   const config = machineConfig["fast"]; // TODO: This should come from the global state
 
@@ -65,20 +61,23 @@ function VideoCanvas({
     }
   }, [kpValues, ctx, video, config.confidence]);
 
-  return (
-    <div>
-      <Video ref={videoRef} />
-      <Canvas ref={canvasRef} />
-    </div>
+  return (<VideoCanvasContainer>
+      <Video ref={videoRef}/>
+      <Canvas ref={canvasRef}/>
+  </VideoCanvasContainer>
   );
 }
 
 function UIAudioBridge({
   audioCtx,
-  audioFXs
+  audioFXs,
+  videoHeight,
+  videoWidth,
 }: {
   audioCtx: AudioContext;
   audioFXs: KeyedEffectType;
+  videoHeight: number,
+  videoWidth: number,
 }) {
   const kpValues = useRecoilValue(keypoints);
   const sessionCfg = useRecoilValue(sessionConfig);
@@ -90,7 +89,7 @@ function UIAudioBridge({
       kpValues,
       config.confidence,
       videoHeight,
-      videoWidth
+      videoWidth,
     );
 
     //TODO: pass only skip size from config and deal with FX with ref
@@ -129,7 +128,18 @@ function SomaUI() {
       video.play();
       video.hidden = true;
 
-      initBodyTracking("fast", video, setKeypoints);
+      // NOTE: Set video and Canvas size from ratio of video src
+      const ratio = video.videoWidth / video.videoHeight;
+      const width = 720;
+      const height = Math.floor(width / ratio);
+
+      video.setAttribute('height', String(height));
+      video.setAttribute('width', String(width));
+
+      canvas.width = width;
+      canvas.height = height;
+
+      initBodyTracking("fast", video, setKeypoints, ratio);
     }
   };
 
@@ -146,7 +156,11 @@ function SomaUI() {
         <VideoCanvas canvasRef={canvasRef} videoRef={videoRef} />
         <AudioFXPanel />
         {audioCtx && (
-          <UIAudioBridge audioCtx={audioCtx} audioFXs={audioFXs.current} />
+          <UIAudioBridge 
+            audioCtx={audioCtx} 
+            audioFXs={audioFXs.current} 
+            videoHeight={videoRef.current?.height || 0} 
+            videoWidth={videoRef.current?.width || 0} />
           )}
         </BodyTrackingContainer>
         <BodyTrackingPanel />
