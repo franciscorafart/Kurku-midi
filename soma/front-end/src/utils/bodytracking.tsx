@@ -80,8 +80,9 @@ export async function setupCamera(
 
   const stream = await navigator.mediaDevices.getUserMedia({
     audio: false,
-    video: { facingMode: "user", width: video.height, height: video.height }
-    // video: { facingMode: "user",}
+    video: { facingMode: 'user'}
+    // NOTE: Lower resolution
+    // video: { facingMode: "user", width: video.height, height: video.height }
 
   });
 
