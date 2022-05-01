@@ -94,6 +94,7 @@ export type WrappedEffect = GainNode & {
   originalGain?: GainNode;
   processedGain?: GainNode;
   setValueAtTime?: (wet: number, currentTime: number) => void;
+  disconnect: () => void; // NOTE: Or whatever the disconnect method in WebAudio is
 };
 
 // NOTE: A wrapped effect's output value is determined by two gain nodes, dry and wet
@@ -126,11 +127,21 @@ const wrapAndConnectEffect = (
       wrappedEffect.processedGain?.gain.setValueAtTime(wet, currentTime);
     };
 
+    // TODO: Implement disconnect
+
     return wrappedEffect;
   }
 
   previousEffect.connect(effect);
   return effect;
+};
+
+const disconnectEffect = (
+  previous: AudioNode | WrappedEffect,
+  current: AudioNode | WrappedEffect,
+  next: AudioNode | WrappedEffect
+) => {
+  // TODO: Implement
 };
 
 const attachEffects = async (
@@ -148,6 +159,7 @@ const attachEffects = async (
 
   source.connect(inputGainNode);
   let previousEffect: AudioNode | WrappedEffect = inputGainNode;
+  audioFXs["input-gain"] = inputGainNode;
 
   // Interate through effects, intialize and connect
   for (const effectConfig of sessionConfig.effects) {
@@ -166,15 +178,40 @@ const attachEffects = async (
       // Store node in global config
       const effectKey = `${effectConfig.key}-${effectConfig.bodyPart}`;
 
-      audioFXs[effectKey] = wrappedEffect;
+      audioFXs[effectKey] = wrappedEffect; // Actual Nodes
       previousEffect = wrappedEffect;
     }
   }
 
+  audioFXs["output-gain"] = outputGainNode;
+
   previousEffect.connect(outputGainNode);
   outputGainNode.connect(masterGainNode);
-
+  console.log("audioFX in memory", audioFXs);
   return source;
+};
+
+const insertEffect = async () => {
+  // 1. Get NewEffect and figure out which one would be previous and next => I can get it from Recoil state (if fist and last index, input and output nodes)
+  // 2. Disconnect Previous from Next (regular or Wrapped Effect)
+  // 3. Connect Previous to NewEffect, connect NewEffect to Next
+  // 4. In another stateful code, update the Recoil state to reflect that
+};
+
+const removeEffect = async () => {
+  // 1. Get Effect by stored key
+  // 2. Figure out Previous and next => Check the recoil state for stoarage key
+  // 3. Disconnect Previous from Effect, Disonnect Effect from Next
+  // 4. Connect Previous to Next
+  // 5. Update recoil state to reflect
+};
+
+const swapEffect = async () => {
+  // 1. Get Effect by stored key
+  // 2. Get NewEffect
+  // 2. Figure out Previous and Next => Check the recoil state for storage key
+  // 3. Disconnect Previous from Effect, Disonnect Effect from Next
+  // 4. Connect Previous to NewEffect, Connect NewEffect to Next
 };
 
 const prepareMicSource = async (

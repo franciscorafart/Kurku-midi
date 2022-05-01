@@ -3,11 +3,9 @@ import { useRecoilValue, useRecoilState } from "recoil";
 import selectedEffect from "atoms/selectedEffect";
 import sessionConfig from "atoms/sessionConfig";
 import { useMemo } from "react";
-import { effectConfigType } from "~/utils/configUtils";
 
 const Container = styled.div`
   width: 25%;
-  // background-color: gray;
 `;
 
 const InputContainer = styled.div`
