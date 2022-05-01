@@ -17,6 +17,7 @@ import {
   getBodyParts,
   resetCanvas
 } from "utils/utils";
+import { isEmpty } from "lodash";
 import { mapGlobalConfigsToSound } from "utils/audioUtils";
 import { KeyedEffectType } from "utils/types";
 
@@ -35,7 +36,7 @@ const VideoCanvasContainer = styled.div`
   display: flex;
   justify-content: center;
   min-height: 500px;
-`
+`;
 
 const Video = styled.video``;
 const Canvas = styled.canvas``;
@@ -52,19 +53,20 @@ function VideoCanvas({
   const canvas = canvasRef.current;
   const ctx: CanvasRenderingContext2D | null = canvas?.getContext("2d") || null;
   const config = machineConfig["fast"]; // TODO: This should come from the global state
-
+  // console.log("kpValues", kpValues);
   useEffect(() => {
-    if (ctx && video) {
+    if (ctx && video && !isEmpty(kpValues)) {
       resetCanvas(ctx, video);
       drawKeypoints(kpValues, config.confidence, ctx);
       drawSkeleton(kpValues, config.confidence, ctx);
     }
   }, [kpValues, ctx, video, config.confidence]);
 
-  return (<VideoCanvasContainer>
-      <Video ref={videoRef}/>
-      <Canvas ref={canvasRef}/>
-  </VideoCanvasContainer>
+  return (
+    <VideoCanvasContainer>
+      <Video ref={videoRef} />
+      <Canvas ref={canvasRef} />
+    </VideoCanvasContainer>
   );
 }
 
@@ -72,28 +74,34 @@ function UIAudioBridge({
   audioCtx,
   audioFXs,
   videoHeight,
-  videoWidth,
+  videoWidth
 }: {
   audioCtx: AudioContext;
   audioFXs: KeyedEffectType;
-  videoHeight: number,
-  videoWidth: number,
+  videoHeight: number;
+  videoWidth: number;
 }) {
   const kpValues = useRecoilValue(keypoints);
   const sessionCfg = useRecoilValue(sessionConfig);
-
   const config = machineConfig["fast"]; // TODO: This should come from the global state
 
   useEffect(() => {
-    const bodyPartPositions = getBodyParts(
-      kpValues,
-      config.confidence,
-      videoHeight,
-      videoWidth,
-    );
+    if (!isEmpty(kpValues)) {
+      const bodyPartPositions = getBodyParts(
+        kpValues,
+        config.confidence,
+        videoHeight,
+        videoWidth
+      );
 
-    //TODO: pass only skip size from config and deal with FX with ref
-    mapGlobalConfigsToSound(sessionCfg, bodyPartPositions, audioCtx, audioFXs);
+      //TODO: pass only skip size from config and deal with FX with ref
+      mapGlobalConfigsToSound(
+        sessionCfg,
+        bodyPartPositions,
+        audioCtx,
+        audioFXs
+      );
+    }
   }, [kpValues, sessionCfg, audioCtx, audioFXs, config.confidence]);
 
   return <div></div>;
@@ -133,8 +141,8 @@ function SomaUI() {
       const width = 720;
       const height = Math.floor(width / ratio);
 
-      video.setAttribute('height', String(height));
-      video.setAttribute('width', String(width));
+      video.setAttribute("height", String(height));
+      video.setAttribute("width", String(width));
 
       canvas.width = width;
       canvas.height = height;
@@ -156,14 +164,15 @@ function SomaUI() {
         <VideoCanvas canvasRef={canvasRef} videoRef={videoRef} />
         <AudioFXPanel />
         {audioCtx && (
-          <UIAudioBridge 
-            audioCtx={audioCtx} 
-            audioFXs={audioFXs.current} 
-            videoHeight={videoRef.current?.height || 0} 
-            videoWidth={videoRef.current?.width || 0} />
-          )}
-        </BodyTrackingContainer>
-        <BodyTrackingPanel />
+          <UIAudioBridge
+            audioCtx={audioCtx}
+            audioFXs={audioFXs.current}
+            videoHeight={videoRef.current?.height || 0}
+            videoWidth={videoRef.current?.width || 0}
+          />
+        )}
+      </BodyTrackingContainer>
+      <BodyTrackingPanel />
     </Container>
   );
 }
