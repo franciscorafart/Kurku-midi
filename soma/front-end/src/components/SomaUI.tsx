@@ -70,7 +70,7 @@ function VideoCanvas({
   );
 }
 
-function UIAudioBridge({
+function ConfigAudioBridge({
   audioCtx,
   audioFXs,
   videoHeight,
@@ -162,9 +162,9 @@ function SomaUI() {
         <button onClick={() => initAll("audio")}>Start audio</button>
         <button onClick={() => initAll("mic")}>Start mic</button>
         <VideoCanvas canvasRef={canvasRef} videoRef={videoRef} />
-        <AudioFXPanel />
+        <AudioFXPanel audioFXs={audioFXs.current} />
         {audioCtx && (
-          <UIAudioBridge
+          <ConfigAudioBridge
             audioCtx={audioCtx}
             audioFXs={audioFXs.current}
             videoHeight={videoRef.current?.height || 0}
