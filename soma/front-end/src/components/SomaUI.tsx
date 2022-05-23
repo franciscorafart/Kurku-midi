@@ -199,8 +199,7 @@ function SomaUI() {
   const initMidiSession = async () => {
     await initTracking();
     const sender = await initMidi()
-    console.log('sender', sender)
-    setCcSender(sender) // Why doesn;t it work
+    setCcSender(() => sender)
     setMode('midi')
   }
 console.log('ccSender', ccSender, 'mode', mode)
@@ -222,7 +221,6 @@ console.log('ccSender', ccSender, 'mode', mode)
             )}
         {mode === "audio" && <BodyTrackingPanel />}
         {mode === "midi" && ccSender && <ConfigMidiBridge 
-          // audioFXs={audioFXs.current}
           ccSender={ccSender}
           videoHeight={videoRef.current?.height || 0}
           videoWidth={videoRef.current?.width || 0}/>}

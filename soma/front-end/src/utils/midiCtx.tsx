@@ -68,9 +68,9 @@ export const initMidi = async () => {
     for (let output = outputs.next(); output && !output.done; output = outputs.next()) {
         midiOut.push(output.value);
     }   
-    console.log('midiOut', midiOut)
+
+    // TODO: Select output from menu
     const myOutput = midiOut[midiOut.length-1]
     const ccSender = makeCCSender(myOutput)
-    console.log('Finish initMidi')
     return ccSender
 }
