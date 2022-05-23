@@ -1,5 +1,6 @@
 import * as posenet from "@tensorflow-models/posenet";
-import { BodyPartPositionType, Keypoints } from "./configUtils";
+import { Keypoints } from "config/configUtils";
+import { BodyPartPositionType } from 'config/shared';
 
 const color = "green";
 const lineWidth = 2;
@@ -122,4 +123,55 @@ const translatePosition = (
   }
 
   return [undefined, undefined];
+};
+
+// TODO: Unit Test
+// Takes a segment (windowStart:windowEnd) of a 0 to 1 range, and scales it to go from (rangeStart:rangeEnd)
+export const scaleWindowToRange = (
+  windowStart: number,
+  windowEnd: number,
+  rangeStart: number,
+  rangeEnd: number,
+  v: number
+): [number, number] => {
+  const windowedValue = boundToValues(windowStart, windowEnd, v);
+  const windowRange = Math.abs(windowEnd - windowStart);
+  const scaleFactor = (1 / windowRange) * (rangeEnd - rangeStart);
+
+  return [
+    boundToValues(
+      rangeStart,
+      rangeEnd,
+      rangeStart + (windowedValue - windowStart) * scaleFactor
+    ),
+    scaleFactor
+  ];
+};
+
+// TODO: Problem with artifacts at limit of screen likely here
+const moveTowardsPoint = (
+  origin: number,
+  destination: number,
+  skipSize: number
+): number => {
+  const distance = Math.abs(destination - origin);
+
+  if (distance <= skipSize) {
+    return destination;
+  }
+
+  const sign = destination > origin ? 1 : -1;
+  return origin + sign * skipSize;
+};
+
+const boundToValues = (start: number, finish: number, v: number): number => {
+  if (v < start) {
+    return start;
+  }
+
+  if (v > finish) {
+    return finish;
+  }
+
+  return v;
 };

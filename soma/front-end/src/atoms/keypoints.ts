@@ -1,5 +1,5 @@
 import { atom } from "recoil";
-import { Keypoints } from "utils/configUtils";
+import { Keypoints } from "config/configUtils";
 
 const keypoints = atom({
   key: "positions",

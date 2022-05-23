@@ -1,5 +1,7 @@
-import { effectKeyType, SessionConfigType } from "./configUtils";
+import { SessionConfigType } from "config/configUtils";
+import { effectKeyType } from "config/shared";
 import { KeyedEffectType } from "./types";
+import { scaleWindowToRange } from "./utils";
 
 const setEffectValue = (
   effectKey: effectKeyType,
@@ -67,57 +69,6 @@ export const mapGlobalConfigsToSound = (
       }
     }
   }
-};
-
-// TODO: Problem with artifacts at limit of screen likely here
-const moveTowardsPoint = (
-  origin: number,
-  destination: number,
-  skipSize: number
-): number => {
-  const distance = Math.abs(destination - origin);
-
-  if (distance <= skipSize) {
-    return destination;
-  }
-
-  const sign = destination > origin ? 1 : -1;
-  return origin + sign * skipSize;
-};
-
-const boundToValues = (start: number, finish: number, v: number): number => {
-  if (v < start) {
-    return start;
-  }
-
-  if (v > finish) {
-    return finish;
-  }
-
-  return v;
-};
-
-// TODO: Unit Test
-// Takes a segment (windowStart:windowEnd) of a 0 to 1 range, and scales it to go from (rangeStart:rangeEnd)
-const scaleWindowToRange = (
-  windowStart: number,
-  windowEnd: number,
-  rangeStart: number,
-  rangeEnd: number,
-  v: number
-): [number, number] => {
-  const windowedValue = boundToValues(windowStart, windowEnd, v);
-  const windowRange = Math.abs(windowEnd - windowStart);
-  const scaleFactor = (1 / windowRange) * (rangeEnd - rangeStart);
-
-  return [
-    boundToValues(
-      rangeStart,
-      rangeEnd,
-      rangeStart + (windowedValue - windowStart) * scaleFactor
-    ),
-    scaleFactor
-  ];
 };
 
 export function makeDistortionCurve(amount: number): Float32Array {

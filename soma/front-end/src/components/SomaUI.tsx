@@ -11,6 +11,7 @@ import {
 import { useRecoilValue, useSetRecoilState } from "recoil";
 import keypoints from "atoms/keypoints";
 import sessionConfig from "atoms/sessionConfig";
+import midiSession from "atoms/midiSession";
 import {
   drawKeypoints,
   drawSkeleton,
@@ -19,7 +20,9 @@ import {
 } from "utils/utils";
 import { isEmpty } from "lodash";
 import { mapGlobalConfigsToSound } from "utils/audioUtils";
-import { KeyedEffectType } from "utils/types";
+import { ChannelType, KeyedEffectType } from "utils/types";
+import { initMidi } from "utils/midiCtx";
+import { mapGlobalConfigsToMidi } from "utils/midiUtils";
 
 const Container = styled.div`
   width: 100%;
@@ -107,6 +110,40 @@ function ConfigAudioBridge({
   return <div></div>;
 }
 
+function ConfigMidiBridge({
+  ccSender,
+  videoHeight,
+  videoWidth,
+} : {
+  ccSender: (channel: ChannelType, controller: number, velocity: number) => void;
+  videoHeight: number;
+  videoWidth: number;
+}) {
+  const kpValues = useRecoilValue(keypoints);
+  const midiSessionConfig = useRecoilValue(midiSession);
+  const config = machineConfig["fast"]; // TODO: This should come from the global state
+
+  useEffect(() => {
+    if (!isEmpty(kpValues)) {
+      const bodyPartPositions = getBodyParts(
+        kpValues,
+        config.confidence,
+        videoHeight,
+        videoWidth
+      );
+
+      mapGlobalConfigsToMidi(
+        midiSessionConfig,
+        bodyPartPositions,
+        ccSender,
+      );
+    }
+  }, [kpValues, midiSessionConfig, config.confidence]);
+ 
+  return <div></div>;
+}
+type SetterType = (channel: ChannelType, controller: number, velocity: number) => void
+
 function SomaUI() {
   const setKeypoints = useSetRecoilState(keypoints);
   const sessionCfg = useRecoilValue(sessionConfig);
@@ -116,6 +153,8 @@ function SomaUI() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
   const [audioCtx, setAudioCtx] = useState<AudioContext | undefined>(undefined);
+  const [mode, setMode] = useState<'audio' | 'midi' | undefined>(undefined);
+  const [ccSender, setCcSender] = useState<SetterType | undefined>(undefined)
 
   const initAudioSource = async (source: "audio" | "mic") => {
     const audioCtx =
@@ -154,25 +193,40 @@ function SomaUI() {
   const initAll = async (source: "audio" | "mic") => {
     await initTracking();
     await initAudioSource(source);
+    setMode("audio")
   };
 
+  const initMidiSession = async () => {
+    await initTracking();
+    const sender = await initMidi()
+    console.log('sender', sender)
+    setCcSender(sender) // Why doesn;t it work
+    setMode('midi')
+  }
+console.log('ccSender', ccSender, 'mode', mode)
   return (
     <Container>
       <BodyTrackingContainer>
         <button onClick={() => initAll("audio")}>Start audio</button>
         <button onClick={() => initAll("mic")}>Start mic</button>
+        <button onClick={() => initMidiSession()}>Start midi</button>
         <VideoCanvas canvasRef={canvasRef} videoRef={videoRef} />
-        <AudioFXPanel audioFXs={audioFXs.current} />
-        {audioCtx && (
+        {mode === "audio" && <AudioFXPanel audioFXs={audioFXs.current} />}
+        {audioCtx && mode === "audio" && (
           <ConfigAudioBridge
             audioCtx={audioCtx}
             audioFXs={audioFXs.current}
             videoHeight={videoRef.current?.height || 0}
             videoWidth={videoRef.current?.width || 0}
-          />
-        )}
+            />
+            )}
+        {mode === "audio" && <BodyTrackingPanel />}
+        {mode === "midi" && ccSender && <ConfigMidiBridge 
+          // audioFXs={audioFXs.current}
+          ccSender={ccSender}
+          videoHeight={videoRef.current?.height || 0}
+          videoWidth={videoRef.current?.width || 0}/>}
       </BodyTrackingContainer>
-      <BodyTrackingPanel />
     </Container>
   );
 }

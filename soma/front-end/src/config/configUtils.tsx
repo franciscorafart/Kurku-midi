@@ -1,7 +1,9 @@
 import * as posenet from "@tensorflow-models/posenet";
 import impulseResponse from "assets/impulse-response.wav";
 import soprano from "assets/sound1.wav";
+import { BodyPartKey, effectKeyType, ScreenRange, ValueRange } from "./shared";
 
+// TODO: Move to types
 export type Keypoints = posenet.Keypoint[];
 
 export const defaultSessionConfig: SessionConfigType = {
@@ -127,56 +129,7 @@ export const defaultSessionConfig: SessionConfigType = {
     }
   ],
   machineType: "fast", // fast / decent / slow
-  bpm: 60,
   skipSize: 0.1
-};
-
-interface ScreenRange {
-  a: number;
-  b: number;
-}
-
-interface ValueRange {
-  x: number;
-  y: number;
-}
-
-interface BodyPartValueRange {
-  x: number | undefined;
-  y: number | undefined;
-}
-
-export type effectKeyType =
-  | "gain"
-  | "pan"
-  | "reverb"
-  | "bitcrusher"
-  | "hpf"
-  | "distortion"
-  | "delay"
-  | "crosssynth"
-  | "analyser";
-  
-export type BodyPartKey =
-  | "nose"
-  | "rightAnkle"
-  | "rightEar"
-  | "rightElbow"
-  | "rightEye"
-  | "rightHip"
-  | "rightShoulder"
-  | "rightWrist"
-  | "rightKnee"
-  | "leftKnee"
-  | "leftAnkle"
-  | "leftElbow"
-  | "leftEye"
-  | "leftHip"
-  | "leftWrist"
-  | "leftShoulder";
-
-export type BodyPartPositionType = {
-  [index in BodyPartKey]: BodyPartValueRange;
 };
 
 export interface effectConfigType {
@@ -202,6 +155,6 @@ export type MachineType = "slow" | "decent" | "fast";
 export interface SessionConfigType {
   effects: effectConfigType[];
   machineType: MachineType;
-  bpm: number;
   skipSize: number;
 }
+

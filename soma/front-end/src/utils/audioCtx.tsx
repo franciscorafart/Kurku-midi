@@ -1,4 +1,4 @@
-import { effectConfigType, SessionConfigType } from "./configUtils";
+import { effectConfigType, SessionConfigType } from "config/configUtils";
 import { makeDistortionCurve } from "./audioUtils";
 import file from "assets/beat-128.wav";
 import { KeyedEffectType } from "./types";
