@@ -1,4 +1,4 @@
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState, useEffect, useMemo } from "react";
 import styled from "styled-components";
 import { initAudio, initMicAudio } from "utils/audioCtx";
 import AudioFXPanel from "./AudioFXPanel";
@@ -20,8 +20,8 @@ import {
 } from "utils/utils";
 import { isEmpty } from "lodash";
 import { mapGlobalConfigsToSound } from "utils/audioUtils";
-import { ChannelType, KeyedEffectType } from "utils/types";
-import { initMidi } from "utils/midiCtx";
+import { ChannelType, KeyedEffectType, MidiOutputType, SetterType } from "utils/types";
+import { initMidi, makeCCSender } from "utils/midiCtx";
 import { mapGlobalConfigsToMidi } from "utils/midiUtils";
 
 const Container = styled.div`
@@ -142,7 +142,15 @@ function ConfigMidiBridge({
  
   return <div></div>;
 }
-type SetterType = (channel: ChannelType, controller: number, velocity: number) => void
+
+function Dropdown({options, onSelect}:{options: MidiOutputType[], onSelect: (output: keyof MidiOutputType | undefined) => void}) {
+  return (
+    <select name="pets" id="" onChange={(e) => onSelect(e.target.value as keyof MidiOutputType)}>
+    <option value="">--Please choose a midi output--</option>
+    {options.map(o => <option key={o.id} value={o.id}>{o.name}</option>)}
+</select>
+  )
+}
 
 function SomaUI() {
   const setKeypoints = useSetRecoilState(keypoints);
@@ -154,7 +162,8 @@ function SomaUI() {
 
   const [audioCtx, setAudioCtx] = useState<AudioContext | undefined>(undefined);
   const [mode, setMode] = useState<'audio' | 'midi' | undefined>(undefined);
-  const [ccSender, setCcSender] = useState<SetterType | undefined>(undefined)
+  const [midiOutputs, setMidiOutputs] = useState<MidiOutputType[] | undefined>(undefined);
+  const [selecectedOutputId, setSelectedOutputId] = useState<keyof MidiOutputType | undefined>(undefined);
 
   const initAudioSource = async (source: "audio" | "mic") => {
     const audioCtx =
@@ -193,22 +202,32 @@ function SomaUI() {
   const initAll = async (source: "audio" | "mic") => {
     await initTracking();
     await initAudioSource(source);
-    setMode("audio")
+    setMode("audio");
   };
 
   const initMidiSession = async () => {
     await initTracking();
-    const sender = await initMidi()
-    setCcSender(() => sender)
-    setMode('midi')
+    const midiOut = await initMidi();
+    setMidiOutputs(midiOut);
+    setMode('midi');
   }
-console.log('ccSender', ccSender, 'mode', mode)
+
+  const ccSender = useMemo(() => {
+    const selectedOutput = selecectedOutputId ? midiOutputs?.find(o => o.id === selecectedOutputId) : undefined
+    if (selectedOutput) {
+      return makeCCSender(selectedOutput)
+    }
+
+    return undefined
+  }, [selecectedOutputId])
+
   return (
     <Container>
       <BodyTrackingContainer>
         <button onClick={() => initAll("audio")}>Start audio</button>
         <button onClick={() => initAll("mic")}>Start mic</button>
         <button onClick={() => initMidiSession()}>Start midi</button>
+        {mode === 'midi' && midiOutputs && <Dropdown options={midiOutputs} onSelect={setSelectedOutputId} />}
         <VideoCanvas canvasRef={canvasRef} videoRef={videoRef} />
         {mode === "audio" && <AudioFXPanel audioFXs={audioFXs.current} />}
         {audioCtx && mode === "audio" && (

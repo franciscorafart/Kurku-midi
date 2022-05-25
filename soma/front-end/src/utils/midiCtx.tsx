@@ -31,14 +31,14 @@ function getMIDIMessage(midiMessage: any) {
     console.log({cmd, pitch, velocity});
 }
 
-const makeCCSender = (device: any) => (channel: ChannelType, controller: number, velocity: number) => {
-        const CC = ccMessageCodeByChannel[channel]
-        const ccMessage = [CC, controller, velocity];
-        console.log({CC, channel, ccMessage})
-        if (CC && channel) {
-            device.send(ccMessage); 
-        }
+export const makeCCSender = (device: any) => (channel: ChannelType, controller: number, velocity: number) => {
+    const CC = ccMessageCodeByChannel[channel]
+    const ccMessage = [CC, controller, velocity];
+    // console.log({CC, channel, ccMessage})
+    if (CC && channel) {
+        device.send(ccMessage);
     }
+}
 
 
 // TODO: rewrite as return Promise to handle requestMIDIAccess failing
@@ -69,8 +69,5 @@ export const initMidi = async () => {
         midiOut.push(output.value);
     }   
 
-    // TODO: Select output from menu
-    const myOutput = midiOut[midiOut.length-1]
-    const ccSender = makeCCSender(myOutput)
-    return ccSender
+    return midiOut
 }

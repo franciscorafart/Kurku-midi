@@ -14,7 +14,7 @@ export const mapGlobalConfigsToMidi = (
         if (position !== undefined) {
             const screenRange = effect.screenRange;
             const valueRange = effect.valueRange;
-            const [scaledValue, scaleFactor] = scaleWindowToRange(
+            const [scaledValue, _] = scaleWindowToRange(
             screenRange.a,
             screenRange.b,
             valueRange.x,
@@ -22,14 +22,7 @@ export const mapGlobalConfigsToMidi = (
             position
             );
 
-            // const nextValue = moveTowardsPoint(
-            //   effect.previousValue,
-            //   scaledValue,
-            //   sessionConfig.skipSize * effectScaleFactor
-            // );
             const {channel, controller} = effect
-            console.log({channel, controller, scaledValue, ccSender})
-            // TODO: Store CC channel and controller in configuration
             ccSender(channel, controller, scaledValue)
         }
     }
