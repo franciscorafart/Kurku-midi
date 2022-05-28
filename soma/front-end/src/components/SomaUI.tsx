@@ -24,6 +24,7 @@ import { mapGlobalConfigsToSound } from "utils/audioUtils";
 import { ChannelType, KeyedEffectType, MidiOutputType, SetterType } from "utils/types";
 import { initMidi, makeCCSender } from "utils/midiCtx";
 import { mapGlobalConfigsToMidi } from "utils/midiUtils";
+import BodyTrackingMidiPanel from "./BodyTrackingMidiPanel";
 
 const Container = styled.div`
   width: 100%;
@@ -225,9 +226,11 @@ function SomaUI() {
   return (
     <Container>
       <BodyTrackingContainer>
+        {mode !== 'audio' && <>
         <button onClick={() => initAll("audio")}>Start audio</button>
         <button onClick={() => initAll("mic")}>Start mic</button>
-        <button onClick={() => initMidiSession()}>Start midi</button>
+        </>}
+        {mode !== 'midi' && <button onClick={() => initMidiSession()}>Start midi</button>}
         {mode === 'midi' && midiOutputs && <Dropdown options={midiOutputs} onSelect={setSelectedOutputId} />}
         <VideoCanvas canvasRef={canvasRef} videoRef={videoRef} />
         {mode === "audio" && <AudioFXPanel audioFXs={audioFXs.current} />}
@@ -241,6 +244,7 @@ function SomaUI() {
             />
             )}
         {mode === "audio" && <BodyTrackingPanel />}
+        {mode === 'midi' && <BodyTrackingMidiPanel /> }
         {mode === "midi" && ccSender && <ConfigMidiBridge
           ccSender={ccSender}
           videoHeight={videoRef.current?.height || 0}
