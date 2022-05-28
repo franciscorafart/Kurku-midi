@@ -2,6 +2,7 @@ import { useRef, useState, useEffect, useMemo } from "react";
 import styled from "styled-components";
 import { initAudio, initMicAudio } from "utils/audioCtx";
 import AudioFXPanel from "./AudioFXPanel";
+import MidiFXPanel from "./MidiFXPanel";
 import BodyTrackingPanel from "./BodyTrackingPanel";
 import {
   initBodyTracking,
@@ -139,7 +140,7 @@ function ConfigMidiBridge({
       );
     }
   }, [kpValues, midiSessionConfig, config.confidence]);
- 
+
   return <div></div>;
 }
 
@@ -230,6 +231,7 @@ function SomaUI() {
         {mode === 'midi' && midiOutputs && <Dropdown options={midiOutputs} onSelect={setSelectedOutputId} />}
         <VideoCanvas canvasRef={canvasRef} videoRef={videoRef} />
         {mode === "audio" && <AudioFXPanel audioFXs={audioFXs.current} />}
+        {mode === "midi" && <MidiFXPanel />}
         {audioCtx && mode === "audio" && (
           <ConfigAudioBridge
             audioCtx={audioCtx}
@@ -239,7 +241,7 @@ function SomaUI() {
             />
             )}
         {mode === "audio" && <BodyTrackingPanel />}
-        {mode === "midi" && ccSender && <ConfigMidiBridge 
+        {mode === "midi" && ccSender && <ConfigMidiBridge
           ccSender={ccSender}
           videoHeight={videoRef.current?.height || 0}
           videoWidth={videoRef.current?.width || 0}/>}
