@@ -17,7 +17,7 @@ export const defaultMidiSession: MidiSessionConfigType = {
       {
         direction: "y", // vertical
         screenRange: { a: 0.5, b: 0.8 },
-        valueRange: { x: 0, y: 1 },
+        valueRange: { x: 0, y: 127 },
         scaleFactor: 1,
         bodyPart: "leftWrist",
         previousValue: 0,
@@ -28,7 +28,7 @@ export const defaultMidiSession: MidiSessionConfigType = {
       {
         direction: "y", // vertical
         screenRange: { a: 0.75, b: 1 },
-        valueRange: { x: 0, y: 1 },
+        valueRange: { x: 0, y: 127 },
         scaleFactor: 1,
         bodyPart: "rightWrist",
         previousValue: 0,
