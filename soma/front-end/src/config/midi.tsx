@@ -14,24 +14,28 @@ export const defaultMidiSession: MidiSessionConfigType = {
         channel: 1,
         controller: 40,
       },
-    //   {
-    //     direction: "y", // vertical
-    //     screenRange: { a: 0.5, b: 0.8 },
-    //     valueRange: { x: 0, y: 1 },
-    //     scaleFactor: 1,
-    //     bodyPart: "nose",
-    //     previousValue: 0,
-    //     targetValue: 0,
-    //   },
-    //   {
-    //     direction: "y", // vertical
-    //     screenRange: { a: 0.75, b: 1 },
-    //     valueRange: { x: 0, y: 1 },
-    //     scaleFactor: 1,
-    //     bodyPart: "leftWrist",
-    //     previousValue: 0,
-    //     targetValue: 0,
-    //   },
+      {
+        direction: "y", // vertical
+        screenRange: { a: 0.5, b: 0.8 },
+        valueRange: { x: 0, y: 1 },
+        scaleFactor: 1,
+        bodyPart: "leftWrist",
+        previousValue: 0,
+        targetValue: 0,
+        channel: 1,
+        controller: 41,
+      },
+      {
+        direction: "y", // vertical
+        screenRange: { a: 0.75, b: 1 },
+        valueRange: { x: 0, y: 1 },
+        scaleFactor: 1,
+        bodyPart: "rightWrist",
+        previousValue: 0,
+        targetValue: 0,
+        channel: 1,
+        controller: 42,
+      },
     ],
   };
 
