@@ -1,26 +1,31 @@
+import { useCallback } from 'react';
 import { Container, EffectConnect, EffectContainer, CloseX, EffectBox } from './shared'
 import midiSession from "atoms/midiSession";
-import { useRecoilValue, useRecoilState } from "recoil";
+import { useRecoilState} from "recoil";
 import selectedMidiEffect from 'atoms/selectedMidiEffect';
 
 const firstUpperCase = (t: string) => t[0].toLocaleUpperCase().concat(t.slice(1))
 function MidiFXPanel() {
-  const midiSessionConfig = useRecoilValue(midiSession);
   const [selected, setSelected] = useRecoilState(selectedMidiEffect);
-
-    const midiFX = midiSessionConfig.midi
-    const handleDisconnect = () => {
-        // Remove midi effect from recoil state
-    }
+  const [midiSessionConfig, setMidiSessionConfig] = useRecoilState(midiSession)
+    const handleDisconnect = useCallback((controller: number) => {
+        const idxOfRemove = midiSessionConfig.midi.findIndex(msc => msc.controller === controller)
+        const newMidiFx = [...midiSessionConfig.midi]
+        console.log('disconnecting', idxOfRemove)
+        if (idxOfRemove !== undefined) {
+            newMidiFx.splice(idxOfRemove, 1)
+            setMidiSessionConfig({...midiSessionConfig, midi: newMidiFx})
+        }
+    }, [midiSessionConfig, setMidiSessionConfig])
 
     return (
         <Container>
-            {midiFX.map((mEff) => (
+            {midiSessionConfig.midi.map((mEff) => (
                 <EffectConnect key={`midi-effect-${mEff.controller}`}>
                     <EffectContainer selectable selected={
               mEff.controller === selected.controller && mEff.bodyPart === selected.bodyPart
             }>
-                        <CloseX onClick={handleDisconnect}>X</CloseX>
+                        <CloseX onClick={() => handleDisconnect(mEff.controller)}>X</CloseX>
                         <EffectBox
               onClick={() =>
                 setSelected({ controller: mEff.controller, bodyPart: mEff.bodyPart })
