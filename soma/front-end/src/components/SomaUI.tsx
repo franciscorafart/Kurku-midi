@@ -21,7 +21,7 @@ import {
 } from "utils/utils";
 import { isEmpty } from "lodash";
 import { mapGlobalConfigsToSound } from "utils/audioUtils";
-import { ChannelType, KeyedEffectType, MidiOutputType, SetterType } from "utils/types";
+import { ChannelType, KeyedEffectType, MidiOutputType } from "utils/types";
 import { initMidi, makeCCSender } from "utils/midiCtx";
 import { mapGlobalConfigsToMidi } from "utils/midiUtils";
 import BodyTrackingMidiPanel from "./BodyTrackingMidiPanel";
@@ -88,7 +88,7 @@ function ConfigAudioBridge({
 }) {
   const kpValues = useRecoilValue(keypoints);
   const sessionCfg = useRecoilValue(sessionConfig);
-  const config = machineConfig["fast"]; // TODO: This should come from the global state
+  const config = machineConfig[sessionCfg.machineType]; // TODO: This should come from the global state
 
   useEffect(() => {
     if (!isEmpty(kpValues)) {
@@ -107,7 +107,7 @@ function ConfigAudioBridge({
         audioFXs
       );
     }
-  }, [kpValues, sessionCfg, audioCtx, audioFXs, config.confidence]);
+  }, [kpValues, sessionCfg, audioCtx, audioFXs, config.confidence, videoHeight, videoWidth]);
 
   return <div></div>;
 }
@@ -123,7 +123,7 @@ function ConfigMidiBridge({
 }) {
   const kpValues = useRecoilValue(keypoints);
   const midiSessionConfig = useRecoilValue(midiSession);
-  const config = machineConfig["fast"]; // TODO: This should come from the global state
+  const config = machineConfig[midiSessionConfig.machineType];
 
   useEffect(() => {
     if (!isEmpty(kpValues)) {
@@ -140,7 +140,7 @@ function ConfigMidiBridge({
         ccSender,
       );
     }
-  }, [kpValues, midiSessionConfig, config.confidence]);
+  }, [kpValues, midiSessionConfig, config.confidence, videoHeight, videoWidth, ccSender]);
 
   return <div></div>;
 }
@@ -226,11 +226,11 @@ function SomaUI() {
   return (
     <Container>
       <BodyTrackingContainer>
-        {mode !== 'audio' && <>
+        {!mode && <>
         <button onClick={() => initAll("audio")}>Start audio</button>
         <button onClick={() => initAll("mic")}>Start mic</button>
+        <button onClick={() => initMidiSession()}>Start midi</button>
         </>}
-        {mode !== 'midi' && <button onClick={() => initMidiSession()}>Start midi</button>}
         {mode === 'midi' && midiOutputs && <Dropdown options={midiOutputs} onSelect={setSelectedOutputId} />}
         <VideoCanvas canvasRef={canvasRef} videoRef={videoRef} />
         {mode === "audio" && <AudioFXPanel audioFXs={audioFXs.current} />}

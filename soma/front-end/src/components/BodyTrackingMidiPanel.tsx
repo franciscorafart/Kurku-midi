@@ -29,7 +29,6 @@ function BodyTrackingMidiPanel() {
       );
     }
   }, [selected.bodyPart, selected.controller, sessionCfg.midi]);
-  // TODO: State setter out of selected element onInputChange
 
   const effect =
     idxEffect !== undefined ? sessionCfg.midi[idxEffect] : undefined;
@@ -103,7 +102,7 @@ function BodyTrackingMidiPanel() {
       <Title>
         {selected.controller}-{selected.bodyPart}
       </Title>
-      <Label>Midi Channel</Label>
+      <Label>Midi Channel (1-16)</Label>
       <InputContainer>
         <Input
             type="number"
@@ -111,7 +110,7 @@ function BodyTrackingMidiPanel() {
             onChange={e => onChangeMidiConfig(e, 'channel')}
         />
       </InputContainer>
-      <Label>CC Control</Label>
+      <Label>CC Control (1-128)</Label>
       <InputContainer>
         <Input
             type="number"

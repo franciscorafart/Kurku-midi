@@ -1,6 +1,6 @@
 import * as posenet from "@tensorflow-models/posenet";
 import impulseResponse from "assets/impulse-response.wav";
-import soprano from "assets/sound1.wav";
+import soprano from "assets/impulse-response.wav";
 import { BodyPartKey, effectKeyType, ScreenRange, ValueRange } from "./shared";
 
 // TODO: Move to types
