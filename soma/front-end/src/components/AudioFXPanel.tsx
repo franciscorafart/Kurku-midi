@@ -3,48 +3,7 @@ import sessionConfig from "atoms/sessionConfig";
 import { useRecoilValue, useRecoilState } from "recoil";
 import selectedEffect from "atoms/selectedEffect";
 import { KeyedEffectType } from "utils/types";
-
-const Container = styled.div`
-  display: flex;
-  flex: wrap;
-  padding: 20px;
-  min-height: 300px;
-  border: 1px solid black;
-`;
-
-const EffectConnect = styled.div`
-  display: flex;
-`;
-
-const EffectContainer = styled.div<{ selected?: boolean; selectable: boolean }>`
-  display: flex;
-  flex-direction: column;
-  height: 86px;
-  width: 160px;
-  padding: 5px;
-  border: 1px solid
-    ${({ selected, selectable }) =>
-      selectable ? (selected ? "red" : "blue") : "purple"};
-  border-radius: 5px;
-`;
-
-const CloseX = styled.div`
-  height: 16px;
-  width: 10px;
-  cursor: pointer;
-  align-self: flex-end;
-  &:hover {
-    color: red;
-  }
-`;
-
-const EffectBox = styled.div<{ selectable?: boolean }>`
-  height: 70px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: ${({ selectable }) => (selectable ? "pointer" : "auto")};
-`;
+import { CloseX, Container, EffectBox, EffectConnect, EffectContainer } from "./shared";
 
 const Cable = styled.div`
   display: flex;
