@@ -1,8 +1,8 @@
-import styled from "styled-components";
-import { useRecoilValue, useRecoilState } from "recoil";
-import selectedEffect from "atoms/selectedEffect";
-import sessionConfig from "atoms/sessionConfig";
 import { useMemo } from "react";
+import { useRecoilValue, useRecoilState } from "recoil";
+import styled from "styled-components";
+import selectedMidiEffect from "atoms/selectedMidiEffect";
+import midiSession from "atoms/midiSession";
 
 const Container = styled.div`
   width: 25%;
@@ -18,21 +18,21 @@ const Title = styled.h2``;
 
 const Label = styled.label``;
 
-function BodyTrackingPanel() {
-  const selected = useRecoilValue(selectedEffect);
-  const [sessionCfg, setSessionCfg] = useRecoilState(sessionConfig);
+function BodyTrackingMidiPanel() {
+  const selected = useRecoilValue(selectedMidiEffect);
+  const [sessionCfg, setSessionCfg] = useRecoilState(midiSession);
 
   const idxEffect = useMemo(() => {
-    if (sessionCfg.effects) {
-      return sessionCfg.effects.findIndex(
-        (eff) => selected.key === eff.key && selected.bodyPart === eff.bodyPart
+    if (sessionCfg.midi) {
+      return sessionCfg.midi.findIndex(
+        (eff) => selected.controller === eff.controller && selected.bodyPart === eff.bodyPart
       );
     }
-  }, [selected.bodyPart, selected.key, sessionCfg.effects]);
+  }, [selected.bodyPart, selected.controller, sessionCfg.midi]);
   // TODO: State setter out of selected element onInputChange
 
   const effect =
-    idxEffect !== undefined ? sessionCfg.effects[idxEffect] : undefined;
+    idxEffect !== undefined ? sessionCfg.midi[idxEffect] : undefined;
 
   const onChangeScreen = (
     e: React.ChangeEvent<HTMLInputElement>,
@@ -40,7 +40,7 @@ function BodyTrackingPanel() {
   ) => {
     const v = e.target.value;
     if (effect && idxEffect !== undefined) {
-      const newEffects = sessionCfg.effects.map((eff, idx) =>
+      const newEffects = sessionCfg.midi.map((eff, idx) =>
         idxEffect === idx
           ? {
               ...eff,
@@ -50,10 +50,31 @@ function BodyTrackingPanel() {
       );
       setSessionCfg({
         ...sessionCfg,
-        effects: newEffects
+        midi: newEffects
       });
     }
   };
+
+  const onChangeMidiConfig = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    type: 'controller' | 'channel'
+  ) => {
+    const v = e.target.value;
+    if (effect && idxEffect !== undefined) {
+        const newEffects = sessionCfg.midi.map((eff, idx) =>
+          idxEffect === idx
+            ? {
+                ...eff,
+                [type]: Number(v),
+              }
+            : eff
+        );
+        setSessionCfg({
+          ...sessionCfg,
+          midi: newEffects
+        });
+    }
+  }
 
   const onChangeRange = (
     e: React.ChangeEvent<HTMLInputElement>,
@@ -61,7 +82,7 @@ function BodyTrackingPanel() {
   ) => {
     const v = e.target.value;
     if (effect && idxEffect !== undefined) {
-      const newEffects = sessionCfg.effects.map((eff, idx) =>
+      const newEffects = sessionCfg.midi.map((eff, idx) =>
         idxEffect === idx
           ? {
               ...eff,
@@ -72,7 +93,7 @@ function BodyTrackingPanel() {
 
       setSessionCfg({
         ...sessionCfg,
-        effects: newEffects
+        midi: newEffects
       });
     }
   };
@@ -80,8 +101,24 @@ function BodyTrackingPanel() {
   return (
     <Container>
       <Title>
-        {selected.key}-{selected.bodyPart}
+        {selected.controller}-{selected.bodyPart}
       </Title>
+      <Label>Midi Channel</Label>
+      <InputContainer>
+        <Input
+            type="number"
+            value={effect?.channel}
+            onChange={e => onChangeMidiConfig(e, 'channel')}
+        />
+      </InputContainer>
+      <Label>CC Control</Label>
+      <InputContainer>
+        <Input
+            type="number"
+            value={effect?.controller}
+            onChange={e => onChangeMidiConfig(e, 'controller')}
+        />
+      </InputContainer>
       <Label>Screen Range</Label>
       <InputContainer>
         <Input
@@ -112,4 +149,4 @@ function BodyTrackingPanel() {
   );
 }
 
-export default BodyTrackingPanel;
+export default BodyTrackingMidiPanel;
