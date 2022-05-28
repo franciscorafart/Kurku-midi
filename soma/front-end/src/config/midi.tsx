@@ -37,6 +37,7 @@ export const defaultMidiSession: MidiSessionConfigType = {
         controller: 42,
       },
     ],
+    machineType: "fast", // fast / decent / slow
   };
 
   export interface MidiConfigType {
@@ -52,5 +53,6 @@ export const defaultMidiSession: MidiSessionConfigType = {
   }
 
   export interface MidiSessionConfigType {
-      midi: MidiConfigType[],
+        midi: MidiConfigType[],
+        machineType: 'fast' | 'decent' | 'slow',
   }
