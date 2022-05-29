@@ -27,8 +27,8 @@ function MidiFXPanel() {
                     <EffectContainer selectable selected={
               mEff.controller === selected.controller && mEff.bodyPart === selected.bodyPart
             }>
-                        <CloseButton onClick={() => handleDisconnect(mEff.controller)} />
-                        <EffectBox
+                <CloseButton onClick={() => handleDisconnect(mEff.controller)} />
+                <EffectBox
               onClick={() =>
                 setSelected({ controller: mEff.controller, bodyPart: mEff.bodyPart })
               }

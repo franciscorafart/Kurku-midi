@@ -29,14 +29,12 @@ import { Dropdown, DropdownButton, Button } from "react-bootstrap";
 
 const Container = styled.div`
   width: 100%;
-  height: 700px;
-  display: flex;
-`;
-
-const BodyTrackingContainer = styled.div`
-  width: 75%;
   display: flex;
   flex-direction: column;
+`;
+
+const Buttons = styled.div`
+  display: flex;
 `;
 const VideoCanvasContainer = styled.div`
   display: flex;
@@ -228,36 +226,37 @@ function SomaUI() {
     }
 
     return undefined
-  }, [selecectedOutputId])
-console.log('Midi outputs', midiOutputs)
+  }, [midiOutputs, selecectedOutputId])
+
   return (
-    <Container>
-      <BodyTrackingContainer>
+        <Container>
+        <Buttons>
         {!mode && <>
-        <Button onClick={() => initAll("audio")}>Start audio</Button>
-        <Button onClick={() => initAll("mic")}>Start mic</Button>
-        <Button onClick={() => initMidiSession()}>Start midi</Button>
-        </>}
+            <Button onClick={() => initAll("audio")}>Start audio</Button>
+            <Button onClick={() => initAll("mic")}>Start mic</Button>
+            <Button onClick={() => initMidiSession()}>Start midi</Button>
+            </>}
         {mode === 'midi' && midiOutputs && <MidiDropdown options={midiOutputs} onSelect={setSelectedOutputId} />}
+        </Buttons>
         <VideoCanvas canvasRef={canvasRef} videoRef={videoRef} />
         {mode === "audio" && <AudioFXPanel audioFXs={audioFXs.current} />}
-        {mode === "midi" && <MidiFXPanel />}
         {audioCtx && mode === "audio" && (
-          <ConfigAudioBridge
+            <ConfigAudioBridge
             audioCtx={audioCtx}
             audioFXs={audioFXs.current}
             videoHeight={videoRef.current?.height || 0}
             videoWidth={videoRef.current?.width || 0}
             />
             )}
+        {mode === "midi" && ccSender && <ConfigMidiBridge
+        ccSender={ccSender}
+        videoHeight={videoRef.current?.height || 0}
+        videoWidth={videoRef.current?.width || 0}
+        />}
+        {mode === "midi" && <MidiFXPanel />}
         {mode === "audio" && <BodyTrackingPanel />}
         {mode === 'midi' && <BodyTrackingMidiPanel /> }
-        {mode === "midi" && ccSender && <ConfigMidiBridge
-          ccSender={ccSender}
-          videoHeight={videoRef.current?.height || 0}
-          videoWidth={videoRef.current?.width || 0}/>}
-      </BodyTrackingContainer>
-    </Container>
+        </Container>
   );
 }
 

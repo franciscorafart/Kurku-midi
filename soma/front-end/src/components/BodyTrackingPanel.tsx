@@ -1,12 +1,10 @@
 import styled from "styled-components";
-import { useRecoilValue, useRecoilState } from "recoil";
-import selectedEffect from "atoms/selectedEffect";
+import { useRecoilState } from "recoil";
+import selectedEffect, { SelectedEffectType } from "atoms/selectedEffect";
 import sessionConfig from "atoms/sessionConfig";
 import { useMemo } from "react";
-
-const Container = styled.div`
-  width: 25%;
-`;
+import { Offcanvas } from "react-bootstrap";
+import { isEmpty } from "lodash";
 
 const InputContainer = styled.div`
   display: flex;
@@ -14,12 +12,10 @@ const InputContainer = styled.div`
 
 const Input = styled.input``;
 
-const Title = styled.h2``;
-
 const Label = styled.label``;
 
 function BodyTrackingPanel() {
-  const selected = useRecoilValue(selectedEffect);
+  const [selected, setSelected] = useRecoilState(selectedEffect);
   const [sessionCfg, setSessionCfg] = useRecoilState(sessionConfig);
 
   const idxEffect = useMemo(() => {
@@ -78,11 +74,12 @@ function BodyTrackingPanel() {
   };
 
   return (
-    <Container>
-      <Title>
-        {selected.key}-{selected.bodyPart}
-      </Title>
-      <Label>Screen Range</Label>
+    <Offcanvas show={!isEmpty(selected)} onHide={() => setSelected({} as SelectedEffectType)} placement='end'>
+    <Offcanvas.Header closeButton>
+      <Offcanvas.Title>{selected.key}-{selected.bodyPart}</Offcanvas.Title>
+    </Offcanvas.Header>
+    <Offcanvas.Body>
+    <Label>Screen Range</Label>
       <InputContainer>
         <Input
           type="number"
@@ -108,7 +105,8 @@ function BodyTrackingPanel() {
           onChange={(e) => onChangeRange(e, "y")}
         />
       </InputContainer>
-    </Container>
+    </Offcanvas.Body>
+  </Offcanvas>
   );
 }
 

@@ -12,8 +12,6 @@ const InputContainer = styled.div`
 
 const Input = styled.input``;
 
-const Title = styled.h2``;
-
 const Label = styled.label``;
 
 function BodyTrackingMidiPanel() {
@@ -94,18 +92,13 @@ function BodyTrackingMidiPanel() {
       });
     }
   };
-  const handleClose = () => {
-    setSelected({} as SelectedMidiEffectType)
-  }
 
   return (
-    <Offcanvas show={!isEmpty(selected)} placement='end' onHide={handleClose}>
+    <Offcanvas show={!isEmpty(selected)} placement='end' onHide={() => setSelected({} as SelectedMidiEffectType)}>
     <Offcanvas.Header closeButton>
       <Offcanvas.Title>{selected.controller}-{selected.bodyPart}</Offcanvas.Title>
     </Offcanvas.Header>
     <Offcanvas.Body>
-      <Title>
-      </Title>
       <Label>Midi Channel (1-16)</Label>
       <InputContainer>
         <Input
