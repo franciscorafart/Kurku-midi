@@ -1,12 +1,10 @@
 import { useMemo } from "react";
-import { useRecoilValue, useRecoilState } from "recoil";
+import { useRecoilState } from "recoil";
 import styled from "styled-components";
-import selectedMidiEffect from "atoms/selectedMidiEffect";
+import selectedMidiEffect, { SelectedMidiEffectType } from "atoms/selectedMidiEffect";
 import midiSession from "atoms/midiSession";
-
-const Container = styled.div`
-  width: 25%;
-`;
+import { Offcanvas } from "react-bootstrap";
+import { isEmpty } from "lodash";
 
 const InputContainer = styled.div`
   display: flex;
@@ -19,7 +17,7 @@ const Title = styled.h2``;
 const Label = styled.label``;
 
 function BodyTrackingMidiPanel() {
-  const selected = useRecoilValue(selectedMidiEffect);
+  const [selected, setSelected]= useRecoilState(selectedMidiEffect);
   const [sessionCfg, setSessionCfg] = useRecoilState(midiSession);
 
   const idxEffect = useMemo(() => {
@@ -96,11 +94,17 @@ function BodyTrackingMidiPanel() {
       });
     }
   };
+  const handleClose = () => {
+    setSelected({} as SelectedMidiEffectType)
+  }
 
   return (
-    <Container>
+    <Offcanvas show={!isEmpty(selected)} placement='end' onHide={handleClose}>
+    <Offcanvas.Header closeButton>
+      <Offcanvas.Title>{selected.controller}-{selected.bodyPart}</Offcanvas.Title>
+    </Offcanvas.Header>
+    <Offcanvas.Body>
       <Title>
-        {selected.controller}-{selected.bodyPart}
       </Title>
       <Label>Midi Channel (1-16)</Label>
       <InputContainer>
@@ -144,7 +148,8 @@ function BodyTrackingMidiPanel() {
           onChange={(e) => onChangeRange(e, "y")}
         />
       </InputContainer>
-    </Container>
+    </Offcanvas.Body>
+  </Offcanvas>
   );
 }
 

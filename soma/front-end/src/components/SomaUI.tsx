@@ -25,6 +25,7 @@ import { ChannelType, KeyedEffectType, MidiOutputType } from "utils/types";
 import { initMidi, makeCCSender } from "utils/midiCtx";
 import { mapGlobalConfigsToMidi } from "utils/midiUtils";
 import BodyTrackingMidiPanel from "./BodyTrackingMidiPanel";
+import { Dropdown, DropdownButton, Button } from "react-bootstrap";
 
 const Container = styled.div`
   width: 100%;
@@ -145,12 +146,18 @@ function ConfigMidiBridge({
   return <div></div>;
 }
 
-function Dropdown({options, onSelect}:{options: MidiOutputType[], onSelect: (output: keyof MidiOutputType | undefined) => void}) {
+function MidiDropdown({options, onSelect}:{options: MidiOutputType[], onSelect: (output: keyof MidiOutputType | undefined) => void}) {
+//   return (
+//     <select name="pets" id="" onChange={(e) => onSelect(e.target.value as keyof MidiOutputType)}>
+//     <option value="">--Please choose a midi output--</option>
+//     {options.map(o => <option key={o.id} value={o.id}>{o.name}</option>)}
+// </select>
+//   )
+
   return (
-    <select name="pets" id="" onChange={(e) => onSelect(e.target.value as keyof MidiOutputType)}>
-    <option value="">--Please choose a midi output--</option>
-    {options.map(o => <option key={o.id} value={o.id}>{o.name}</option>)}
-</select>
+    <DropdownButton title='Select Midi Output' onSelect={(e) => onSelect(e as keyof MidiOutputType)}>
+    {options.map(o => <Dropdown.Item key={o.id} eventKey={o.id}>{o.name}</Dropdown.Item>)}
+  </DropdownButton>
   )
 }
 
@@ -222,16 +229,16 @@ function SomaUI() {
 
     return undefined
   }, [selecectedOutputId])
-
+console.log('Midi outputs', midiOutputs)
   return (
     <Container>
       <BodyTrackingContainer>
         {!mode && <>
-        <button onClick={() => initAll("audio")}>Start audio</button>
-        <button onClick={() => initAll("mic")}>Start mic</button>
-        <button onClick={() => initMidiSession()}>Start midi</button>
+        <Button onClick={() => initAll("audio")}>Start audio</Button>
+        <Button onClick={() => initAll("mic")}>Start mic</Button>
+        <Button onClick={() => initMidiSession()}>Start midi</Button>
         </>}
-        {mode === 'midi' && midiOutputs && <Dropdown options={midiOutputs} onSelect={setSelectedOutputId} />}
+        {mode === 'midi' && midiOutputs && <MidiDropdown options={midiOutputs} onSelect={setSelectedOutputId} />}
         <VideoCanvas canvasRef={canvasRef} videoRef={videoRef} />
         {mode === "audio" && <AudioFXPanel audioFXs={audioFXs.current} />}
         {mode === "midi" && <MidiFXPanel />}
