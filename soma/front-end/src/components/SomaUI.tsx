@@ -27,15 +27,26 @@ import { mapGlobalConfigsToMidi } from "utils/midiUtils";
 import BodyTrackingMidiPanel from "./BodyTrackingMidiPanel";
 import { Dropdown, DropdownButton, Button } from "react-bootstrap";
 
+const Title = styled.h1`
+    text-align: center;
+`
+
+const SubTitle = styled.h3`
+    text-align: center;
+`
+
 const Container = styled.div`
-  width: 100%;
   display: flex;
   flex-direction: column;
+  padding: 20px 80px;
 `;
 
 const Buttons = styled.div`
   display: flex;
+  justify-content: center;
+  gap: 10px;
 `;
+
 const VideoCanvasContainer = styled.div`
   display: flex;
   justify-content: center;
@@ -230,11 +241,13 @@ function SomaUI() {
 
   return (
         <Container>
-        <Buttons>
+            <Title>Soma</Title>
+            <SubTitle>Body tracking MIDI controller</SubTitle>
+            <Buttons>
         {!mode && <>
             <Button onClick={() => initAll("audio")}>Start audio</Button>
             <Button onClick={() => initAll("mic")}>Start mic</Button>
-            <Button onClick={() => initMidiSession()}>Start midi</Button>
+            <Button onClick={() => initMidiSession()}>Start MIDI</Button>
             </>}
         {mode === 'midi' && midiOutputs && <MidiDropdown options={midiOutputs} onSelect={setSelectedOutputId} />}
         </Buttons>
