@@ -7,7 +7,7 @@ import BodyTrackingPanel from "./BodyTrackingPanel";
 import {
   initBodyTracking,
   machineConfig,
-  setupCamera
+  setupCamera,
 } from "utils/bodytracking";
 import { useRecoilValue, useSetRecoilState } from "recoil";
 import keypoints from "atoms/keypoints";
@@ -17,7 +17,7 @@ import {
   drawKeypoints,
   drawSkeleton,
   getBodyParts,
-  resetCanvas
+  resetCanvas,
 } from "utils/utils";
 import { isEmpty } from "lodash";
 import { mapGlobalConfigsToSound } from "utils/audioUtils";
@@ -26,19 +26,14 @@ import { initMidi, makeCCSender } from "utils/midiCtx";
 import { mapGlobalConfigsToMidi } from "utils/midiUtils";
 import BodyTrackingMidiPanel from "./BodyTrackingMidiPanel";
 import { Dropdown, DropdownButton, Button } from "react-bootstrap";
-
-const Title = styled.h1`
-    text-align: center;
-`
-
-const SubTitle = styled.h3`
-    text-align: center;
-`
+import theme from "config/theme";
+import { Title, SubTitle } from "./shared";
 
 const Container = styled.div`
   display: flex;
   flex-direction: column;
   padding: 20px 80px;
+  background-color: ${theme.background};
 `;
 
 const Buttons = styled.div`
@@ -51,6 +46,7 @@ const VideoCanvasContainer = styled.div`
   display: flex;
   justify-content: center;
   min-height: 500px;
+  padding: 20px;
 `;
 
 const Video = styled.video``;
@@ -58,7 +54,7 @@ const Canvas = styled.canvas``;
 
 function VideoCanvas({
   canvasRef,
-  videoRef
+  videoRef,
 }: {
   canvasRef: React.MutableRefObject<HTMLCanvasElement | null>;
   videoRef: React.MutableRefObject<HTMLVideoElement | null>;
@@ -89,7 +85,7 @@ function ConfigAudioBridge({
   audioCtx,
   audioFXs,
   videoHeight,
-  videoWidth
+  videoWidth,
 }: {
   audioCtx: AudioContext;
   audioFXs: KeyedEffectType;
@@ -117,7 +113,15 @@ function ConfigAudioBridge({
         audioFXs
       );
     }
-  }, [kpValues, sessionCfg, audioCtx, audioFXs, config.confidence, videoHeight, videoWidth]);
+  }, [
+    kpValues,
+    sessionCfg,
+    audioCtx,
+    audioFXs,
+    config.confidence,
+    videoHeight,
+    videoWidth,
+  ]);
 
   return <div></div>;
 }
@@ -126,8 +130,12 @@ function ConfigMidiBridge({
   ccSender,
   videoHeight,
   videoWidth,
-} : {
-  ccSender: (channel: ChannelType, controller: number, velocity: number) => void;
+}: {
+  ccSender: (
+    channel: ChannelType,
+    controller: number,
+    velocity: number
+  ) => void;
   videoHeight: number;
   videoWidth: number;
 }) {
@@ -144,30 +152,39 @@ function ConfigMidiBridge({
         videoWidth
       );
 
-      mapGlobalConfigsToMidi(
-        midiSessionConfig,
-        bodyPartPositions,
-        ccSender,
-      );
+      mapGlobalConfigsToMidi(midiSessionConfig, bodyPartPositions, ccSender);
     }
-  }, [kpValues, midiSessionConfig, config.confidence, videoHeight, videoWidth, ccSender]);
+  }, [
+    kpValues,
+    midiSessionConfig,
+    config.confidence,
+    videoHeight,
+    videoWidth,
+    ccSender,
+  ]);
 
   return <div></div>;
 }
 
-function MidiDropdown({options, onSelect}:{options: MidiOutputType[], onSelect: (output: keyof MidiOutputType | undefined) => void}) {
-//   return (
-//     <select name="pets" id="" onChange={(e) => onSelect(e.target.value as keyof MidiOutputType)}>
-//     <option value="">--Please choose a midi output--</option>
-//     {options.map(o => <option key={o.id} value={o.id}>{o.name}</option>)}
-// </select>
-//   )
-
+function MidiDropdown({
+  options,
+  onSelect,
+}: {
+  options: MidiOutputType[];
+  onSelect: (output: keyof MidiOutputType | undefined) => void;
+}) {
   return (
-    <DropdownButton title='Select Midi Output' onSelect={(e) => onSelect(e as keyof MidiOutputType)}>
-    {options.map(o => <Dropdown.Item key={o.id} eventKey={o.id}>{o.name}</Dropdown.Item>)}
-  </DropdownButton>
-  )
+    <DropdownButton
+      title="Select Midi Output"
+      onSelect={(e) => onSelect(e as keyof MidiOutputType)}
+    >
+      {options.map((o) => (
+        <Dropdown.Item key={o.id} eventKey={o.id}>
+          {o.name}
+        </Dropdown.Item>
+      ))}
+    </DropdownButton>
+  );
 }
 
 function SomaUI() {
@@ -179,9 +196,13 @@ function SomaUI() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
   const [audioCtx, setAudioCtx] = useState<AudioContext | undefined>(undefined);
-  const [mode, setMode] = useState<'audio' | 'midi' | undefined>(undefined);
-  const [midiOutputs, setMidiOutputs] = useState<MidiOutputType[] | undefined>(undefined);
-  const [selecectedOutputId, setSelectedOutputId] = useState<keyof MidiOutputType | undefined>(undefined);
+  const [mode, setMode] = useState<"audio" | "midi" | undefined>(undefined);
+  const [midiOutputs, setMidiOutputs] = useState<MidiOutputType[] | undefined>(
+    undefined
+  );
+  const [selecectedOutputId, setSelectedOutputId] = useState<
+    keyof MidiOutputType | undefined
+  >(undefined);
 
   const initAudioSource = async (source: "audio" | "mic") => {
     const audioCtx =
@@ -227,49 +248,57 @@ function SomaUI() {
     await initTracking();
     const midiOut = await initMidi();
     setMidiOutputs(midiOut);
-    setMode('midi');
-  }
+    setMode("midi");
+  };
 
   const ccSender = useMemo(() => {
-    const selectedOutput = selecectedOutputId ? midiOutputs?.find(o => o.id === selecectedOutputId) : undefined
+    const selectedOutput = selecectedOutputId
+      ? midiOutputs?.find((o) => o.id === selecectedOutputId)
+      : undefined;
     if (selectedOutput) {
-      return makeCCSender(selectedOutput)
+      return makeCCSender(selectedOutput);
     }
 
-    return undefined
-  }, [midiOutputs, selecectedOutputId])
+    return undefined;
+  }, [midiOutputs, selecectedOutputId]);
 
   return (
-        <Container>
-            <Title>Soma</Title>
-            <SubTitle>Body tracking MIDI controller</SubTitle>
-            <Buttons>
-        {!mode && <>
+    <Container>
+      <Title>Soma</Title>
+      <SubTitle>Body tracking MIDI controller</SubTitle>
+      <Buttons>
+        {!mode && (
+          <>
             <Button onClick={() => initAll("audio")}>Start audio</Button>
             <Button onClick={() => initAll("mic")}>Start mic</Button>
             <Button onClick={() => initMidiSession()}>Start MIDI</Button>
-            </>}
-        {mode === 'midi' && midiOutputs && <MidiDropdown options={midiOutputs} onSelect={setSelectedOutputId} />}
-        </Buttons>
-        <VideoCanvas canvasRef={canvasRef} videoRef={videoRef} />
-        {mode === "audio" && <AudioFXPanel audioFXs={audioFXs.current} />}
-        {audioCtx && mode === "audio" && (
-            <ConfigAudioBridge
-            audioCtx={audioCtx}
-            audioFXs={audioFXs.current}
-            videoHeight={videoRef.current?.height || 0}
-            videoWidth={videoRef.current?.width || 0}
-            />
-            )}
-        {mode === "midi" && ccSender && <ConfigMidiBridge
-        ccSender={ccSender}
-        videoHeight={videoRef.current?.height || 0}
-        videoWidth={videoRef.current?.width || 0}
-        />}
-        {mode === "midi" && <MidiFXPanel />}
-        {mode === "audio" && <BodyTrackingPanel />}
-        {mode === 'midi' && <BodyTrackingMidiPanel /> }
-        </Container>
+          </>
+        )}
+        {mode === "midi" && midiOutputs && (
+          <MidiDropdown options={midiOutputs} onSelect={setSelectedOutputId} />
+        )}
+      </Buttons>
+      <VideoCanvas canvasRef={canvasRef} videoRef={videoRef} />
+      {mode === "audio" && <AudioFXPanel audioFXs={audioFXs.current} />}
+      {audioCtx && mode === "audio" && (
+        <ConfigAudioBridge
+          audioCtx={audioCtx}
+          audioFXs={audioFXs.current}
+          videoHeight={videoRef.current?.height || 0}
+          videoWidth={videoRef.current?.width || 0}
+        />
+      )}
+      {mode === "midi" && ccSender && (
+        <ConfigMidiBridge
+          ccSender={ccSender}
+          videoHeight={videoRef.current?.height || 0}
+          videoWidth={videoRef.current?.width || 0}
+        />
+      )}
+      {mode === "midi" && <MidiFXPanel />}
+      {mode === "audio" && <BodyTrackingPanel />}
+      {mode === "midi" && <BodyTrackingMidiPanel />}
+    </Container>
   );
 }
 
