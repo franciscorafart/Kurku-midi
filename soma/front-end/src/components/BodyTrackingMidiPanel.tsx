@@ -3,8 +3,9 @@ import { useRecoilState } from "recoil";
 import styled from "styled-components";
 import selectedMidiEffect, { SelectedMidiEffectType } from "atoms/selectedMidiEffect";
 import midiSession from "atoms/midiSession";
-import { Offcanvas } from "react-bootstrap";
+import { Offcanvas, DropdownButton, Dropdown } from "react-bootstrap";
 import { isEmpty } from "lodash";
+import { BodyPartEnum, BodyPartKey } from "config/shared";
 
 const InputContainer = styled.div`
   display: flex;
@@ -93,12 +94,39 @@ function BodyTrackingMidiPanel() {
     }
   };
 
+  const onSelectBodyPart = (bp: keyof BodyPartEnum) => {
+    if (effect && idxEffect !== undefined) {
+      const newEffects = sessionCfg.midi.map((eff, idx) =>
+        idxEffect === idx
+          ? {
+              ...eff,
+              bodyPart: bp as BodyPartKey
+            }
+          : eff
+      );
+      const eff = newEffects[idxEffect];
+
+      setSessionCfg({
+        ...sessionCfg,
+        midi: newEffects
+      });
+
+      setSelected({ controller: eff.controller, bodyPart: eff.bodyPart })
+    }
+  }
+
   return (
     <Offcanvas show={!isEmpty(selected)} placement='end' onHide={() => setSelected({} as SelectedMidiEffectType)}>
     <Offcanvas.Header closeButton>
-      <Offcanvas.Title>{selected.controller}-{selected.bodyPart}</Offcanvas.Title>
+      <Offcanvas.Title>Midi FX configuration</Offcanvas.Title>
     </Offcanvas.Header>
     <Offcanvas.Body>
+      <Label>Body Part</Label>
+      <InputContainer>
+        <DropdownButton title={BodyPartEnum[selected.bodyPart]} onSelect={(e) => onSelectBodyPart(e as keyof BodyPartEnum)} >
+          {Object.entries(BodyPartEnum).map(([key, name]) => <Dropdown.Item key={key} eventKey={key}>{name}</Dropdown.Item>)}
+        </DropdownButton> 
+      </InputContainer>
       <Label>Midi Channel (1-16)</Label>
       <InputContainer>
         <Input

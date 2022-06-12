@@ -36,11 +36,32 @@ export interface ScreenRange {
     | "rightKnee"
     | "leftKnee"
     | "leftAnkle"
+    | "leftEar"
     | "leftElbow"
     | "leftEye"
     | "leftHip"
     | "leftWrist"
     | "leftShoulder";
+
+  export enum BodyPartEnum {
+    nose = "Nose",
+    leftAnkle = "Left Ankle",
+    rightAnkle = "Right Ankle",
+    leftEar = "Left Ear",
+    rightEar = "Right Ear",
+    leftElbow = "Left Elbow",
+    rightElbow = "Right Elbow",
+    leftEye = "Left Eye",
+    rightEye = "Right Eye",
+    leftHip = "Left Hip",
+    rightHip = "Right Hip",
+    leftShoulder = "Left Shoulder",
+    rightShoulder = "Right Shoulder",
+    leftWrist = "Left Wrist",
+    rightWrist = "Right Wrist",
+    leftKnee = "Left Knee",
+    rightKnee = "Right Knee",
+  }
   
   export type BodyPartPositionType = {
     [index in BodyPartKey]: BodyPartValueRange;
