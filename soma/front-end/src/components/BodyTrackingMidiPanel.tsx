@@ -130,12 +130,12 @@ function BodyTrackingMidiPanel() {
       onHide={() => setSelected({} as SelectedMidiEffectType)}
     >
       <Offcanvas.Header closeButton>
-        <Offcanvas.Title>MIDI CC body mapping</Offcanvas.Title>
+        <Offcanvas.Title>MIDI Effect Configuration</Offcanvas.Title>
       </Offcanvas.Header>
       <Offcanvas.Body>
         <Label>Body Part</Label>
         <InputContainer>
-          <DropdownButton title={BodyPartEnum[selected.bodyPart]} onSelect={(e) => onSelectBodyPart(e as keyof BodyPartEnum)} >
+          <DropdownButton title={selected? BodyPartEnum[selected.bodyPart] : ''} onSelect={(e) => onSelectBodyPart(e as keyof BodyPartEnum)} >
             {Object.entries(BodyPartEnum).map(([key, name]) => <Dropdown.Item key={key} eventKey={key}>{name}</Dropdown.Item>)}
           </DropdownButton> 
         </InputContainer>

@@ -6,7 +6,6 @@ export const Container = styled.div`
   flex: wrap;
   padding: 20px;
   min-height: 300px;
-  background-colors: ${theme.background2};
 `;
 
 export const EffectConnect = styled.div`
@@ -29,6 +28,7 @@ export const EffectContainer = styled.div<{
           ? theme.selected
           : theme.selectable
         : theme.notSelecteble};
+  background-color: ${theme.background};
   border-radius: 5px;
 `;
 

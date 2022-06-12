@@ -3,6 +3,7 @@ const colors = {
   blueGray: "#5C8AAC",
   blueGrotto: "#0D659D",
   babyBlue: "#C7D8E7",
+  white: 'white',
 };
 
 const theme = {
@@ -10,7 +11,7 @@ const theme = {
   text2: colors.blueGrotto,
   background: colors.babyBlue,
   background2: colors.blueGray,
-  selected: colors.babyBlue,
+  selected: colors.white,
   selectable: colors.blueGrotto,
   notSelecteble: colors.ebony,
 };

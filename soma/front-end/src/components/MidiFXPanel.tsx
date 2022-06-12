@@ -19,6 +19,7 @@ const Container = styled.div`
   flex-direction: column;
   background-color: ${theme.background2};
   padding: 20px;
+  border-radius: 10px;
 `;
 
 const UpperBar = styled.div`
