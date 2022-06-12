@@ -237,7 +237,7 @@ function SomaUI() {
       canvas.width = width;
       canvas.height = height;
 
-      // initBodyTracking("fast", video, setKeypoints, ratio);
+      initBodyTracking("fast", video, setKeypoints, ratio);
     }
   };
 
