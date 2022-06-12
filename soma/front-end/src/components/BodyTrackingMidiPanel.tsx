@@ -1,13 +1,12 @@
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRecoilState } from "recoil";
 import styled from "styled-components";
-import selectedMidiEffect, {
-  SelectedMidiEffectType,
-} from "atoms/selectedMidiEffect";
+import selectedMidiEffect from "atoms/selectedMidiEffect";
 import midiSession from "atoms/midiSession";
-import { ButtonGroup, Offcanvas, DropdownButton, Dropdown, ToggleButton } from "react-bootstrap";
+import { Button, ButtonGroup, Offcanvas, DropdownButton, Dropdown, ToggleButton } from "react-bootstrap";
 import { isEmpty } from "lodash";
 import { BodyPartEnum, BodyPartKey } from "config/shared";
+import { MidiSessionConfigType } from "config/midi";
 
 const InputContainer = styled.div`
   display: flex;
@@ -21,30 +20,48 @@ const Label = styled.label`
   padding-bottom: 10px;
 `;
 
+const UpperBody = styled.div`
+  display: flex;
+  flex-direction: column;
+`
+
+const Footer = styled.div`
+  display: flex;
+  justify-content: flex-end;
+`
+const BodyContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-content: space-between;
+`
+
 function BodyTrackingMidiPanel() {
   const [selected, setSelected] = useRecoilState(selectedMidiEffect);
+
   const [sessionCfg, setSessionCfg] = useRecoilState(midiSession);
+  const [locSessionCfg, setLocSessionCfg] = useState<MidiSessionConfigType | undefined>(undefined)
+
+  useEffect(() => {
+    setLocSessionCfg(sessionCfg)
+  }, [sessionCfg])
 
   const idxEffect = useMemo(() => {
-    if (sessionCfg.midi) {
-      return sessionCfg.midi.findIndex(
+      return locSessionCfg?.midi.findIndex(
         (eff) =>
-          selected.controller === eff.controller &&
-          selected.bodyPart === eff.bodyPart
+          selected === eff.uid
       );
-    }
-  }, [selected.bodyPart, selected.controller, sessionCfg.midi]);
+  }, [selected, locSessionCfg]);
 
   const effect =
-    idxEffect !== undefined ? sessionCfg.midi[idxEffect] : undefined;
+    idxEffect !== undefined && locSessionCfg ? locSessionCfg.midi[idxEffect] : undefined;
 
   const onChangeScreen = (
     e: React.ChangeEvent<HTMLInputElement>,
     d: "a" | "b"
   ) => {
     const v = e.target.value;
-    if (effect && idxEffect !== undefined) {
-      const newEffects = sessionCfg.midi.map((eff, idx) =>
+    if (locSessionCfg && effect && idxEffect !== undefined) {
+      const newEffects = locSessionCfg.midi.map((eff, idx) =>
         idxEffect === idx
           ? {
               ...eff,
@@ -52,8 +69,8 @@ function BodyTrackingMidiPanel() {
             }
           : eff
       );
-      setSessionCfg({
-        ...sessionCfg,
+      setLocSessionCfg({
+        ...locSessionCfg,
         midi: newEffects,
       });
     }
@@ -64,8 +81,8 @@ function BodyTrackingMidiPanel() {
     type: "controller" | "channel"
   ) => {
     const v = e.target.value;
-    if (effect && idxEffect !== undefined) {
-      const newEffects = sessionCfg.midi.map((eff, idx) =>
+    if (locSessionCfg && effect && idxEffect !== undefined) {
+      const newEffects = locSessionCfg.midi.map((eff, idx) =>
         idxEffect === idx
           ? {
               ...eff,
@@ -73,8 +90,8 @@ function BodyTrackingMidiPanel() {
             }
           : eff
       );
-      setSessionCfg({
-        ...sessionCfg,
+      setLocSessionCfg({
+        ...locSessionCfg,
         midi: newEffects,
       });
     }
@@ -85,8 +102,8 @@ function BodyTrackingMidiPanel() {
     d: "x" | "y"
   ) => {
     const v = e.target.value;
-    if (effect && idxEffect !== undefined) {
-      const newEffects = sessionCfg.midi.map((eff, idx) =>
+    if (locSessionCfg && effect && idxEffect !== undefined) {
+      const newEffects = locSessionCfg.midi.map((eff, idx) =>
         idxEffect === idx
           ? {
               ...eff,
@@ -95,16 +112,16 @@ function BodyTrackingMidiPanel() {
           : eff
       );
 
-      setSessionCfg({
-        ...sessionCfg,
+      setLocSessionCfg({
+        ...locSessionCfg,
         midi: newEffects,
       });
     }
   };
 
   const onSelectBodyPart = (bp: keyof BodyPartEnum) => {
-    if (effect && idxEffect !== undefined) {
-      const newEffects = sessionCfg.midi.map((eff, idx) =>
+    if (locSessionCfg && effect && idxEffect !== undefined) {
+      const newEffects = locSessionCfg.midi.map((eff, idx) =>
         idxEffect === idx
           ? {
               ...eff,
@@ -112,20 +129,18 @@ function BodyTrackingMidiPanel() {
             }
           : eff
       );
-      const eff = newEffects[idxEffect];
 
-      setSessionCfg({
-        ...sessionCfg,
+      setLocSessionCfg({
+        ...locSessionCfg,
         midi: newEffects
       });
 
-      setSelected({ controller: eff.controller, bodyPart: eff.bodyPart, axis: eff.direction })
     }
   }
 
   const onAxisChange = (axis: "x" | "y") => {
-    if (effect && idxEffect !== undefined) {
-      const newEffects = sessionCfg.midi.map((eff, idx) =>
+    if (locSessionCfg && effect && idxEffect !== undefined) {
+      const newEffects = locSessionCfg.midi.map((eff, idx) =>
         idxEffect === idx
           ? {
               ...eff,
@@ -133,30 +148,36 @@ function BodyTrackingMidiPanel() {
             }
           : eff
       );
-      const eff = newEffects[idxEffect];
 
-      setSessionCfg({
-        ...sessionCfg,
+      setLocSessionCfg({
+        ...locSessionCfg,
         midi: newEffects
       });
-
-      setSelected({ controller: eff.controller, bodyPart: eff.bodyPart, axis: eff.direction })
     }
   }
 
+  const saveConfig = () => {
+    if (locSessionCfg && effect){
+      setSessionCfg(locSessionCfg)
+      setSelected('')
+    }
+  }
+  console.log('locSessionCfg', locSessionCfg)
   return (
     <Offcanvas
       show={!isEmpty(selected)}
       placement="end"
-      onHide={() => setSelected({} as SelectedMidiEffectType)}
+      onHide={() => setSelected('')}
     >
       <Offcanvas.Header closeButton>
         <Offcanvas.Title>MIDI Effect Configuration</Offcanvas.Title>
       </Offcanvas.Header>
       <Offcanvas.Body>
+        <BodyContainer>
+        <UpperBody>
         <Label>Body Part</Label>
         <InputContainer>
-          <DropdownButton title={selected? BodyPartEnum[selected.bodyPart] : ''} onSelect={(e) => onSelectBodyPart(e as keyof BodyPartEnum)} >
+          <DropdownButton title={effect ?  BodyPartEnum[effect.bodyPart] : ''} onSelect={(e) => onSelectBodyPart(e as keyof BodyPartEnum)} >
             {Object.entries(BodyPartEnum).map(([key, name]) => <Dropdown.Item key={key} eventKey={key}>{name}</Dropdown.Item>)}
           </DropdownButton> 
         </InputContainer>
@@ -166,7 +187,7 @@ function BodyTrackingMidiPanel() {
               type="number"
               value={effect?.channel}
               onChange={(e) => onChangeMidiConfig(e, "channel")}
-          />
+              />
         </InputContainer>
           <Label>CC Control (1-128)</Label>
           <InputContainer>
@@ -174,7 +195,7 @@ function BodyTrackingMidiPanel() {
               type="number"
               value={effect?.controller}
               onChange={(e) => onChangeMidiConfig(e, "controller")}
-            />
+              />
           </InputContainer>
           <Label>Axis</Label>
           <InputContainer>
@@ -184,17 +205,17 @@ function BodyTrackingMidiPanel() {
                 type="radio"
                 name="X"
                 value="x"
-                checked={selected?.axis === "x"}
+                checked={effect?.direction === "x"}
                 onChange={() => onAxisChange("x")}
-              >X</ToggleButton>
+                >X</ToggleButton>
               <ToggleButton
                 id={`radio-y`}
                 type="radio"
                 name="Y"
                 value="y"
-                checked={selected?.axis === "y"}
+                checked={effect?.direction === "y"}
                 onChange={() => onAxisChange("y")}
-              >Y</ToggleButton>
+                >Y</ToggleButton>
             </ButtonGroup>
           </InputContainer>
           <Label>Screen Range</Label>
@@ -203,12 +224,12 @@ function BodyTrackingMidiPanel() {
               type="number"
               value={effect?.screenRange.a}
               onChange={(e) => onChangeScreen(e, "a")}
-            />
+              />
             <Input
               type="number"
               value={effect?.screenRange.b}
               onChange={(e) => onChangeScreen(e, "b")}
-            />
+              />
           </InputContainer>
           <Label>Output Range</Label>
           <InputContainer>
@@ -216,13 +237,18 @@ function BodyTrackingMidiPanel() {
               type="number"
               value={effect?.valueRange.x}
               onChange={(e) => onChangeRange(e, "x")}
-            />
+              />
             <Input
               type="number"
               value={effect?.valueRange.y}
               onChange={(e) => onChangeRange(e, "y")}
-            />
+              />
           </InputContainer>
+          </UpperBody>
+          <Footer>
+            <Button variant="primary" onClick={saveConfig}>Save</Button>
+          </Footer>
+          </BodyContainer>
       </Offcanvas.Body>
     </Offcanvas>
   );

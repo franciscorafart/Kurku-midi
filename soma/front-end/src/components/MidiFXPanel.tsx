@@ -13,6 +13,8 @@ import CloseButton from "react-bootstrap/CloseButton";
 import Button from "react-bootstrap/Button";
 import theme from "config/theme";
 import { Text, SubTitle } from "./shared";
+// @ts-ignore
+import { v4 } from 'uuid'
 
 const Container = styled.div`
   display: flex;
@@ -48,7 +50,7 @@ const findCC = (ccList: number[]) => {
 const MAX_FX = 16
 
 function MidiFXPanel() {
-  const [selected, setSelected] = useRecoilState(selectedMidiEffect);
+  const [selectedUid, setSelectedUid] = useRecoilState(selectedMidiEffect);
   const [midiSessionConfig, setMidiSessionConfig] = useRecoilState(midiSession);
   const handleDisconnect = useCallback(
     (controller: number) => {
@@ -73,6 +75,7 @@ function MidiFXPanel() {
     const cc = findCC(ccList);
 
     newMidiFx.push({
+      uid: v4(),
       direction: "y",
       screenRange: { a: 0, b: 1 },
       valueRange: { x: 0, y: 127 },
@@ -102,19 +105,12 @@ function MidiFXPanel() {
             <EffectContainer
               key={`midi-effect-${mEff.controller}`}
               selectable
-              selected={
-                mEff.controller === selected.controller &&
-                mEff.bodyPart === selected.bodyPart
-              }
+              selected={mEff.uid === selectedUid}
             >
               <CloseButton onClick={() => handleDisconnect(mEff.controller)} />
               <EffectBox
                 onClick={() =>
-                  setSelected({
-                    controller: mEff.controller,
-                    bodyPart: mEff.bodyPart,
-                    axis: mEff.direction,
-                  })
+                  setSelectedUid(mEff.uid)
                 }
                 key={`${mEff.controller}-${mEff.bodyPart}`}
                 selectable

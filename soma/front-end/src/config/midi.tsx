@@ -1,9 +1,12 @@
 import { BodyPartKey, ScreenRange, ValueRange } from "./shared";
 import { ChannelType } from "utils/types";
+// @ts-ignore
+import { v4 } from "uuid";
 
 export const defaultMidiSession: MidiSessionConfigType = {
     midi: [
       {
+        uid: v4(),
         direction: "x", // horizontal
         screenRange: { a: 0.3, b: 0.7 },
         valueRange: { x: 0, y: 127 },
@@ -15,6 +18,7 @@ export const defaultMidiSession: MidiSessionConfigType = {
         controller: 40,
       },
       {
+        uid: v4(),
         direction: "y", // vertical
         screenRange: { a: 0.5, b: 0.8 },
         valueRange: { x: 0, y: 127 },
@@ -26,6 +30,7 @@ export const defaultMidiSession: MidiSessionConfigType = {
         controller: 41,
       },
       {
+        uid: v4(),
         direction: "y", // vertical
         screenRange: { a: 0.75, b: 1 },
         valueRange: { x: 0, y: 127 },
@@ -41,6 +46,7 @@ export const defaultMidiSession: MidiSessionConfigType = {
   };
 
   export interface MidiConfigType {
+    uid: string,
     direction: "x" | "y";
     screenRange: ScreenRange;
     valueRange: ValueRange;

@@ -192,13 +192,13 @@ function MidiDropdown({
 
 function SomaUI() {
   const setKeypoints = useSetRecoilState(keypoints);
-  const sessionCfg = useRecoilValue(sessionConfig);
+  // const sessionCfg = useRecoilValue(sessionConfig);
 
-  const audioFXs = useRef<KeyedEffectType>({}); // keyed store of audio nodes
+  // const audioFXs = useRef<KeyedEffectType>({}); // keyed store of audio nodes
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
-  const [audioCtx, setAudioCtx] = useState<AudioContext | undefined>(undefined);
+  // const [audioCtx, setAudioCtx] = useState<AudioContext | undefined>(undefined);
   const [mode, setMode] = useState<"audio" | "midi" | undefined>(undefined);
   const [midiOutputs, setMidiOutputs] = useState<MidiOutputType[] | undefined>(
     undefined
@@ -207,14 +207,14 @@ function SomaUI() {
     keyof MidiOutputType | undefined
   >(undefined);
 
-  const initAudioSource = async (source: "audio" | "mic") => {
-    const audioCtx =
-      source === "audio"
-        ? await initAudio(sessionCfg, audioFXs.current)
-        : await initMicAudio(sessionCfg, audioFXs.current);
+  // const initAudioSource = async (source: "audio" | "mic") => {
+  //   const audioCtx =
+  //     source === "audio"
+  //       ? await initAudio(sessionCfg, audioFXs.current)
+  //       : await initMicAudio(sessionCfg, audioFXs.current);
 
-    setAudioCtx(audioCtx);
-  };
+  //   setAudioCtx(audioCtx);
+  // };
 
   const initTracking = async () => {
     const video = videoRef.current;
@@ -237,15 +237,15 @@ function SomaUI() {
       canvas.width = width;
       canvas.height = height;
 
-      initBodyTracking("fast", video, setKeypoints, ratio);
+      // initBodyTracking("fast", video, setKeypoints, ratio);
     }
   };
 
-  const initAll = async (source: "audio" | "mic") => {
-    await initTracking();
-    await initAudioSource(source);
-    setMode("audio");
-  };
+  // const initAll = async (source: "audio" | "mic") => {
+  //   await initTracking();
+  //   await initAudioSource(source);
+  //   setMode("audio");
+  // };
 
   const initMidiSession = async () => {
     await initTracking();
@@ -276,8 +276,34 @@ function SomaUI() {
         {mode === "midi" && midiOutputs && (
           <MidiDropdown options={midiOutputs} onSelect={setSelectedOutputId} selected={selectedOutput} />
         )}
+        {/* {mode && <ButtonGroup>
+              <ToggleButton
+                id={`radio-x`}
+                type="radio"
+                name="X"
+                value="x"
+                checked={selected?.axis === "x"}
+                onChange={() => ({})}
+                >Slow</ToggleButton>
+              <ToggleButton
+                id={`radio-y`}
+                type="radio"
+                name="Y"
+                value="y"
+                checked={selected?.axis === "y"}
+                onChange={() => ({})}
+                >Good</ToggleButton>
+                <ToggleButton
+                id={`radio-y`}
+                type="radio"
+                name="Y"
+                value="y"
+                checked={selected?.axis === "y"}
+                onChange={() => ({}))}
+                >Fast</ToggleButton>
+            </ButtonGroup>} */}
       </Buttons>
-      <VideoCanvas canvasRef={canvasRef} videoRef={videoRef} />
+      {/* <VideoCanvas canvasRef={canvasRef} videoRef={videoRef} /> */}
       {/* {mode === "audio" && <AudioFXPanel audioFXs={audioFXs.current} />} */}
       {/* {audioCtx && mode === "audio" && (
         <ConfigAudioBridge
