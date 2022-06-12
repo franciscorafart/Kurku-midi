@@ -5,8 +5,9 @@ import selectedMidiEffect, {
   SelectedMidiEffectType,
 } from "atoms/selectedMidiEffect";
 import midiSession from "atoms/midiSession";
-import { Offcanvas } from "react-bootstrap";
+import { Offcanvas, DropdownButton, Dropdown } from "react-bootstrap";
 import { isEmpty } from "lodash";
+import { BodyPartEnum, BodyPartKey } from "config/shared";
 
 const InputContainer = styled.div`
   display: flex;
@@ -101,6 +102,27 @@ function BodyTrackingMidiPanel() {
     }
   };
 
+  const onSelectBodyPart = (bp: keyof BodyPartEnum) => {
+    if (effect && idxEffect !== undefined) {
+      const newEffects = sessionCfg.midi.map((eff, idx) =>
+        idxEffect === idx
+          ? {
+              ...eff,
+              bodyPart: bp as BodyPartKey
+            }
+          : eff
+      );
+      const eff = newEffects[idxEffect];
+
+      setSessionCfg({
+        ...sessionCfg,
+        midi: newEffects
+      });
+
+      setSelected({ controller: eff.controller, bodyPart: eff.bodyPart })
+    }
+  }
+
   return (
     <Offcanvas
       show={!isEmpty(selected)}
@@ -111,49 +133,54 @@ function BodyTrackingMidiPanel() {
         <Offcanvas.Title>MIDI CC body mapping</Offcanvas.Title>
       </Offcanvas.Header>
       <Offcanvas.Body>
-        <Label>Body part: {selected.bodyPart}</Label>
+        <Label>Body Part</Label>
+        <InputContainer>
+          <DropdownButton title={BodyPartEnum[selected.bodyPart]} onSelect={(e) => onSelectBodyPart(e as keyof BodyPartEnum)} >
+            {Object.entries(BodyPartEnum).map(([key, name]) => <Dropdown.Item key={key} eventKey={key}>{name}</Dropdown.Item>)}
+          </DropdownButton> 
+        </InputContainer>
         <Label>Midi Channel (1-16)</Label>
         <InputContainer>
           <Input
-            type="number"
-            value={effect?.channel}
-            onChange={(e) => onChangeMidiConfig(e, "channel")}
+              type="number"
+              value={effect?.channel}
+              onChange={(e) => onChangeMidiConfig(e, "channel")}
           />
         </InputContainer>
-        <Label>CC Control (1-128)</Label>
-        <InputContainer>
-          <Input
-            type="number"
-            value={effect?.controller}
-            onChange={(e) => onChangeMidiConfig(e, "controller")}
-          />
-        </InputContainer>
-        <Label>Screen Range</Label>
-        <InputContainer>
-          <Input
-            type="number"
-            value={effect?.screenRange.a}
-            onChange={(e) => onChangeScreen(e, "a")}
-          />
-          <Input
-            type="number"
-            value={effect?.screenRange.b}
-            onChange={(e) => onChangeScreen(e, "b")}
-          />
-        </InputContainer>
-        <Label>Output Range</Label>
-        <InputContainer>
-          <Input
-            type="number"
-            value={effect?.valueRange.x}
-            onChange={(e) => onChangeRange(e, "x")}
-          />
-          <Input
-            type="number"
-            value={effect?.valueRange.y}
-            onChange={(e) => onChangeRange(e, "y")}
-          />
-        </InputContainer>
+          <Label>CC Control (1-128)</Label>
+          <InputContainer>
+            <Input
+              type="number"
+              value={effect?.controller}
+              onChange={(e) => onChangeMidiConfig(e, "controller")}
+            />
+          </InputContainer>
+          <Label>Screen Range</Label>
+          <InputContainer>
+            <Input
+              type="number"
+              value={effect?.screenRange.a}
+              onChange={(e) => onChangeScreen(e, "a")}
+            />
+            <Input
+              type="number"
+              value={effect?.screenRange.b}
+              onChange={(e) => onChangeScreen(e, "b")}
+            />
+          </InputContainer>
+          <Label>Output Range</Label>
+          <InputContainer>
+            <Input
+              type="number"
+              value={effect?.valueRange.x}
+              onChange={(e) => onChangeRange(e, "x")}
+            />
+            <Input
+              type="number"
+              value={effect?.valueRange.y}
+              onChange={(e) => onChangeRange(e, "y")}
+            />
+          </InputContainer>
       </Offcanvas.Body>
     </Offcanvas>
   );
