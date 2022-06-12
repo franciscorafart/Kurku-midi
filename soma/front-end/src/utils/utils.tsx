@@ -1,5 +1,5 @@
 import * as posenet from "@tensorflow-models/posenet";
-import { Keypoints } from "config/configUtils";
+import { Keypoints } from "config/shared";
 import { BodyPartPositionType } from 'config/shared';
 
 const color = "green";

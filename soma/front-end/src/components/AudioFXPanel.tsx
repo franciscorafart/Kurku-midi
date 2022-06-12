@@ -1,7 +1,7 @@
 import styled from "styled-components";
-import sessionConfig from "atoms/sessionConfig";
+import audioEffects from "atoms/audioEffects";
 import { useRecoilValue, useRecoilState } from "recoil";
-import selectedEffect from "atoms/selectedEffect";
+import selectedEffect from "atoms/selectedAudioEffect";
 import { KeyedEffectType } from "utils/types";
 import { CloseX, Container, EffectBox, EffectConnect, EffectContainer } from "./shared";
 
@@ -14,10 +14,8 @@ const Cable = styled.div`
 `;
 
 function AudioFXPanel({ audioFXs }: { audioFXs: KeyedEffectType }) {
-  const sessionCfg = useRecoilValue(sessionConfig);
+  const fx = useRecoilValue(audioEffects);
   const [selected, setSelected] = useRecoilState(selectedEffect);
-
-  console.log("sessionCfg", sessionCfg);
 
   const handleDisconnect = () => {
     // Get AudioFx node with selected key, previous and next
@@ -31,7 +29,7 @@ function AudioFXPanel({ audioFXs }: { audioFXs: KeyedEffectType }) {
         <EffectBox>Source</EffectBox>
       </EffectContainer>
       <Cable>{`==>`}</Cable>
-      {sessionCfg.effects.map((eff) => (
+      {fx.map((eff) => (
         <EffectConnect key={eff.key}>
           <EffectContainer
             selectable

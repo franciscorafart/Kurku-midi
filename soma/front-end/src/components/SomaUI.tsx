@@ -1,18 +1,19 @@
 import { useRef, useState, useEffect, useMemo } from "react";
 import styled from "styled-components";
-import { initAudio, initMicAudio } from "utils/audioCtx";
-import AudioFXPanel from "./AudioFXPanel";
+// import { initAudio, initMicAudio } from "utils/audioCtx";
+// import AudioFXPanel from "./AudioFXPanel";
 import MidiFXPanel from "./MidiFXPanel";
-import BodyTrackingPanel from "./BodyTrackingPanel";
+// import BodyTrackingPanel from "./BodyTrackingPanel";
 import {
   initBodyTracking,
   machineConfig,
   setupCamera,
 } from "utils/bodytracking";
-import { useRecoilValue, useSetRecoilState } from "recoil";
+import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import keypoints from "atoms/keypoints";
+import audioEffects from "atoms/audioEffects";
 import sessionConfig from "atoms/sessionConfig";
-import midiSession from "atoms/midiSession";
+import midiSession from "atoms/midiEffects";
 import {
   drawKeypoints,
   drawSkeleton,
@@ -28,7 +29,7 @@ import BodyTrackingMidiPanel from "./BodyTrackingMidiPanel";
 import { Dropdown, DropdownButton, Button, ButtonGroup, ToggleButton } from "react-bootstrap";
 import theme from "config/theme";
 import { Title, SubTitle } from "./shared";
-import { MachineType } from "config/configUtils";
+import { MachineType } from "config/shared";
 
 const Container = styled.div`
   display: flex;
@@ -62,10 +63,11 @@ function VideoCanvas({
   videoRef: React.MutableRefObject<HTMLVideoElement | null>;
 }) {
   const kpValues = useRecoilValue(keypoints);
+  const sessionCfg = useRecoilValue(sessionConfig);
   const video = videoRef.current;
   const canvas = canvasRef.current;
   const ctx: CanvasRenderingContext2D | null = canvas?.getContext("2d") || null;
-  const config = machineConfig["fast"]; // TODO: This should come from the global state
+  const config = machineConfig[sessionCfg.machineType];
   // console.log("kpValues", kpValues);
   useEffect(() => {
     if (ctx && video && !isEmpty(kpValues)) {
@@ -95,8 +97,9 @@ function ConfigAudioBridge({
   videoWidth: number;
 }) {
   const kpValues = useRecoilValue(keypoints);
+  const audioFXState = useRecoilValue(audioEffects);
   const sessionCfg = useRecoilValue(sessionConfig);
-  const config = machineConfig[sessionCfg.machineType]; // TODO: This should come from the global state
+  const config = machineConfig[sessionCfg.machineType];
 
   useEffect(() => {
     if (!isEmpty(kpValues)) {
@@ -109,7 +112,7 @@ function ConfigAudioBridge({
 
       //TODO: pass only skip size from config and deal with FX with ref
       mapGlobalConfigsToSound(
-        sessionCfg,
+        audioFXState,
         bodyPartPositions,
         audioCtx,
         audioFXs
@@ -117,7 +120,7 @@ function ConfigAudioBridge({
     }
   }, [
     kpValues,
-    sessionCfg,
+    audioFXState,
     audioCtx,
     audioFXs,
     config.confidence,
@@ -195,7 +198,7 @@ function MidiDropdown({
 
 function SomaUI() {
   const setKeypoints = useSetRecoilState(keypoints);
-  // const sessionCfg = useRecoilValue(sessionConfig);
+  const [sessionCfg, setSessionCfg] = useRecoilState(sessionConfig);
 
   // const audioFXs = useRef<KeyedEffectType>({}); // keyed store of audio nodes
   const videoRef = useRef<HTMLVideoElement | null>(null);
@@ -203,7 +206,6 @@ function SomaUI() {
 
   // const [audioCtx, setAudioCtx] = useState<AudioContext | undefined>(undefined);
   const [mode, setMode] = useState<"audio" | "midi" | undefined>(undefined);
-  const [machineSpeed, setMachineSpeed] = useState<'slow' | 'decent' | 'fast'>("fast")
 
   const [midiOutputs, setMidiOutputs] = useState<MidiOutputType[] | undefined>(
     undefined
@@ -279,8 +281,8 @@ function SomaUI() {
                 type="radio"
                 name="Slow"
                 value="slow"
-                checked={machineSpeed === "slow"}
-                onChange={() => setMachineSpeed("slow")}
+                checked={sessionCfg.machineType === "slow"}
+                onChange={() =>  setSessionCfg({...sessionCfg, machineType: "slow"})}
                 disabled={Boolean(mode)}
                 >Slow</ToggleButton>
               <ToggleButton
@@ -288,8 +290,8 @@ function SomaUI() {
                 type="radio"
                 name="Decent"
                 value="decent"
-                checked={machineSpeed === "decent"}
-                onChange={() => setMachineSpeed("decent")}
+                checked={sessionCfg.machineType === "decent"}
+                onChange={() => setSessionCfg({...sessionCfg, machineType: "decent"})}
                 disabled={Boolean(mode)}
                 >Decent</ToggleButton>
                 <ToggleButton
@@ -297,8 +299,8 @@ function SomaUI() {
                 type="radio"
                 name="Fast"
                 value="fast"
-                checked={machineSpeed === "fast"}
-                onChange={() => setMachineSpeed("fast")}
+                checked={sessionCfg.machineType === "fast"}
+                onChange={() =>  setSessionCfg({...sessionCfg, machineType: "fast"})}
                 disabled={Boolean(mode)}
                 >Fast</ToggleButton>
             </ButtonGroup>
@@ -327,7 +329,7 @@ function SomaUI() {
           ccSender={ccSender}
           videoHeight={videoRef.current?.height || 0}
           videoWidth={videoRef.current?.width || 0}
-          machineSpeed={machineSpeed}
+          machineSpeed={sessionCfg.machineType}
         />
       )}
       {mode === "midi" && <MidiFXPanel />}

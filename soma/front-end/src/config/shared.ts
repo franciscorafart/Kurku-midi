@@ -1,3 +1,5 @@
+import * as posenet from "@tensorflow-models/posenet";
+
 export interface ScreenRange {
     a: number;
     b: number;
@@ -66,3 +68,15 @@ export interface ScreenRange {
   export type BodyPartPositionType = {
     [index in BodyPartKey]: BodyPartValueRange;
   };
+
+  export type MachineType = "slow" | "decent" | "fast";
+
+  export interface SessionConfigType {
+    machineType: MachineType;
+  }
+
+  export const defaultSessionConfig: SessionConfigType = {
+    machineType: "slow",
+  }
+  
+  export type Keypoints = posenet.Keypoint[];

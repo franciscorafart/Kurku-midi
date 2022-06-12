@@ -1,13 +1,13 @@
-import { MidiSessionConfigType } from "config/midi";
+import { MidiEffectType } from "config/midi";
 import { ChannelType } from "./types";
 import { scaleWindowToRange } from './utils'
 
 export const mapGlobalConfigsToMidi = (
-    sessionConfig: MidiSessionConfigType,
+    midiFx: MidiEffectType[],
     bodyPartPositions: any, // TODO: create body part positions type
     ccSender: (channel: ChannelType, controller: number, velocity: number) => void,
   ) => {
-    for (const effect of sessionConfig.midi) {
+    for (const effect of midiFx) {
         const bodyPart = effect.bodyPart;
         const position = bodyPartPositions[bodyPart][effect.direction];
   

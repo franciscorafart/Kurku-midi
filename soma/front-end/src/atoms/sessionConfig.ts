@@ -1,5 +1,5 @@
 import { atom } from "recoil";
-import { defaultSessionConfig } from "config/configUtils";
+import { defaultSessionConfig } from "config/shared";
 
 const sessionConfig = atom({
   key: "sessionConfig",

@@ -6,7 +6,7 @@ import {
   EffectBox,
   EmptyEffectContainer,
 } from "./shared";
-import midiSession from "atoms/midiSession";
+import midiEffects from "atoms/midiEffects";
 import { useRecoilState } from "recoil";
 import selectedMidiEffect from "atoms/selectedMidiEffect";
 import CloseButton from "react-bootstrap/CloseButton";
@@ -51,26 +51,26 @@ const MAX_FX = 16
 
 function MidiFXPanel() {
   const [selectedUid, setSelectedUid] = useRecoilState(selectedMidiEffect);
-  const [midiSessionConfig, setMidiSessionConfig] = useRecoilState(midiSession);
+  const [fx, setFx] = useRecoilState(midiEffects);
   const handleDisconnect = useCallback(
-    (controller: number) => {
-      const idxOfRemove = midiSessionConfig.midi.findIndex(
-        (msc) => msc.controller === controller
+    (uid: string) => {
+      const idxOfRemove = fx.findIndex(
+        (msc) => msc.uid === uid
       );
-      const newMidiFx = [...midiSessionConfig.midi];
+      const newMidiFx = [...fx];
 
       if (idxOfRemove !== undefined) {
         newMidiFx.splice(idxOfRemove, 1);
-        setMidiSessionConfig({ ...midiSessionConfig, midi: newMidiFx });
+        setFx(newMidiFx);
       }
     },
-    [midiSessionConfig, setMidiSessionConfig]
+    [fx, setFx]
   );
 
-  const emptyFxCount = MAX_FX - midiSessionConfig.midi.length;
+  const emptyFxCount = MAX_FX - fx.length;
 
   const onAddEffect = useCallback(() => {
-    const newMidiFx = [...midiSessionConfig.midi];
+    const newMidiFx = [...fx];
     const ccList = newMidiFx.map((m) => m.controller);
     const cc = findCC(ccList);
 
@@ -87,8 +87,8 @@ function MidiFXPanel() {
       controller: cc,
     });
 
-    setMidiSessionConfig({ ...midiSessionConfig, midi: newMidiFx });
-  }, [midiSessionConfig, setMidiSessionConfig]);
+    setFx(newMidiFx);
+  }, [fx, setFx]);
 
   return (
     <Container>
@@ -101,13 +101,13 @@ function MidiFXPanel() {
         </Button>
       </UpperBar>
       <StlFXContainer>
-        {midiSessionConfig.midi.map((mEff) => (
+        {fx.map((mEff) => (
             <EffectContainer
               key={`midi-effect-${mEff.controller}`}
               selectable
               selected={mEff.uid === selectedUid}
             >
-              <CloseButton onClick={() => handleDisconnect(mEff.controller)} />
+              <CloseButton onClick={() => handleDisconnect(mEff.uid)} />
               <EffectBox
                 onClick={() =>
                   setSelectedUid(mEff.uid)

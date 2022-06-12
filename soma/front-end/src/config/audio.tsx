@@ -1,13 +1,8 @@
-import * as posenet from "@tensorflow-models/posenet";
 import impulseResponse from "assets/impulse-response.wav";
 import soprano from "assets/sound2.wav";
 import { BodyPartKey, effectKeyType, ScreenRange, ValueRange } from "./shared";
 
-// TODO: Move to types
-export type Keypoints = posenet.Keypoint[];
-
-export const defaultSessionConfig: SessionConfigType = {
-  effects: [
+export const defaultAudioEffects: AudioEffectType[] = [
     {
       direction: "x", // horizontal
       screenRange: { a: 0.3, b: 0.7 },
@@ -127,12 +122,9 @@ export const defaultSessionConfig: SessionConfigType = {
       },
       node: undefined
     }
-  ],
-  machineType: "fast", // fast / decent / slow
-  skipSize: 0.1
-};
+  ]
 
-export interface effectConfigType {
+export interface AudioEffectType {
   direction: "x" | "y";
   screenRange: ScreenRange;
   valueRange: ValueRange;
@@ -150,11 +142,4 @@ export interface effectConfigType {
   node: any | undefined; // Create Node type
 }
 
-export type MachineType = "slow" | "decent" | "fast";
-
-export interface SessionConfigType {
-  effects: effectConfigType[];
-  machineType: MachineType;
-  skipSize: number;
-}
 

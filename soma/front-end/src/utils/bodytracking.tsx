@@ -1,6 +1,6 @@
 import * as posenet from "@tensorflow-models/posenet";
 import "@tensorflow/tfjs";
-import { Keypoints, MachineType } from "config/configUtils";
+import { Keypoints, MachineType } from "config/shared";
 import { PoseNetQuantBytes } from "@tensorflow-models/posenet/dist/types";
 
 // @ts-ignore

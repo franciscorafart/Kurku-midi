@@ -3,8 +3,7 @@ import { ChannelType } from "utils/types";
 // @ts-ignore
 import { v4 } from "uuid";
 
-export const defaultMidiSession: MidiSessionConfigType = {
-    midi: [
+export const defaultMidiEffects: MidiEffectType[] = [
       {
         uid: v4(),
         direction: "x", // horizontal
@@ -41,11 +40,9 @@ export const defaultMidiSession: MidiSessionConfigType = {
         channel: 1,
         controller: 42,
       },
-    ],
-    machineType: "fast", // fast / decent / slow
-  };
+    ]
 
-  export interface MidiConfigType {
+  export interface MidiEffectType {
     uid: string,
     direction: "x" | "y";
     screenRange: ScreenRange;
@@ -56,9 +53,4 @@ export const defaultMidiSession: MidiSessionConfigType = {
     targetValue: number;
     channel: ChannelType,
     controller: number,
-  }
-
-  export interface MidiSessionConfigType {
-        midi: MidiConfigType[],
-        machineType: 'fast' | 'decent' | 'slow',
   }

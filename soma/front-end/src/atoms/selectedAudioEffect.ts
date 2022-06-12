@@ -5,7 +5,7 @@ export type SelectedEffectType = {
     key: effectKeyType;
     bodyPart: BodyPartKey;
 }
-
+// TODO: Migrate to uuid
 const selectedEffect = atom({
   key: "selectedEffect",
   default: {} as SelectedEffectType,

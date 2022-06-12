@@ -1,7 +1,7 @@
 import styled from "styled-components";
 import { useRecoilState } from "recoil";
-import selectedEffect, { SelectedEffectType } from "atoms/selectedEffect";
-import sessionConfig from "atoms/sessionConfig";
+import selectedEffect, { SelectedEffectType } from "~/atoms/selectedAudioEffect";
+import audioEffects from "atoms/audioEffects";
 import { useMemo } from "react";
 import { Offcanvas } from "react-bootstrap";
 import { isEmpty } from "lodash";
@@ -16,19 +16,19 @@ const Label = styled.label``;
 
 function BodyTrackingPanel() {
   const [selected, setSelected] = useRecoilState(selectedEffect);
-  const [sessionCfg, setSessionCfg] = useRecoilState(sessionConfig);
+  const [fx, setFX] = useRecoilState(audioEffects);
 
   const idxEffect = useMemo(() => {
-    if (sessionCfg.effects) {
-      return sessionCfg.effects.findIndex(
+    if (fx) {
+      return fx.findIndex(
         (eff) => selected.key === eff.key && selected.bodyPart === eff.bodyPart
       );
     }
-  }, [selected.bodyPart, selected.key, sessionCfg.effects]);
+  }, [selected.bodyPart, selected.key, fx]);
   // TODO: State setter out of selected element onInputChange
 
   const effect =
-    idxEffect !== undefined ? sessionCfg.effects[idxEffect] : undefined;
+    idxEffect !== undefined ? fx[idxEffect] : undefined;
 
   const onChangeScreen = (
     e: React.ChangeEvent<HTMLInputElement>,
@@ -36,7 +36,7 @@ function BodyTrackingPanel() {
   ) => {
     const v = e.target.value;
     if (effect && idxEffect !== undefined) {
-      const newEffects = sessionCfg.effects.map((eff, idx) =>
+      const newEffects = fx.map((eff, idx) =>
         idxEffect === idx
           ? {
               ...eff,
@@ -44,10 +44,7 @@ function BodyTrackingPanel() {
             }
           : eff
       );
-      setSessionCfg({
-        ...sessionCfg,
-        effects: newEffects
-      });
+      setFX(newEffects);
     }
   };
 
@@ -57,7 +54,7 @@ function BodyTrackingPanel() {
   ) => {
     const v = e.target.value;
     if (effect && idxEffect !== undefined) {
-      const newEffects = sessionCfg.effects.map((eff, idx) =>
+      const newEffects = fx.map((eff, idx) =>
         idxEffect === idx
           ? {
               ...eff,
@@ -66,10 +63,7 @@ function BodyTrackingPanel() {
           : eff
       );
 
-      setSessionCfg({
-        ...sessionCfg,
-        effects: newEffects
-      });
+      setFX(newEffects);
     }
   };
 

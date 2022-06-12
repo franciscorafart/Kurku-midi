@@ -2,11 +2,11 @@ import { useEffect, useMemo, useState } from "react";
 import { useRecoilState } from "recoil";
 import styled from "styled-components";
 import selectedMidiEffect from "atoms/selectedMidiEffect";
-import midiSession from "atoms/midiSession";
+import midiEffects from "atoms/midiEffects";
 import { Button, ButtonGroup, Offcanvas, DropdownButton, Dropdown, ToggleButton } from "react-bootstrap";
 import { isEmpty } from "lodash";
 import { BodyPartEnum, BodyPartKey } from "config/shared";
-import { MidiConfigType } from "config/midi";
+import { MidiEffectType } from "config/midi";
 
 const InputContainer = styled.div`
   display: flex;
@@ -38,12 +38,12 @@ const BodyContainer = styled.div`
 
 function BodyTrackingMidiPanel() {
   const [selected, setSelected] = useRecoilState(selectedMidiEffect);
-  const [sessionCfg, setSessionCfg] = useRecoilState(midiSession);
-  const [locEffects, setLocalEffects] = useState<MidiConfigType[] | undefined>(undefined)
+  const [fx, setFx] = useRecoilState(midiEffects);
+  const [locEffects, setLocalEffects] = useState<MidiEffectType[] | undefined>(undefined)
 
   useEffect(() => {
-    setLocalEffects(sessionCfg.midi)
-  }, [sessionCfg])
+    setLocalEffects(fx)
+  }, [fx])
 
   const idxEffect = useMemo(() => {
       return locEffects?.findIndex(
@@ -111,7 +111,7 @@ function BodyTrackingMidiPanel() {
 
   const saveConfig = () => {
     if (locEffects){
-      setSessionCfg({...sessionCfg, midi: locEffects})
+      setFx(locEffects)
       setSelected('')
     }
   }

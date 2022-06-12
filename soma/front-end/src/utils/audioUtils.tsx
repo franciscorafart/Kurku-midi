@@ -1,4 +1,4 @@
-import { SessionConfigType } from "config/configUtils";
+import { AudioEffectType } from "~/config/audio";
 import { effectKeyType } from "config/shared";
 import { KeyedEffectType } from "./types";
 import { scaleWindowToRange } from "./utils";
@@ -34,12 +34,12 @@ const setEffectValue = (
 };
 
 export const mapGlobalConfigsToSound = (
-  sessionConfig: SessionConfigType,
+  audioEffects: AudioEffectType[],
   bodyPartPositions: any, // TODO: create body part positions type
   audioCtx: BaseAudioContext,
   audioFXs: KeyedEffectType
 ) => {
-  for (const effect of sessionConfig.effects) {
+  for (const effect of audioEffects) {
     const bodyPart = effect.bodyPart;
     const position = bodyPartPositions[bodyPart][effect.direction];
     const node = audioFXs[`${effect.key}-${bodyPart}`];
@@ -62,7 +62,7 @@ export const mapGlobalConfigsToSound = (
         // const nextValue = moveTowardsPoint(
         //   effect.previousValue,
         //   scaledValue,
-        //   sessionConfig.skipSize * effectScaleFactor
+        //   audioEffects.skipSize * effectScaleFactor
         // );
 
         setEffectValue(effect.key, node, audioCtx.currentTime, scaledValue);
