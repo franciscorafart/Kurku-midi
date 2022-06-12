@@ -32,6 +32,18 @@ export const EffectContainer = styled.div<{
   border-radius: 5px;
 `;
 
+export const EmptyEffectContainer = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 86px;
+  width: 160px;
+  padding: 5px;
+  border: 1px dashed ${theme.notSelecteble};
+  background-color: ${theme.background};
+  border-radius: 5px;
+`;
+
 export const CloseX = styled.div`
   height: 16px;
   width: 10px;

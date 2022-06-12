@@ -5,7 +5,7 @@ import selectedMidiEffect, {
   SelectedMidiEffectType,
 } from "atoms/selectedMidiEffect";
 import midiSession from "atoms/midiSession";
-import { Offcanvas, DropdownButton, Dropdown } from "react-bootstrap";
+import { ButtonGroup, Offcanvas, DropdownButton, Dropdown, ToggleButton } from "react-bootstrap";
 import { isEmpty } from "lodash";
 import { BodyPartEnum, BodyPartKey } from "config/shared";
 
@@ -119,7 +119,28 @@ function BodyTrackingMidiPanel() {
         midi: newEffects
       });
 
-      setSelected({ controller: eff.controller, bodyPart: eff.bodyPart })
+      setSelected({ controller: eff.controller, bodyPart: eff.bodyPart, axis: eff.direction })
+    }
+  }
+
+  const onAxisChange = (axis: "x" | "y") => {
+    if (effect && idxEffect !== undefined) {
+      const newEffects = sessionCfg.midi.map((eff, idx) =>
+        idxEffect === idx
+          ? {
+              ...eff,
+              direction: axis,
+            }
+          : eff
+      );
+      const eff = newEffects[idxEffect];
+
+      setSessionCfg({
+        ...sessionCfg,
+        midi: newEffects
+      });
+
+      setSelected({ controller: eff.controller, bodyPart: eff.bodyPart, axis: eff.direction })
     }
   }
 
@@ -154,6 +175,27 @@ function BodyTrackingMidiPanel() {
               value={effect?.controller}
               onChange={(e) => onChangeMidiConfig(e, "controller")}
             />
+          </InputContainer>
+          <Label>Axis</Label>
+          <InputContainer>
+            <ButtonGroup>
+              <ToggleButton
+                id={`radio-x`}
+                type="radio"
+                name="X"
+                value="x"
+                checked={selected?.axis === "x"}
+                onChange={() => onAxisChange("x")}
+              >X</ToggleButton>
+              <ToggleButton
+                id={`radio-y`}
+                type="radio"
+                name="Y"
+                value="y"
+                checked={selected?.axis === "y"}
+                onChange={() => onAxisChange("y")}
+              >Y</ToggleButton>
+            </ButtonGroup>
           </InputContainer>
           <Label>Screen Range</Label>
           <InputContainer>

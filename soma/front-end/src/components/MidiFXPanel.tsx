@@ -2,7 +2,6 @@ import { useCallback } from "react";
 import styled from "styled-components";
 import {
   Container as FXContainer,
-  EffectConnect,
   EffectContainer,
   EffectBox,
 } from "./shared";
@@ -95,8 +94,8 @@ function MidiFXPanel() {
       </UpperBar>
       <StlFXContainer>
         {midiSessionConfig.midi.map((mEff) => (
-          <EffectConnect key={`midi-effect-${mEff.controller}`}>
             <EffectContainer
+              key={`midi-effect-${mEff.controller}`}
               selectable
               selected={
                 mEff.controller === selected.controller &&
@@ -109,6 +108,7 @@ function MidiFXPanel() {
                   setSelected({
                     controller: mEff.controller,
                     bodyPart: mEff.bodyPart,
+                    axis: mEff.direction,
                   })
                 }
                 key={`${mEff.controller}-${mEff.bodyPart}`}
@@ -118,7 +118,6 @@ function MidiFXPanel() {
                 {mEff.direction.toUpperCase()} Axis
               </EffectBox>
             </EffectContainer>
-          </EffectConnect>
         ))}
       </StlFXContainer>
     </Container>
