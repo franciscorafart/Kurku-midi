@@ -268,8 +268,8 @@ function SomaUI() {
       <Buttons>
         {!mode && (
           <>
-            <Button onClick={() => initAll("audio")}>Start audio</Button>
-            <Button onClick={() => initAll("mic")}>Start mic</Button>
+            {/* <Button onClick={() => initAll("audio")}>Start audio</Button> */}
+            {/* <Button onClick={() => initAll("mic")}>Start mic</Button> */}
             <Button onClick={() => initMidiSession()}>Start MIDI</Button>
           </>
         )}
@@ -278,15 +278,15 @@ function SomaUI() {
         )}
       </Buttons>
       <VideoCanvas canvasRef={canvasRef} videoRef={videoRef} />
-      {mode === "audio" && <AudioFXPanel audioFXs={audioFXs.current} />}
-      {audioCtx && mode === "audio" && (
+      {/* {mode === "audio" && <AudioFXPanel audioFXs={audioFXs.current} />} */}
+      {/* {audioCtx && mode === "audio" && (
         <ConfigAudioBridge
           audioCtx={audioCtx}
           audioFXs={audioFXs.current}
           videoHeight={videoRef.current?.height || 0}
           videoWidth={videoRef.current?.width || 0}
         />
-      )}
+      )} */}
       {mode === "midi" && ccSender && (
         <ConfigMidiBridge
           ccSender={ccSender}
@@ -295,7 +295,7 @@ function SomaUI() {
         />
       )}
       {mode === "midi" && <MidiFXPanel />}
-      {mode === "audio" && <BodyTrackingPanel />}
+      {/* {mode === "audio" && <BodyTrackingPanel />} */}
       {mode === "midi" && <BodyTrackingMidiPanel />}
     </Container>
   );
