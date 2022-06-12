@@ -6,7 +6,7 @@ import midiSession from "atoms/midiSession";
 import { Button, ButtonGroup, Offcanvas, DropdownButton, Dropdown, ToggleButton } from "react-bootstrap";
 import { isEmpty } from "lodash";
 import { BodyPartEnum, BodyPartKey } from "config/shared";
-import { MidiSessionConfigType } from "config/midi";
+import { MidiConfigType } from "config/midi";
 
 const InputContainer = styled.div`
   display: flex;
@@ -28,6 +28,7 @@ const UpperBody = styled.div`
 const Footer = styled.div`
   display: flex;
   justify-content: flex-end;
+  gap: 8px;
 `
 const BodyContainer = styled.div`
   display: flex;
@@ -39,29 +40,29 @@ function BodyTrackingMidiPanel() {
   const [selected, setSelected] = useRecoilState(selectedMidiEffect);
 
   const [sessionCfg, setSessionCfg] = useRecoilState(midiSession);
-  const [locSessionCfg, setLocSessionCfg] = useState<MidiSessionConfigType | undefined>(undefined)
+  const [locEffects, setLocalEffects] = useState<MidiConfigType[] | undefined>(undefined)
 
   useEffect(() => {
-    setLocSessionCfg(sessionCfg)
+    setLocalEffects(sessionCfg.midi)
   }, [sessionCfg])
 
   const idxEffect = useMemo(() => {
-      return locSessionCfg?.midi.findIndex(
+      return locEffects?.findIndex(
         (eff) =>
           selected === eff.uid
       );
-  }, [selected, locSessionCfg]);
+  }, [selected, locEffects]);
 
   const effect =
-    idxEffect !== undefined && locSessionCfg ? locSessionCfg.midi[idxEffect] : undefined;
+    idxEffect !== undefined && locEffects ? locEffects[idxEffect] : undefined;
 
   const onChangeScreen = (
     e: React.ChangeEvent<HTMLInputElement>,
     d: "a" | "b"
   ) => {
     const v = e.target.value;
-    if (locSessionCfg && effect && idxEffect !== undefined) {
-      const newEffects = locSessionCfg.midi.map((eff, idx) =>
+    if (locEffects && effect && idxEffect !== undefined) {
+      const newEffects = locEffects.map((eff, idx) =>
         idxEffect === idx
           ? {
               ...eff,
@@ -69,10 +70,7 @@ function BodyTrackingMidiPanel() {
             }
           : eff
       );
-      setLocSessionCfg({
-        ...locSessionCfg,
-        midi: newEffects,
-      });
+      setLocalEffects(newEffects);
     }
   };
 
@@ -81,8 +79,8 @@ function BodyTrackingMidiPanel() {
     type: "controller" | "channel"
   ) => {
     const v = e.target.value;
-    if (locSessionCfg && effect && idxEffect !== undefined) {
-      const newEffects = locSessionCfg.midi.map((eff, idx) =>
+    if (locEffects && effect && idxEffect !== undefined) {
+      const newEffects = locEffects.map((eff, idx) =>
         idxEffect === idx
           ? {
               ...eff,
@@ -90,10 +88,7 @@ function BodyTrackingMidiPanel() {
             }
           : eff
       );
-      setLocSessionCfg({
-        ...locSessionCfg,
-        midi: newEffects,
-      });
+      setLocalEffects(newEffects);
     }
   };
 
@@ -102,8 +97,8 @@ function BodyTrackingMidiPanel() {
     d: "x" | "y"
   ) => {
     const v = e.target.value;
-    if (locSessionCfg && effect && idxEffect !== undefined) {
-      const newEffects = locSessionCfg.midi.map((eff, idx) =>
+    if (locEffects && effect && idxEffect !== undefined) {
+      const newEffects = locEffects.map((eff, idx) =>
         idxEffect === idx
           ? {
               ...eff,
@@ -112,16 +107,13 @@ function BodyTrackingMidiPanel() {
           : eff
       );
 
-      setLocSessionCfg({
-        ...locSessionCfg,
-        midi: newEffects,
-      });
+      setLocalEffects(newEffects);
     }
   };
 
   const onSelectBodyPart = (bp: keyof BodyPartEnum) => {
-    if (locSessionCfg && effect && idxEffect !== undefined) {
-      const newEffects = locSessionCfg.midi.map((eff, idx) =>
+    if (locEffects && effect && idxEffect !== undefined) {
+      const newEffects = locEffects.map((eff, idx) =>
         idxEffect === idx
           ? {
               ...eff,
@@ -130,17 +122,14 @@ function BodyTrackingMidiPanel() {
           : eff
       );
 
-      setLocSessionCfg({
-        ...locSessionCfg,
-        midi: newEffects
-      });
+      setLocalEffects(newEffects);
 
     }
   }
 
   const onAxisChange = (axis: "x" | "y") => {
-    if (locSessionCfg && effect && idxEffect !== undefined) {
-      const newEffects = locSessionCfg.midi.map((eff, idx) =>
+    if (locEffects && effect && idxEffect !== undefined) {
+      const newEffects = locEffects.map((eff, idx) =>
         idxEffect === idx
           ? {
               ...eff,
@@ -149,20 +138,17 @@ function BodyTrackingMidiPanel() {
           : eff
       );
 
-      setLocSessionCfg({
-        ...locSessionCfg,
-        midi: newEffects
-      });
+      setLocalEffects(newEffects);
     }
   }
 
   const saveConfig = () => {
-    if (locSessionCfg && effect){
-      setSessionCfg(locSessionCfg)
+    if (locEffects){
+      setSessionCfg({...sessionCfg, midi: locEffects})
       setSelected('')
     }
   }
-  console.log('locSessionCfg', locSessionCfg)
+
   return (
     <Offcanvas
       show={!isEmpty(selected)}
@@ -246,6 +232,7 @@ function BodyTrackingMidiPanel() {
           </InputContainer>
           </UpperBody>
           <Footer>
+            <Button variant="secondary" onClick={() => setSelected('')}>Cancel</Button>
             <Button variant="primary" onClick={saveConfig}>Save</Button>
           </Footer>
           </BodyContainer>
