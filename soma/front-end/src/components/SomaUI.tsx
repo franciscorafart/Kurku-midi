@@ -28,13 +28,12 @@ import BodyTrackingMidiPanel from "./BodyTrackingMidiPanel";
 import { Dropdown, DropdownButton, Button } from "react-bootstrap";
 import theme from "config/theme";
 import { Title, SubTitle } from "./shared";
-import selectedEffect from "~/atoms/selectedEffect";
-import { BodyPartEnum } from "~/config/shared";
 
 const Container = styled.div`
   display: flex;
   flex-direction: column;
   padding: 20px 80px;
+  height: 1000px;
   background-color: ${theme.background};
 `;
 
@@ -262,7 +261,6 @@ function SomaUI() {
 
   const ccSender = useMemo(() => selectedOutput ? makeCCSender(selectedOutput) : undefined
   , [selectedOutput]);
-
   return (
     <Container>
       <Title>Soma</Title>
