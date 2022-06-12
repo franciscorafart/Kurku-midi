@@ -25,9 +25,10 @@ import { ChannelType, KeyedEffectType, MidiOutputType } from "utils/types";
 import { initMidi, makeCCSender } from "utils/midiCtx";
 import { mapGlobalConfigsToMidi } from "utils/midiUtils";
 import BodyTrackingMidiPanel from "./BodyTrackingMidiPanel";
-import { Dropdown, DropdownButton, Button } from "react-bootstrap";
+import { Dropdown, DropdownButton, Button, ButtonGroup, ToggleButton } from "react-bootstrap";
 import theme from "config/theme";
 import { Title, SubTitle } from "./shared";
+import { MachineType } from "config/configUtils";
 
 const Container = styled.div`
   display: flex;
@@ -131,6 +132,7 @@ function ConfigMidiBridge({
   ccSender,
   videoHeight,
   videoWidth,
+  machineSpeed,
 }: {
   ccSender: (
     channel: ChannelType,
@@ -139,10 +141,11 @@ function ConfigMidiBridge({
   ) => void;
   videoHeight: number;
   videoWidth: number;
+  machineSpeed: MachineType;
 }) {
   const kpValues = useRecoilValue(keypoints);
   const midiSessionConfig = useRecoilValue(midiSession);
-  const config = machineConfig[midiSessionConfig.machineType];
+  const config = machineConfig[machineSpeed];
 
   useEffect(() => {
     if (!isEmpty(kpValues)) {
@@ -200,6 +203,8 @@ function SomaUI() {
 
   // const [audioCtx, setAudioCtx] = useState<AudioContext | undefined>(undefined);
   const [mode, setMode] = useState<"audio" | "midi" | undefined>(undefined);
+  const [machineSpeed, setMachineSpeed] = useState<'slow' | 'decent' | 'fast'>("fast")
+
   const [midiOutputs, setMidiOutputs] = useState<MidiOutputType[] | undefined>(
     undefined
   );
@@ -268,40 +273,44 @@ function SomaUI() {
       <Buttons>
         {!mode && (
           <>
+            <ButtonGroup>
+              <ToggleButton
+                id={`radio-slow`}
+                type="radio"
+                name="Slow"
+                value="slow"
+                checked={machineSpeed === "slow"}
+                onChange={() => setMachineSpeed("slow")}
+                disabled={Boolean(mode)}
+                >Slow</ToggleButton>
+              <ToggleButton
+                id={`radio-decent`}
+                type="radio"
+                name="Decent"
+                value="decent"
+                checked={machineSpeed === "decent"}
+                onChange={() => setMachineSpeed("decent")}
+                disabled={Boolean(mode)}
+                >Decent</ToggleButton>
+                <ToggleButton
+                id={`radio-fast`}
+                type="radio"
+                name="Fast"
+                value="fast"
+                checked={machineSpeed === "fast"}
+                onChange={() => setMachineSpeed("fast")}
+                disabled={Boolean(mode)}
+                >Fast</ToggleButton>
+            </ButtonGroup>
             {/* <Button onClick={() => initAll("audio")}>Start audio</Button> */}
             {/* <Button onClick={() => initAll("mic")}>Start mic</Button> */}
             <Button onClick={() => initMidiSession()}>Start MIDI</Button>
+
           </>
         )}
         {mode === "midi" && midiOutputs && (
           <MidiDropdown options={midiOutputs} onSelect={setSelectedOutputId} selected={selectedOutput} />
         )}
-        {/* {mode && <ButtonGroup>
-              <ToggleButton
-                id={`radio-x`}
-                type="radio"
-                name="X"
-                value="x"
-                checked={selected?.axis === "x"}
-                onChange={() => ({})}
-                >Slow</ToggleButton>
-              <ToggleButton
-                id={`radio-y`}
-                type="radio"
-                name="Y"
-                value="y"
-                checked={selected?.axis === "y"}
-                onChange={() => ({})}
-                >Good</ToggleButton>
-                <ToggleButton
-                id={`radio-y`}
-                type="radio"
-                name="Y"
-                value="y"
-                checked={selected?.axis === "y"}
-                onChange={() => ({}))}
-                >Fast</ToggleButton>
-            </ButtonGroup>} */}
       </Buttons>
       <VideoCanvas canvasRef={canvasRef} videoRef={videoRef} />
       {/* {mode === "audio" && <AudioFXPanel audioFXs={audioFXs.current} />} */}
@@ -318,6 +327,7 @@ function SomaUI() {
           ccSender={ccSender}
           videoHeight={videoRef.current?.height || 0}
           videoWidth={videoRef.current?.width || 0}
+          machineSpeed={machineSpeed}
         />
       )}
       {mode === "midi" && <MidiFXPanel />}
