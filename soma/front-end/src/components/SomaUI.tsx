@@ -28,6 +28,8 @@ import BodyTrackingMidiPanel from "./BodyTrackingMidiPanel";
 import { Dropdown, DropdownButton, Button } from "react-bootstrap";
 import theme from "config/theme";
 import { Title, SubTitle } from "./shared";
+import selectedEffect from "~/atoms/selectedEffect";
+import { BodyPartEnum } from "~/config/shared";
 
 const Container = styled.div`
   display: flex;
@@ -169,13 +171,15 @@ function ConfigMidiBridge({
 function MidiDropdown({
   options,
   onSelect,
+  selected,
 }: {
   options: MidiOutputType[];
   onSelect: (output: keyof MidiOutputType | undefined) => void;
+  selected?: MidiOutputType
 }) {
   return (
     <DropdownButton
-      title="Select Midi Output"
+      title={selected ? `Midi Output: ${selected.name}` : "Select Midi Output"}
       onSelect={(e) => onSelect(e as keyof MidiOutputType)}
     >
       {options.map((o) => (
@@ -251,16 +255,13 @@ function SomaUI() {
     setMode("midi");
   };
 
-  const ccSender = useMemo(() => {
-    const selectedOutput = selecectedOutputId
-      ? midiOutputs?.find((o) => o.id === selecectedOutputId)
-      : undefined;
-    if (selectedOutput) {
-      return makeCCSender(selectedOutput);
-    }
+  const selectedOutput = useMemo(() => selecectedOutputId
+  ? midiOutputs?.find((o) => o.id === selecectedOutputId)
+  : undefined, [midiOutputs, selecectedOutputId]);
 
-    return undefined;
-  }, [midiOutputs, selecectedOutputId]);
+
+  const ccSender = useMemo(() => selectedOutput ? makeCCSender(selectedOutput) : undefined
+  , [selectedOutput]);
 
   return (
     <Container>
@@ -275,7 +276,7 @@ function SomaUI() {
           </>
         )}
         {mode === "midi" && midiOutputs && (
-          <MidiDropdown options={midiOutputs} onSelect={setSelectedOutputId} />
+          <MidiDropdown options={midiOutputs} onSelect={setSelectedOutputId} selected={selectedOutput} />
         )}
       </Buttons>
       <VideoCanvas canvasRef={canvasRef} videoRef={videoRef} />
