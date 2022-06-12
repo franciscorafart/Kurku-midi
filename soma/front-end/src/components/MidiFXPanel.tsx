@@ -4,6 +4,7 @@ import {
   Container as FXContainer,
   EffectContainer,
   EffectBox,
+  EmptyEffectContainer,
 } from "./shared";
 import midiSession from "atoms/midiSession";
 import { useRecoilState } from "recoil";
@@ -44,6 +45,8 @@ const findCC = (ccList: number[]) => {
   return 1;
 };
 
+const MAX_FX = 16
+
 function MidiFXPanel() {
   const [selected, setSelected] = useRecoilState(selectedMidiEffect);
   const [midiSessionConfig, setMidiSessionConfig] = useRecoilState(midiSession);
@@ -61,6 +64,8 @@ function MidiFXPanel() {
     },
     [midiSessionConfig, setMidiSessionConfig]
   );
+
+  const emptyFxCount = MAX_FX - midiSessionConfig.midi.length;
 
   const onAddEffect = useCallback(() => {
     const newMidiFx = [...midiSessionConfig.midi];
@@ -88,7 +93,7 @@ function MidiFXPanel() {
         <SubTitle>
           <Text>MIDI FX panel</Text>
         </SubTitle>
-        <Button variant="primary" onClick={onAddEffect}>
+        <Button variant="primary" onClick={onAddEffect} disabled={emptyFxCount<=0}>
           Add Effect
         </Button>
       </UpperBar>
@@ -119,6 +124,7 @@ function MidiFXPanel() {
               </EffectBox>
             </EffectContainer>
         ))}
+        {Array(emptyFxCount).fill(null).map((_, idx) => <EmptyEffectContainer key={`empty-${idx}`}>Empty</EmptyEffectContainer>)}
       </StlFXContainer>
     </Container>
   );

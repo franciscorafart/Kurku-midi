@@ -3,24 +3,31 @@ import theme from "config/theme";
 
 export const Container = styled.div`
   display: flex;
-  flex: wrap;
+  flex-wrap: wrap;
   padding: 20px;
-  min-height: 300px;
 `;
 
 export const EffectConnect = styled.div`
   display: flex;
 `;
 
-export const EffectContainer = styled.div<{
-  selected?: boolean;
-  selectable: boolean;
-}>`
+export const EmptyEffectContainer = styled.div`
   display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100px;
+  width: 180px;
+  padding: 8px;
+  border: 1px dashed ${theme.notSelecteble};
+  border-radius: 5px;
+  `;
+
+  export const EffectContainer = styled(EmptyEffectContainer)<{
+    selected?: boolean;
+    selectable: boolean;
+  }>`
   flex-direction: column;
-  height: 86px;
-  width: 160px;
-  padding: 5px;
+  align-items: flex-end;
   border: 1px solid
     ${({ selected, selectable }) =>
       selectable
@@ -29,19 +36,6 @@ export const EffectContainer = styled.div<{
           : theme.selectable
         : theme.notSelecteble};
   background-color: ${theme.background};
-  border-radius: 5px;
-`;
-
-export const EmptyEffectContainer = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 86px;
-  width: 160px;
-  padding: 5px;
-  border: 1px dashed ${theme.notSelecteble};
-  background-color: ${theme.background};
-  border-radius: 5px;
 `;
 
 export const CloseX = styled.div`
