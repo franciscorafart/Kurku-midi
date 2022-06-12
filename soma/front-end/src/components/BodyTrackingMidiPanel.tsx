@@ -38,7 +38,6 @@ const BodyContainer = styled.div`
 
 function BodyTrackingMidiPanel() {
   const [selected, setSelected] = useRecoilState(selectedMidiEffect);
-
   const [sessionCfg, setSessionCfg] = useRecoilState(midiSession);
   const [locEffects, setLocalEffects] = useState<MidiConfigType[] | undefined>(undefined)
 
@@ -62,14 +61,8 @@ function BodyTrackingMidiPanel() {
   ) => {
     const v = e.target.value;
     if (locEffects && effect && idxEffect !== undefined) {
-      const newEffects = locEffects.map((eff, idx) =>
-        idxEffect === idx
-          ? {
-              ...eff,
-              screenRange: { ...eff.screenRange, [d]: Number(v) },
-            }
-          : eff
-      );
+      const newEffects = [...locEffects];
+      newEffects[idxEffect] = {...effect, screenRange: { ...effect.screenRange, [d]: Number(v) }}
       setLocalEffects(newEffects);
     }
   };
@@ -80,14 +73,9 @@ function BodyTrackingMidiPanel() {
   ) => {
     const v = e.target.value;
     if (locEffects && effect && idxEffect !== undefined) {
-      const newEffects = locEffects.map((eff, idx) =>
-        idxEffect === idx
-          ? {
-              ...eff,
-              [type]: Number(v),
-            }
-          : eff
-      );
+      const newEffects = [...locEffects];
+      newEffects[idxEffect] = {...effect, [type]: Number(v)}
+
       setLocalEffects(newEffects);
     }
   };
@@ -98,14 +86,8 @@ function BodyTrackingMidiPanel() {
   ) => {
     const v = e.target.value;
     if (locEffects && effect && idxEffect !== undefined) {
-      const newEffects = locEffects.map((eff, idx) =>
-        idxEffect === idx
-          ? {
-              ...eff,
-              valueRange: { ...eff.valueRange, [d]: Number(v) },
-            }
-          : eff
-      );
+      const newEffects = [...locEffects];
+      newEffects[idxEffect] = {...effect, valueRange: { ...effect.valueRange, [d]: Number(v)}}
 
       setLocalEffects(newEffects);
     }
@@ -113,31 +95,16 @@ function BodyTrackingMidiPanel() {
 
   const onSelectBodyPart = (bp: keyof BodyPartEnum) => {
     if (locEffects && effect && idxEffect !== undefined) {
-      const newEffects = locEffects.map((eff, idx) =>
-        idxEffect === idx
-          ? {
-              ...eff,
-              bodyPart: bp as BodyPartKey
-            }
-          : eff
-      );
-
+      const newEffects = [...locEffects];
+      newEffects[idxEffect] = {...effect, bodyPart: bp as BodyPartKey}
       setLocalEffects(newEffects);
-
     }
   }
 
   const onAxisChange = (axis: "x" | "y") => {
     if (locEffects && effect && idxEffect !== undefined) {
-      const newEffects = locEffects.map((eff, idx) =>
-        idxEffect === idx
-          ? {
-              ...eff,
-              direction: axis,
-            }
-          : eff
-      );
-
+      const newEffects = [...locEffects];
+      newEffects[idxEffect] = {...effect, direction: axis}
       setLocalEffects(newEffects);
     }
   }

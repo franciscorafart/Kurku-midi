@@ -303,7 +303,7 @@ function SomaUI() {
                 >Fast</ToggleButton>
             </ButtonGroup>} */}
       </Buttons>
-      {/* <VideoCanvas canvasRef={canvasRef} videoRef={videoRef} /> */}
+      <VideoCanvas canvasRef={canvasRef} videoRef={videoRef} />
       {/* {mode === "audio" && <AudioFXPanel audioFXs={audioFXs.current} />} */}
       {/* {audioCtx && mode === "audio" && (
         <ConfigAudioBridge
