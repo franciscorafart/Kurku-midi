@@ -1,4 +1,4 @@
-import { AudioEffectType } from "~/config/audio";
+import { AudioEffectType } from "config/audio";
 import { effectKeyType } from "config/shared";
 import { KeyedEffectType } from "./types";
 import { scaleWindowToRange } from "./utils";
