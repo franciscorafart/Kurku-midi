@@ -19,3 +19,13 @@ In audio mode Soma combines three data sources to apply audio effects from body 
 BodyPosition |R SessionConfig => AudioFXs
 
 ### MIDI Controller mode
+
+### Deployment
+
+- To deploy in heroku you need to provide the buildpack for reach in Settings. Follow these instructions
+  https://www.geeksforgeeks.org/how-to-deploy-react-app-to-heroku/
+
+# Posnet
+
+https://github.com/tensorflow/tfjs-models/tree/master/pose-detection
+Apache 2 license: https://fossa.com/blog/open-source-licenses-101-apache-license-2-0/ => Open source commercial use
