@@ -69,6 +69,7 @@ function MidiDropdown() {
 const MidiSessionConfig = ({ onInit }: { onInit: () => Promise<void> }) => {
   const [sessionCfg, setSessionCfg] = useRecoilState(sessionConfig);
   const setMidiOutputs = useSetRecoilState(midiOutputs);
+  const selectedOutput = useRecoilValue(midiOutput);
 
   useEffect(() => {
     const loadMidiInputs = async () => {
@@ -132,7 +133,9 @@ const MidiSessionConfig = ({ onInit }: { onInit: () => Promise<void> }) => {
           <MidiDropdown />
         </OptionsContainer>
       </UpperSection>
-      <Button onClick={() => initMidiSession()}>Start Body Mapping</Button>
+      <Button onClick={() => initMidiSession()} disabled={!selectedOutput}>
+        Start Body Mapping
+      </Button>
     </Container>
   );
 };
