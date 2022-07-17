@@ -11,7 +11,7 @@ const VideoCanvasContainer = styled.div`
   flex-grow: 2;
   display: flex;
   justify-content: center;
-  min-height: 500px;
+  min-height: 600px;
   padding: 20px;
 `;
 

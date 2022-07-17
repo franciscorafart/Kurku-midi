@@ -52,7 +52,7 @@ function HowToUse({ open, onClose }: { open: boolean; onClose: () => void }) {
               Windows: MIDI bus to Ableton
             </a>
           </Links>
-          <h6>-Start MIDI mapping</h6>
+          <h6>- Start MIDI mapping</h6>
           <p>
             When you start body tracking, a pop-up will appear asking for
             permission to access the webcam. Allow it, otherwise this

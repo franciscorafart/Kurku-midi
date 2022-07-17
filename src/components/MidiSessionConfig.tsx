@@ -23,7 +23,7 @@ const Container = styled.div`
   justify-content: space-between;
   padding: 8px;
   border-right: 1px solid ${theme.background2};
-  min-height: 500px;
+  min-height: 600px;
 `;
 
 const UpperSection = styled.div`
