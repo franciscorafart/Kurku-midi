@@ -8,7 +8,7 @@ import { initBodyTracking, setupCamera } from "utils/bodytracking";
 import { useSetRecoilState } from "recoil";
 import keypoints from "atoms/keypoints";
 import BodyTrackingMidiPanel from "./BodyTrackingMidiPanel";
-import { Button, ButtonGroup } from "react-bootstrap";
+// import { Button, ButtonGroup } from "react-bootstrap";
 import theme from "config/theme";
 import { Title, SubTitle } from "./shared";
 import ConfigMidiBridge from "./ConfigMidiBridge";
@@ -19,18 +19,24 @@ const Container = styled.div`
   display: flex;
   flex-direction: column;
   padding: 20px 80px;
-  height: 1000px;
+  min-height: 1000px;
   background-color: ${theme.background};
 `;
 
-const Buttons = styled.div`
-  display: flex;
-  justify-content: center;
-  gap: 10px;
-`;
+// const Buttons = styled.div`
+//   display: flex;
+//   justify-content: center;
+//   gap: 10px;
+// `;
 
 const VideoAndConfig = styled.div`
   display: flex;
+  border: 1px solid ${theme.background2};
+  border-radius: 10px 10px 0 0;
+`;
+
+const TitlesContainer = styled.div`
+  padding-bottom: 30px;
 `;
 
 function SomaUI() {
@@ -40,7 +46,7 @@ function SomaUI() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
   // const [audioCtx, setAudioCtx] = useState<AudioContext | undefined>(undefined);
-  const [mode, setMode] = useState<"audio" | "midi" | undefined>(undefined);
+  const [mode, setMode] = useState<"audio" | "midi" | undefined>("midi");
 
   // const initAudioSource = async (source: "audio" | "mic") => {
   //   const audioCtx =
@@ -84,16 +90,18 @@ function SomaUI() {
 
   return (
     <Container>
-      <Title>Soma</Title>
-      <SubTitle>Body tracking MIDI controller</SubTitle>
-      <Buttons>
+      <TitlesContainer>
+        <Title>Soma</Title>
+        <SubTitle>Body tracking web MIDI controller</SubTitle>
+      </TitlesContainer>
+      {/* <Buttons>
         <ButtonGroup>
           <Button disabled onClick={() => setMode("audio")}>
             Audio mode
           </Button>
           <Button onClick={() => setMode("midi")}>MIDI mode</Button>
         </ButtonGroup>
-      </Buttons>
+      </Buttons> */}
       <VideoAndConfig>
         {mode === "midi" && (
           <ConfigMidiBridge

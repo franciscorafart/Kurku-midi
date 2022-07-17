@@ -6,14 +6,13 @@ import { isEmpty } from "lodash";
 import { machineConfig } from "utils/bodytracking";
 import keypoints from "atoms/keypoints";
 import sessionConfig from "atoms/sessionConfig";
-import theme from "config/theme";
 
 const VideoCanvasContainer = styled.div`
+  flex-grow: 2;
   display: flex;
   justify-content: center;
   min-height: 500px;
   padding: 20px;
-  border: 1px solid ${theme.background2};
 `;
 
 const Video = styled.video``;

@@ -15,19 +15,19 @@ export const EmptyEffectContainer = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100px;
+  height: 140px;
   width: 180px;
-  padding: 8px;
+  padding: 0 8px 8px 8px;
   border: 1px dashed ${theme.notSelecteble};
   border-radius: 5px;
-  `;
+`;
 
-  export const EffectContainer = styled(EmptyEffectContainer)<{
-    selected?: boolean;
-    selectable: boolean;
-  }>`
+export const EffectContainer = styled(EmptyEffectContainer)<{
+  selected?: boolean;
+  selectable: boolean;
+}>`
   flex-direction: column;
-  align-items: flex-end;
+  align-items: flex-start;
   border: 1px solid
     ${({ selected, selectable }) =>
       selectable
@@ -38,6 +38,12 @@ export const EmptyEffectContainer = styled.div`
   background-color: ${theme.background};
 `;
 
+export const CloseContainer = styled.div`
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+  align-items: flex-end;
+`;
 export const CloseX = styled.div`
   height: 16px;
   width: 10px;
@@ -50,13 +56,15 @@ export const CloseX = styled.div`
 `;
 
 export const EffectBox = styled.div<{ selectable?: boolean }>`
-  height: 70px;
   display: flex;
-  align-items: center;
-  justify-content: center;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-content: flex-start;
   cursor: ${({ selectable }) => (selectable ? "pointer" : "auto")};
   color: ${theme.text};
 `;
+
+export const EffectData = styled.div``;
 
 export const Text = styled.span`
   color: ${theme.text};

@@ -4,7 +4,9 @@ import {
   Container as FXContainer,
   EffectContainer,
   EffectBox,
+  CloseContainer,
   EmptyEffectContainer,
+  EffectData,
 } from "./shared";
 import midiEffects from "atoms/midiEffects";
 import { useRecoilState } from "recoil";
@@ -21,7 +23,7 @@ const Container = styled.div`
   flex-direction: column;
   background-color: ${theme.background2};
   padding: 20px;
-  border-radius: 10px;
+  border-radius: 0 0 10px 10px;
 `;
 
 const UpperBar = styled.div`
@@ -47,7 +49,7 @@ const findCC = (ccList: number[]) => {
   return 1;
 };
 
-const MAX_FX = 16;
+const MAX_FX = 10;
 
 function MidiFXPanel() {
   const [selectedUid, setSelectedUid] = useRecoilState(selectedMidiEffect);
@@ -109,15 +111,20 @@ function MidiFXPanel() {
             selectable
             selected={mEff.uid === selectedUid}
           >
-            <CloseButton onClick={() => handleDisconnect(mEff.uid)} />
+            <CloseContainer>
+              <CloseButton onClick={() => handleDisconnect(mEff.uid)} />
+            </CloseContainer>
             <EffectBox
               onClick={() => setSelectedUid(mEff.uid)}
               key={`${mEff.controller}-${mEff.bodyPart}`}
               selectable
             >
-              {firstUpperCase(mEff.bodyPart)} | CC: {mEff.controller} |{" "}
-              {mEff.direction.toUpperCase()} Axis <br></br>
-              Value: {mEff.targetValue}
+              <EffectData>{firstUpperCase(mEff.bodyPart)}</EffectData>
+              <EffectData>CC: {mEff.controller}</EffectData>
+              <EffectData>
+                {mEff.direction.toUpperCase()} Axis <br></br>
+              </EffectData>
+              <EffectData>Value: {mEff.targetValue}</EffectData>
             </EffectBox>
           </EffectContainer>
         ))}
