@@ -10,9 +10,10 @@ import keypoints from "atoms/keypoints";
 import BodyTrackingMidiPanel from "./BodyTrackingMidiPanel";
 // import { Button, ButtonGroup } from "react-bootstrap";
 import theme from "config/theme";
-import { Title, SubTitle } from "./shared";
+import { Title, SubTitle, SubTitle2 } from "./shared";
 import ConfigMidiBridge from "./ConfigMidiBridge";
 import VideoCanvas from "./VideoCanvas";
+import HowToUse from "./HowToUse";
 // import ConfigAudioBridge from "./ConfigAudioBridge";
 
 const Container = styled.div`
@@ -39,6 +40,11 @@ const TitlesContainer = styled.div`
   padding-bottom: 30px;
 `;
 
+const ClickSpan = styled.span`
+  cursor: pointer;
+  color: ${theme.text2};
+`;
+
 function SomaUI() {
   const setKeypoints = useSetRecoilState(keypoints);
   // const audioFXs = useRef<KeyedEffectType>({}); // keyed store of audio nodes
@@ -56,6 +62,8 @@ function SomaUI() {
 
   //   setAudioCtx(audioCtx);
   // };
+
+  const [showModal, setShowModal] = useState(false);
 
   const initTracking = async () => {
     const video = videoRef.current;
@@ -93,6 +101,9 @@ function SomaUI() {
       <TitlesContainer>
         <Title>Soma</Title>
         <SubTitle>Body tracking web MIDI controller</SubTitle>
+        <SubTitle2 onClick={() => setShowModal(true)}>
+          <ClickSpan>How to use?</ClickSpan>
+        </SubTitle2>
       </TitlesContainer>
       {/* <Buttons>
         <ButtonGroup>
@@ -124,6 +135,7 @@ function SomaUI() {
       {mode === "midi" && <MidiFXPanel />}
       {/* {mode === "audio" && <BodyTrackingPanel />} */}
       {mode === "midi" && <BodyTrackingMidiPanel />}
+      <HowToUse open={showModal} onClose={() => setShowModal(false)} />
     </Container>
   );
 }
