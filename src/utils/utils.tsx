@@ -1,6 +1,6 @@
 import * as posenet from "@tensorflow-models/posenet";
 import { Keypoints } from "config/shared";
-import { BodyPartPositionType } from 'config/shared';
+import { BodyPartPositionType } from "config/shared";
 
 const color = "green";
 const lineWidth = 2;
@@ -100,12 +100,11 @@ export const getBodyParts = (
       k,
       minPoseConfidence,
       videoHeight,
-      videoWidth,
+      videoWidth
     );
-
     return {
       ...acc,
-      [k.part]: { x: position[0], y: position[1] }
+      [k.part]: { x: position[0], y: position[1] },
     };
   }, {} as BodyPartPositionType);
 
@@ -118,7 +117,7 @@ const translatePosition = (
   if (keypoint && keypoint.score > minPoseConfidence) {
     return [
       Math.abs(keypoint.position.x / videoWidth),
-      Math.abs(keypoint.position.y / videoHeight - 1)
+      Math.abs(keypoint.position.y / videoHeight - 1),
     ];
   }
 
@@ -144,7 +143,7 @@ export const scaleWindowToRange = (
       rangeEnd,
       rangeStart + (windowedValue - windowStart) * scaleFactor
     ),
-    scaleFactor
+    scaleFactor,
   ];
 };
 

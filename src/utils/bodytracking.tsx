@@ -22,28 +22,28 @@ export const machineConfig: { [index: string]: PosenetConfigType } = {
     arch: "MobileNetV1",
     skipSize: 5,
     audioSkipSize: 0.05,
-    confidence: 0.5
+    confidence: 0.5,
   },
   decent: {
     arch: "MobileNetV1",
     skipSize: 2,
     audioSkipSize: 0.1,
-    confidence: 0.7
+    confidence: 0.7,
   },
   fast: {
     arch: "ResNet50",
     skipSize: 5,
     audioSkipSize: 0.2,
     confidence: 0.9,
-    quantBytes: 2
-  }
+    quantBytes: 2,
+  },
 };
 
 export async function initBodyTracking(
   machineType: MachineType,
   video: HTMLVideoElement,
   setKeypoints: (kps: Keypoints) => void,
-  ratio: number,
+  ratio: number
 ) {
   const config = machineConfig[machineType];
   let net: posenet.PoseNet;
@@ -53,7 +53,7 @@ export async function initBodyTracking(
     net = await posenet.load({
       architecture: config.arch,
       inputResolution: { width: 320, height: 320 / ratio },
-      outputStride: 16
+      outputStride: 16,
     });
   } else {
     // Better accuracy model / slower to load
@@ -62,7 +62,7 @@ export async function initBodyTracking(
       architecture: config.arch,
       outputStride: 32,
       inputResolution: { width: 320, height: 320 / ratio },
-      quantBytes: config.quantBytes
+      quantBytes: config.quantBytes,
     });
   }
 
@@ -80,10 +80,9 @@ export async function setupCamera(
 
   const stream = await navigator.mediaDevices.getUserMedia({
     audio: false,
-    video: { facingMode: 'user'}
+    video: { facingMode: "user" },
     // NOTE: Lower resolution
     // video: { facingMode: "user", width: video.height, height: video.height }
-
   });
 
   // @ts-ignore
@@ -104,7 +103,7 @@ async function poseDetectionFrame(
   // % executes the calculation every `skipSize` number of frames
   if (frame % config.skipSize === 0) {
     const pose = await net.estimateSinglePose(video, {
-      flipHorizontal: flipPoseHorizontal
+      flipHorizontal: flipPoseHorizontal,
       // scoreThreshold: 0.7
     });
     setKeypoints(pose.keypoints);

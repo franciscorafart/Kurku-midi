@@ -44,11 +44,12 @@ export const makeCCSender =
 
 // TODO: rewrite as return Promise to handle requestMIDIAccess failing
 export const initMidi = async () => {
-  // if (navigator.requestMIDIAccess) {
-  //     console.log('This browser supports WebMIDI!');
-  // } else {
-  //     console.log('WebMIDI is not supported in this browser.');
-  // }
+  // @ts-ignore
+  if (navigator.requestMIDIAccess) {
+    console.log("This browser supports WebMIDI!");
+  } else {
+    console.log("WebMIDI is not supported in this browser.");
+  }
 
   //@ts-ignore
   const res = await navigator.requestMIDIAccess();

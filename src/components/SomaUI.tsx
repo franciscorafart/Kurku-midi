@@ -53,6 +53,7 @@ function SomaUI() {
 
   // const [audioCtx, setAudioCtx] = useState<AudioContext | undefined>(undefined);
   const [mode, setMode] = useState<"audio" | "midi" | undefined>("midi");
+  const [videoDim, setVideoDim] = useState({ height: 0, width: 0 });
 
   // const initAudioSource = async (source: "audio" | "mic") => {
   //   const audioCtx =
@@ -86,6 +87,7 @@ function SomaUI() {
       canvas.width = width;
       canvas.height = height;
 
+      setVideoDim({ height: video.height, width: video.width });
       initBodyTracking("fast", video, setKeypoints, ratio);
     }
   };
@@ -99,7 +101,7 @@ function SomaUI() {
   return (
     <Container>
       <TitlesContainer>
-        <Title>Soma</Title>
+        <Title>Kurku</Title>
         <SubTitle>Body tracking web MIDI controller</SubTitle>
         <SubTitle2 onClick={() => setShowModal(true)}>
           <ClickSpan>How to use?</ClickSpan>
@@ -117,8 +119,8 @@ function SomaUI() {
         {mode === "midi" && (
           <ConfigMidiBridge
             onInit={initTracking}
-            videoHeight={videoRef.current?.height || 0}
-            videoWidth={videoRef.current?.width || 0}
+            videoHeight={videoDim.height || 0}
+            videoWidth={videoDim.width || 0}
           />
         )}
         {mode && <VideoCanvas canvasRef={canvasRef} videoRef={videoRef} />}
