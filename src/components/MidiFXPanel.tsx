@@ -1,4 +1,4 @@
-import { useCallback } from "react";
+import { useCallback, useMemo } from "react";
 import styled from "styled-components";
 import {
   Container as FXContainer,
@@ -9,7 +9,7 @@ import {
   EffectData,
 } from "./shared";
 import midiEffects from "atoms/midiEffects";
-import { useRecoilState } from "recoil";
+import { useRecoilState, useRecoilValue } from "recoil";
 import selectedMidiEffect from "atoms/selectedMidiEffect";
 import CloseButton from "react-bootstrap/CloseButton";
 import Button from "react-bootstrap/Button";
@@ -17,6 +17,8 @@ import theme from "config/theme";
 import { Text, SubTitle } from "./shared";
 // @ts-ignore
 import { v4 } from "uuid";
+import { makeCCSender } from "utils/midiCtx";
+import midiOutput from "atoms/selectedMidiOutput";
 
 const Container = styled.div`
   display: flex;
@@ -33,6 +35,11 @@ const UpperBar = styled.div`
 
 const StlFXContainer = styled(FXContainer)`
   gap: 10px;
+`;
+
+const LastRowContainer = styled.div`
+  display: flex;
+  justify-content: space-between;
 `;
 
 const firstUpperCase = (t: string) =>
@@ -90,6 +97,13 @@ function MidiFXPanel() {
     setFx(newMidiFx);
   }, [fx, setFx]);
 
+  const selectedOutput = useRecoilValue(midiOutput);
+
+  const ccSender = useMemo(
+    () => (selectedOutput ? makeCCSender(selectedOutput) : undefined),
+    [selectedOutput]
+  );
+
   return (
     <Container>
       <UpperBar>
@@ -124,7 +138,22 @@ function MidiFXPanel() {
               <EffectData>
                 {mEff.direction.toUpperCase()} Axis <br></br>
               </EffectData>
-              <EffectData>Value: {mEff.targetValue}</EffectData>
+              <LastRowContainer>
+                <EffectData>Value: {mEff.targetValue}</EffectData>
+                <Button
+                  size="sm"
+                  disabled={!ccSender}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (ccSender) {
+                      ccSender(mEff.channel, mEff.controller, 127);
+                    }
+                  }}
+                  active={false}
+                >
+                  Map
+                </Button>
+              </LastRowContainer>
             </EffectBox>
           </EffectContainer>
         ))}
