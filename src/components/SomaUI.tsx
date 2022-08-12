@@ -103,6 +103,7 @@ function SomaUI() {
       <TitlesContainer>
         <Title>Kurku</Title>
         <SubTitle>Body tracking web MIDI controller</SubTitle>
+        <SubTitle2>Beta version 0.1</SubTitle2>
         <SubTitle2 onClick={() => setShowModal(true)}>
           <ClickSpan>How to use?</ClickSpan>
         </SubTitle2>
