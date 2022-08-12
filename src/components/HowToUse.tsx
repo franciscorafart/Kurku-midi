@@ -17,6 +17,13 @@ function HowToUse({ open, onClose }: { open: boolean; onClose: () => void }) {
           <Modal.Title>How to use</Modal.Title>
         </Modal.Header>
         <Modal.Body>
+          <a
+            target="_blank"
+            rel="noreferrer"
+            href="https://youtu.be/6bNk6V5h9YU"
+          >
+            How to use video
+          </a>
           <p>
             Soma is a body tracking MIDI controller that works on your browser.
             This software allows you to map the position of different body parts
