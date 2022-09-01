@@ -8,11 +8,9 @@ import keypoints from "atoms/keypoints";
 import sessionConfig from "atoms/sessionConfig";
 
 const VideoCanvasContainer = styled.div`
-  flex-grow: 2;
   display: flex;
   justify-content: center;
-  min-height: 600px;
-  padding: 20px;
+  padding: 8px;
 `;
 
 const Video = styled.video``;
@@ -39,7 +37,6 @@ function VideoCanvas({
       drawSkeleton(kpValues, config.confidence, ctx);
     }
   }, [kpValues, ctx, video, config.confidence]);
-
   return (
     <VideoCanvasContainer>
       <Video ref={videoRef} />

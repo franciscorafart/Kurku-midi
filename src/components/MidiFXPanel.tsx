@@ -56,7 +56,7 @@ const findCC = (ccList: number[]) => {
   return 1;
 };
 
-const MAX_FX = 10;
+const MAX_FX = 5;
 
 function MidiFXPanel() {
   const [selectedUid, setSelectedUid] = useRecoilState(selectedMidiEffect);

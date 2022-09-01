@@ -14,30 +14,26 @@ import { MidiOutputType } from "utils/types";
 import { initMidi } from "utils/midiCtx";
 import sessionConfig from "atoms/sessionConfig";
 import theme from "config/theme";
-import { SubTitle2 } from "./shared";
 
 const Container = styled.div`
-  flex-grow: 1;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   padding: 8px;
-  border-right: 1px solid ${theme.background2};
-  min-height: 600px;
+  border-bottom: 1px solid ${theme.background2};
 `;
 
-const UpperSection = styled.div`
+const ButtonSection = styled.div`
   display: flex;
-  flex-direction: column;
+  justify-content: space-between;
 `;
 
 const OptionsContainer = styled.div`
   display: flex;
-  flex-direction: column;
-  padding-bottom: 20px;
+  align-items: center;
 `;
 
-const Label = styled.span``;
+// const Label = styled.span``;
 
 function MidiDropdown() {
   const options = useRecoilValue(midiOutputs);
@@ -85,9 +81,20 @@ const MidiSessionConfig = ({ onInit }: { onInit: () => Promise<void> }) => {
 
   return (
     <Container>
-      <UpperSection>
-        <SubTitle2>Session Config</SubTitle2>
+      <ButtonSection>
         <OptionsContainer>
+          <MidiDropdown />
+        </OptionsContainer>
+        <OptionsContainer>
+          <Button
+            onClick={() => initMidiSession()}
+            disabled={!selectedOutput}
+            variant="success"
+          >
+            Start MIDI
+          </Button>
+        </OptionsContainer>
+        {/* <OptionsContainer>
           <Label>Computer speed</Label>
           <ButtonGroup>
             <ToggleButton
@@ -127,15 +134,8 @@ const MidiSessionConfig = ({ onInit }: { onInit: () => Promise<void> }) => {
               Fast
             </ToggleButton>
           </ButtonGroup>
-        </OptionsContainer>
-        <OptionsContainer>
-          <Label>Midi Output</Label>
-          <MidiDropdown />
-        </OptionsContainer>
-      </UpperSection>
-      <Button onClick={() => initMidiSession()} disabled={!selectedOutput}>
-        Start Body Mapping
-      </Button>
+        </OptionsContainer> */}
+      </ButtonSection>
     </Container>
   );
 };

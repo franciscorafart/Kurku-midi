@@ -14,24 +14,20 @@ import { Title, SubTitle, SubTitle2 } from "./shared";
 import ConfigMidiBridge from "./ConfigMidiBridge";
 import VideoCanvas from "./VideoCanvas";
 import HowToUse from "./HowToUse";
+import webcam from "assets/webcam-placeholder.png";
 // import ConfigAudioBridge from "./ConfigAudioBridge";
 
 const Container = styled.div`
   display: flex;
   flex-direction: column;
   padding: 20px 80px;
-  min-height: 1000px;
+  min-height: 600px;
   background-color: ${theme.background};
 `;
 
-// const Buttons = styled.div`
-//   display: flex;
-//   justify-content: center;
-//   gap: 10px;
-// `;
-
 const VideoAndConfig = styled.div`
   display: flex;
+  flex-direction: column;
   border: 1px solid ${theme.background2};
   border-radius: 10px 10px 0 0;
 `;
@@ -45,6 +41,17 @@ const ClickSpan = styled.span`
   color: ${theme.text2};
 `;
 
+const ImagePlaceholder = styled.div`
+  display: flex;
+  justify-content: center;
+  padding: 60px 0;
+`;
+
+const Img = styled.img`
+  width: 200px;
+  height: auto;
+`;
+
 function SomaUI() {
   const setKeypoints = useSetRecoilState(keypoints);
   // const audioFXs = useRef<KeyedEffectType>({}); // keyed store of audio nodes
@@ -54,6 +61,7 @@ function SomaUI() {
   // const [audioCtx, setAudioCtx] = useState<AudioContext | undefined>(undefined);
   const [mode, setMode] = useState<"audio" | "midi" | undefined>("midi");
   const [videoDim, setVideoDim] = useState({ height: 0, width: 0 });
+  const [idle, setIdle] = useState(true);
 
   // const initAudioSource = async (source: "audio" | "mic") => {
   //   const audioCtx =
@@ -72,7 +80,7 @@ function SomaUI() {
 
     if (video && canvas) {
       await setupCamera(video);
-
+      setIdle(false);
       video.play();
       video.hidden = true;
 
@@ -124,7 +132,14 @@ function SomaUI() {
             videoWidth={videoDim.width || 0}
           />
         )}
-        {mode && <VideoCanvas canvasRef={canvasRef} videoRef={videoRef} />}
+
+        {idle && (
+          <ImagePlaceholder>
+            <Img alt="webcam" src={webcam} />
+          </ImagePlaceholder>
+        )}
+        <VideoCanvas canvasRef={canvasRef} videoRef={videoRef} />
+
         {/* {mode === "audio" && <AudioFXPanel audioFXs={audioFXs.current} />} */}
         {/* {audioCtx && mode === "audio" && (
           <ConfigAudioBridge
