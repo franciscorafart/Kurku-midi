@@ -39,7 +39,7 @@ const StlFXContainer = styled(FXContainer)`
 
 const LastRowContainer = styled.div`
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end;
 `;
 
 const firstUpperCase = (t: string) =>
@@ -139,7 +139,6 @@ function MidiFXPanel() {
                 {mEff.direction.toUpperCase()} Axis <br></br>
               </EffectData>
               <LastRowContainer>
-                <EffectData>Value: {mEff.targetValue}</EffectData>
                 <Button
                   size="sm"
                   disabled={!ccSender}

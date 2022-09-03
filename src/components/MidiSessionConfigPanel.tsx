@@ -40,8 +40,8 @@ function MidiSessionConfigPanel({
             placement={"right"}
             overlay={
               <Tooltip id="tooltip-right">
-                For slow machines, a less accurate, but faster body tracking
-                model will be used.
+                Kurku will use a less accurate but faster body-tracking model
+                for slow machines.
               </Tooltip>
             }
           >

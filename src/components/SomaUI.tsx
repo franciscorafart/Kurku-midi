@@ -14,6 +14,7 @@ import { Title, SubTitle, SubTitle2 } from "./shared";
 import ConfigMidiBridge from "./ConfigMidiBridge";
 import VideoCanvas from "./VideoCanvas";
 import HowToUse from "./HowToUse";
+import WhatIsKurku from "./WhatIsKurku";
 import webcam from "assets/webcam-placeholder.png";
 // import ConfigAudioBridge from "./ConfigAudioBridge";
 
@@ -73,6 +74,7 @@ function SomaUI() {
   // };
 
   const [showModal, setShowModal] = useState(false);
+  const [showKurkuModal, setShowKurkuModal] = useState(false);
 
   const initTracking = async () => {
     const video = videoRef.current;
@@ -112,6 +114,9 @@ function SomaUI() {
         <Title>Kurku</Title>
         <SubTitle>Body tracking web MIDI controller</SubTitle>
         <SubTitle2>Beta version 0.1</SubTitle2>
+        <SubTitle2 onClick={() => setShowKurkuModal(true)}>
+          <ClickSpan>What is Kurku?</ClickSpan>
+        </SubTitle2>
         <SubTitle2 onClick={() => setShowModal(true)}>
           <ClickSpan>How to use?</ClickSpan>
         </SubTitle2>
@@ -154,6 +159,10 @@ function SomaUI() {
       {/* {mode === "audio" && <BodyTrackingPanel />} */}
       {mode === "midi" && <BodyTrackingMidiPanel />}
       <HowToUse open={showModal} onClose={() => setShowModal(false)} />
+      <WhatIsKurku
+        open={showKurkuModal}
+        onClose={() => setShowKurkuModal(false)}
+      />
     </Container>
   );
 }
