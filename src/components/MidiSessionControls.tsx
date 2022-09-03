@@ -4,8 +4,6 @@ import {
   Dropdown,
   DropdownButton,
   Button,
-  ButtonGroup,
-  ToggleButton,
   OverlayTrigger,
   Tooltip,
 } from "react-bootstrap";
@@ -14,8 +12,8 @@ import midiOutputs from "atoms/midiOutputs";
 import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import { MidiOutputType } from "utils/types";
 import { initMidi } from "utils/midiCtx";
-import sessionConfig from "atoms/sessionConfig";
 import theme from "config/theme";
+import MidiSessionConfigPanel from "./MidiSessionConfigPanel";
 
 const Container = styled.div`
   display: flex;
@@ -34,8 +32,6 @@ const OptionsContainer = styled.div`
   display: flex;
   align-items: center;
 `;
-
-// const Label = styled.span``;
 
 function MidiDropdown() {
   const options = useRecoilValue(midiOutputs);
@@ -65,10 +61,9 @@ function MidiDropdown() {
 }
 
 const MidiSessionControl = ({ onInit }: { onInit: () => Promise<void> }) => {
-  const [sessionCfg, setSessionCfg] = useRecoilState(sessionConfig);
   const setMidiOutputs = useSetRecoilState(midiOutputs);
   const selectedOutput = useRecoilValue(midiOutput);
-  const [selectOutputTooltip, setSelectOutputTooltip] = useState(false);
+  const [sessionPanel, setSessionPanel] = useState(false);
 
   useEffect(() => {
     const loadMidiInputs = async () => {
@@ -94,7 +89,7 @@ const MidiSessionControl = ({ onInit }: { onInit: () => Promise<void> }) => {
             placement={"left"}
             overlay={
               !selectedOutput ? (
-                <Tooltip id="tooltip-left">Select midi output first</Tooltip>
+                <Tooltip id="tooltip-left">Select MIDI output first</Tooltip>
               ) : (
                 <div />
               )
@@ -108,48 +103,16 @@ const MidiSessionControl = ({ onInit }: { onInit: () => Promise<void> }) => {
             </Button>
           </OverlayTrigger>
         </OptionsContainer>
-        {/* <OptionsContainer>
-          <Label>Computer speed</Label>
-          <ButtonGroup>
-            <ToggleButton
-              id={`radio-slow`}
-              type="radio"
-              name="Slow"
-              value="slow"
-              checked={sessionCfg.machineType === "slow"}
-              onChange={() =>
-                setSessionCfg({ ...sessionCfg, machineType: "slow" })
-              }
-            >
-              Slow
-            </ToggleButton>
-            <ToggleButton
-              id={`radio-decent`}
-              type="radio"
-              name="Decent"
-              value="decent"
-              checked={sessionCfg.machineType === "decent"}
-              onChange={() =>
-                setSessionCfg({ ...sessionCfg, machineType: "decent" })
-              }
-            >
-              Decent
-            </ToggleButton>
-            <ToggleButton
-              id={`radio-fast`}
-              type="radio"
-              name="Fast"
-              value="fast"
-              checked={sessionCfg.machineType === "fast"}
-              onChange={() =>
-                setSessionCfg({ ...sessionCfg, machineType: "fast" })
-              }
-            >
-              Fast
-            </ToggleButton>
-          </ButtonGroup>
-        </OptionsContainer> */}
+        <OptionsContainer>
+          <Button variant="secondary" onClick={() => setSessionPanel(true)}>
+            Config Session
+          </Button>
+        </OptionsContainer>
       </ButtonSection>
+      <MidiSessionConfigPanel
+        show={sessionPanel}
+        onClose={() => setSessionPanel(false)}
+      />
     </Container>
   );
 };
