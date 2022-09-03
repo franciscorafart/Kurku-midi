@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import styled from "styled-components";
 import {
   Dropdown,
@@ -6,6 +6,8 @@ import {
   Button,
   ButtonGroup,
   ToggleButton,
+  OverlayTrigger,
+  Tooltip,
 } from "react-bootstrap";
 import midiOutput from "atoms/selectedMidiOutput";
 import midiOutputs from "atoms/midiOutputs";
@@ -62,10 +64,11 @@ function MidiDropdown() {
   );
 }
 
-const MidiSessionConfig = ({ onInit }: { onInit: () => Promise<void> }) => {
+const MidiSessionControl = ({ onInit }: { onInit: () => Promise<void> }) => {
   const [sessionCfg, setSessionCfg] = useRecoilState(sessionConfig);
   const setMidiOutputs = useSetRecoilState(midiOutputs);
   const selectedOutput = useRecoilValue(midiOutput);
+  const [selectOutputTooltip, setSelectOutputTooltip] = useState(false);
 
   useEffect(() => {
     const loadMidiInputs = async () => {
@@ -86,13 +89,24 @@ const MidiSessionConfig = ({ onInit }: { onInit: () => Promise<void> }) => {
           <MidiDropdown />
         </OptionsContainer>
         <OptionsContainer>
-          <Button
-            onClick={() => initMidiSession()}
-            disabled={!selectedOutput}
-            variant="success"
+          <OverlayTrigger
+            key={"left"}
+            placement={"left"}
+            overlay={
+              !selectedOutput ? (
+                <Tooltip id="tooltip-left">Select midi output first</Tooltip>
+              ) : (
+                <div />
+              )
+            }
           >
-            Start MIDI
-          </Button>
+            <Button
+              onClick={selectedOutput ? () => initMidiSession() : () => {}}
+              variant="success"
+            >
+              Start MIDI
+            </Button>
+          </OverlayTrigger>
         </OptionsContainer>
         {/* <OptionsContainer>
           <Label>Computer speed</Label>
@@ -140,4 +154,4 @@ const MidiSessionConfig = ({ onInit }: { onInit: () => Promise<void> }) => {
   );
 };
 
-export default MidiSessionConfig;
+export default MidiSessionControl;

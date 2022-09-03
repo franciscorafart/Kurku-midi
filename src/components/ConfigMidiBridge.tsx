@@ -9,7 +9,7 @@ import { isEmpty } from "lodash";
 import { makeCCSender } from "utils/midiCtx";
 import sessionConfig from "atoms/sessionConfig";
 import midiOutput from "atoms/selectedMidiOutput";
-import MidiSessionConfig from "./MidiSessionConfig";
+import MidiSessionControls from "./MidiSessionControls";
 
 function ConfigMidiBridge({
   videoHeight,
@@ -21,7 +21,7 @@ function ConfigMidiBridge({
   onInit: () => Promise<void>;
 }) {
   const kpValues = useRecoilValue(keypoints);
-  const midiSessionConfig = useRecoilValue(midiSession);
+  const midiSessionControls = useRecoilValue(midiSession);
   const sessionCfg = useRecoilValue(sessionConfig);
   const config = machineConfig[sessionCfg.machineType];
 
@@ -41,11 +41,11 @@ function ConfigMidiBridge({
         videoWidth
       );
 
-      mapGlobalConfigsToMidi(midiSessionConfig, bodyPartPositions, ccSender);
+      mapGlobalConfigsToMidi(midiSessionControls, bodyPartPositions, ccSender);
     }
   }, [
     kpValues,
-    midiSessionConfig,
+    midiSessionControls,
     config.confidence,
     videoHeight,
     videoWidth,
@@ -54,7 +54,7 @@ function ConfigMidiBridge({
 
   return (
     <div>
-      <MidiSessionConfig onInit={onInit} />
+      <MidiSessionControls onInit={onInit} />
     </div>
   );
 }
