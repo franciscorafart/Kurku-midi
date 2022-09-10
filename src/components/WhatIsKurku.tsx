@@ -21,11 +21,7 @@ function WhatIsKurku({
             This software allows you to map the position of different body parts
             to MIDI continuous control messages (CC) using just your webcam.
           </p>
-          <p>
-            Use a Chromium based browser for a better experience (Brave, Chrome,
-            Opera).
-          </p>
-          <p>Paid tier with extra features coming soon</p>
+          <p>Paid tier with extra features coming soon.</p>
           {/* <h4>Paid Tier</h4>
           <p>Paying users get a few extra features:</p>
           <ul>

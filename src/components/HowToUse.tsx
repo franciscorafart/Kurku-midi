@@ -60,6 +60,10 @@ function HowToUse({ open, onClose }: { open: boolean; onClose: () => void }) {
             messages. Click on it to open the configuration panel to customize
             it.
           </p>
+          <p>
+            Use a Chromium based browser for a better experience (Brave, Chrome,
+            Opera).
+          </p>
           <p>Please provide feedback at rafart@rafartmusic.com</p>
         </Modal.Body>
         <Modal.Footer>
