@@ -1,52 +1,39 @@
 import { useRef, useState } from "react";
 import styled from "styled-components";
-// import { initAudio, initMicAudio } from "utils/audioCtx";
-// import AudioFXPanel from "./AudioFXPanel";
 import MidiFXPanel from "./MidiFXPanel";
-// import BodyTrackingPanel from "./BodyTrackingPanel";
 import { initBodyTracking, setupCamera } from "utils/bodytracking";
 import { useSetRecoilState } from "recoil";
 import keypoints from "atoms/keypoints";
 import BodyTrackingMidiPanel from "./BodyTrackingMidiPanel";
-// import { Button, ButtonGroup } from "react-bootstrap";
 import theme from "config/theme";
-import { Title, SubTitle, SubTitle2 } from "./shared";
 import ConfigMidiBridge from "./ConfigMidiBridge";
 import VideoCanvas from "./VideoCanvas";
 import HowToUse from "./HowToUse";
 import WhatIsKurku from "./WhatIsKurku";
 import webcam from "assets/webcam-placeholder.png";
 import Header from "components/Header";
-// import ConfigAudioBridge from "./ConfigAudioBridge";
+import { Text, SubTitle } from "./shared";
 
 const Container = styled.div`
   display: flex;
   flex-direction: column;
-  padding: 20px 80px;
   min-height: 600px;
   background-color: ${theme.background};
 `;
 
-const VideoAndConfig = styled.div`
+const TextContainer = styled.div`
   display: flex;
-  flex-direction: column;
-  border: 1px solid ${theme.background2};
-  border-radius: 10px 10px 0 0;
+  justify-items: flex-start;
 `;
 
-const TitlesContainer = styled.div`
-  padding-bottom: 30px;
-`;
-
-const ClickSpan = styled.span`
-  cursor: pointer;
-  color: ${theme.text2};
+const VideoContentContainer = styled.div`
+  padding: 20px;
 `;
 
 const ImagePlaceholder = styled.div`
   display: flex;
   justify-content: center;
-  padding: 60px 0;
+  padding: 20px 0;
 `;
 
 const Img = styled.img`
@@ -56,23 +43,11 @@ const Img = styled.img`
 
 function SomaUI() {
   const setKeypoints = useSetRecoilState(keypoints);
-  // const audioFXs = useRef<KeyedEffectType>({}); // keyed store of audio nodes
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
-  // const [audioCtx, setAudioCtx] = useState<AudioContext | undefined>(undefined);
-  const [mode, setMode] = useState<"audio" | "midi" | undefined>("midi");
   const [videoDim, setVideoDim] = useState({ height: 0, width: 0 });
   const [idle, setIdle] = useState(true);
-
-  // const initAudioSource = async (source: "audio" | "mic") => {
-  //   const audioCtx =
-  //     source === "audio"
-  //       ? await initAudio(sessionCfg, audioFXs.current)
-  //       : await initMicAudio(sessionCfg, audioFXs.current);
-
-  //   setAudioCtx(audioCtx);
-  // };
 
   const [showModal, setShowModal] = useState(false);
   const [showKurkuModal, setShowKurkuModal] = useState(false);
@@ -103,12 +78,6 @@ function SomaUI() {
     }
   };
 
-  // const initAll = async (source: "audio" | "mic") => {
-  //   await initTracking();
-  //   await initAudioSource(source);
-  //   setMode("audio");
-  // };
-
   return (
     <>
       <Header
@@ -116,43 +85,26 @@ function SomaUI() {
         howToUseModal={() => setShowModal(true)}
       />
       <Container>
-        {/* <Buttons>
-        <ButtonGroup>
-        <Button disabled onClick={() => setMode("audio")}>
-        Audio mode
-        </Button>
-          <Button onClick={() => setMode("midi")}>MIDI mode</Button>
-          </ButtonGroup>
-        </Buttons> */}
-        <VideoAndConfig>
-          {mode === "midi" && (
-            <ConfigMidiBridge
-              onInit={initTracking}
-              videoHeight={videoDim.height || 0}
-              videoWidth={videoDim.width || 0}
-            />
-          )}
-
+        <ConfigMidiBridge
+          onInit={initTracking}
+          videoHeight={videoDim.height || 0}
+          videoWidth={videoDim.width || 0}
+        />
+        <VideoContentContainer>
+          <TextContainer>
+            <SubTitle>
+              <Text>Webcam view</Text>
+            </SubTitle>
+          </TextContainer>
           {idle && (
             <ImagePlaceholder>
               <Img alt="webcam" src={webcam} />
             </ImagePlaceholder>
           )}
           <VideoCanvas canvasRef={canvasRef} videoRef={videoRef} />
-
-          {/* {mode === "audio" && <AudioFXPanel audioFXs={audioFXs.current} />} */}
-          {/* {audioCtx && mode === "audio" && (
-          <ConfigAudioBridge
-          audioCtx={audioCtx}
-          audioFXs={audioFXs.current}
-          videoHeight={videoRef.current?.height || 0}
-          videoWidth={videoRef.current?.width || 0}
-          />
-        )} */}
-        </VideoAndConfig>
-        {mode === "midi" && <MidiFXPanel />}
-        {/* {mode === "audio" && <BodyTrackingPanel />} */}
-        {mode === "midi" && <BodyTrackingMidiPanel />}
+        </VideoContentContainer>
+        <MidiFXPanel />
+        <BodyTrackingMidiPanel />
         <HowToUse open={showModal} onClose={() => setShowModal(false)} />
         <WhatIsKurku
           open={showKurkuModal}

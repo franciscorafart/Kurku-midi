@@ -14,13 +14,15 @@ import { MidiOutputType } from "utils/types";
 import { initMidi } from "utils/midiCtx";
 import theme from "config/theme";
 import MidiSessionConfigPanel from "./MidiSessionConfigPanel";
+import { Text, SubTitle } from "./shared";
 
 const Container = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  padding: 8px;
-  border-bottom: 1px solid ${theme.background2};
+  min-height: 140px;
+  padding: 20px;
+  background-color: ${theme.background2};
 `;
 
 const ButtonSection = styled.div`
@@ -31,6 +33,11 @@ const ButtonSection = styled.div`
 const OptionsContainer = styled.div`
   display: flex;
   align-items: center;
+`;
+
+const TextContainer = styled.div`
+  display: flex;
+  justify-content: flex-start;
 `;
 
 function MidiDropdown() {
@@ -79,6 +86,11 @@ const MidiSessionControl = ({ onInit }: { onInit: () => Promise<void> }) => {
 
   return (
     <Container>
+      <TextContainer>
+        <SubTitle>
+          <Text>Session Controls</Text>
+        </SubTitle>
+      </TextContainer>
       <ButtonSection>
         <OptionsContainer>
           <MidiDropdown />
