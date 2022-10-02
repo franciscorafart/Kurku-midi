@@ -16,6 +16,7 @@ import VideoCanvas from "./VideoCanvas";
 import HowToUse from "./HowToUse";
 import WhatIsKurku from "./WhatIsKurku";
 import webcam from "assets/webcam-placeholder.png";
+import Header from "components/Header";
 // import ConfigAudioBridge from "./ConfigAudioBridge";
 
 const Container = styled.div`
@@ -109,44 +110,38 @@ function SomaUI() {
   // };
 
   return (
-    <Container>
-      <TitlesContainer>
-        <Title>Kurku</Title>
-        <SubTitle>Body tracking web MIDI controller</SubTitle>
-        <SubTitle2>Beta version 0.1</SubTitle2>
-        <SubTitle2 onClick={() => setShowKurkuModal(true)}>
-          <ClickSpan>What is Kurku?</ClickSpan>
-        </SubTitle2>
-        <SubTitle2 onClick={() => setShowModal(true)}>
-          <ClickSpan>How to use?</ClickSpan>
-        </SubTitle2>
-      </TitlesContainer>
-      {/* <Buttons>
+    <>
+      <Header
+        kurkuModal={() => setShowKurkuModal(true)}
+        howToUseModal={() => setShowModal(true)}
+      />
+      <Container>
+        {/* <Buttons>
         <ButtonGroup>
-          <Button disabled onClick={() => setMode("audio")}>
-            Audio mode
-          </Button>
+        <Button disabled onClick={() => setMode("audio")}>
+        Audio mode
+        </Button>
           <Button onClick={() => setMode("midi")}>MIDI mode</Button>
-        </ButtonGroup>
-      </Buttons> */}
-      <VideoAndConfig>
-        {mode === "midi" && (
-          <ConfigMidiBridge
-            onInit={initTracking}
-            videoHeight={videoDim.height || 0}
-            videoWidth={videoDim.width || 0}
-          />
-        )}
+          </ButtonGroup>
+        </Buttons> */}
+        <VideoAndConfig>
+          {mode === "midi" && (
+            <ConfigMidiBridge
+              onInit={initTracking}
+              videoHeight={videoDim.height || 0}
+              videoWidth={videoDim.width || 0}
+            />
+          )}
 
-        {idle && (
-          <ImagePlaceholder>
-            <Img alt="webcam" src={webcam} />
-          </ImagePlaceholder>
-        )}
-        <VideoCanvas canvasRef={canvasRef} videoRef={videoRef} />
+          {idle && (
+            <ImagePlaceholder>
+              <Img alt="webcam" src={webcam} />
+            </ImagePlaceholder>
+          )}
+          <VideoCanvas canvasRef={canvasRef} videoRef={videoRef} />
 
-        {/* {mode === "audio" && <AudioFXPanel audioFXs={audioFXs.current} />} */}
-        {/* {audioCtx && mode === "audio" && (
+          {/* {mode === "audio" && <AudioFXPanel audioFXs={audioFXs.current} />} */}
+          {/* {audioCtx && mode === "audio" && (
           <ConfigAudioBridge
           audioCtx={audioCtx}
           audioFXs={audioFXs.current}
@@ -154,16 +149,17 @@ function SomaUI() {
           videoWidth={videoRef.current?.width || 0}
           />
         )} */}
-      </VideoAndConfig>
-      {mode === "midi" && <MidiFXPanel />}
-      {/* {mode === "audio" && <BodyTrackingPanel />} */}
-      {mode === "midi" && <BodyTrackingMidiPanel />}
-      <HowToUse open={showModal} onClose={() => setShowModal(false)} />
-      <WhatIsKurku
-        open={showKurkuModal}
-        onClose={() => setShowKurkuModal(false)}
-      />
-    </Container>
+        </VideoAndConfig>
+        {mode === "midi" && <MidiFXPanel />}
+        {/* {mode === "audio" && <BodyTrackingPanel />} */}
+        {mode === "midi" && <BodyTrackingMidiPanel />}
+        <HowToUse open={showModal} onClose={() => setShowModal(false)} />
+        <WhatIsKurku
+          open={showKurkuModal}
+          onClose={() => setShowKurkuModal(false)}
+        />
+      </Container>
+    </>
   );
 }
 

@@ -1,15 +1,15 @@
 const colors = {
-  ebony: "#050B1F",
-  blueGray: "#5C8AAC",
+  ebony: "#FEFDF9",
+  blueGray: "#4F524C",
   blueGrotto: "#0D659D",
-  babyBlue: "#C7D8E7",
-  white: 'white',
+  black: "#191713",
+  white: "white",
 };
 
 const theme = {
   text: colors.ebony,
   text2: colors.blueGrotto,
-  background: colors.babyBlue,
+  background: colors.black,
   background2: colors.blueGray,
   selected: colors.white,
   selectable: colors.blueGrotto,
