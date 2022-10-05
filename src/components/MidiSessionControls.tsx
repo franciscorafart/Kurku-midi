@@ -15,13 +15,14 @@ const Container = styled.div`
   flex-direction: column;
   justify-content: space-between;
   min-height: 140px;
-  padding: 20px;
+  padding: 60px 20px 20px 20px;
   background-color: ${theme.background2};
 `;
 
 const ButtonSection = styled.div`
   display: flex;
   justify-content: flex-start;
+  margin-top: 20px;
   gap: 20px;
 `;
 

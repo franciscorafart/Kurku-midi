@@ -29,6 +29,10 @@ const VideoContentContainer = styled.div`
   padding: 20px;
 `;
 
+const StyledText = styled(Text)`
+  color: ${theme.text};
+`;
+
 function SomaUI() {
   const setKeypoints = useSetRecoilState(keypoints);
   const videoRef = useRef<HTMLVideoElement | null>(null);
@@ -79,7 +83,7 @@ function SomaUI() {
         <VideoContentContainer>
           <TextContainer>
             <SubTitle>
-              <Text>Webcam view</Text>
+              <StyledText>Webcam view</StyledText>
             </SubTitle>
           </TextContainer>
           <VideoCanvas canvasRef={canvasRef} videoRef={videoRef} />
