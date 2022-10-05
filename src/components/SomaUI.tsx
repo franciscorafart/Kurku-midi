@@ -10,7 +10,6 @@ import ConfigMidiBridge from "./ConfigMidiBridge";
 import VideoCanvas from "./VideoCanvas";
 import HowToUse from "./HowToUse";
 import WhatIsKurku from "./WhatIsKurku";
-import webcam from "assets/webcam-placeholder.png";
 import Header from "components/Header";
 import { Text, SubTitle } from "./shared";
 
@@ -30,24 +29,12 @@ const VideoContentContainer = styled.div`
   padding: 20px;
 `;
 
-const ImagePlaceholder = styled.div`
-  display: flex;
-  justify-content: center;
-  padding: 20px 0;
-`;
-
-const Img = styled.img`
-  width: 200px;
-  height: auto;
-`;
-
 function SomaUI() {
   const setKeypoints = useSetRecoilState(keypoints);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
   const [videoDim, setVideoDim] = useState({ height: 0, width: 0 });
-  const [idle, setIdle] = useState(true);
 
   const [showModal, setShowModal] = useState(false);
   const [showKurkuModal, setShowKurkuModal] = useState(false);
@@ -58,7 +45,6 @@ function SomaUI() {
 
     if (video && canvas) {
       await setupCamera(video);
-      setIdle(false);
       video.play();
       video.hidden = true;
 
@@ -96,11 +82,6 @@ function SomaUI() {
               <Text>Webcam view</Text>
             </SubTitle>
           </TextContainer>
-          {idle && (
-            <ImagePlaceholder>
-              <Img alt="webcam" src={webcam} />
-            </ImagePlaceholder>
-          )}
           <VideoCanvas canvasRef={canvasRef} videoRef={videoRef} />
         </VideoContentContainer>
         <MidiFXPanel />

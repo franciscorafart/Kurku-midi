@@ -111,7 +111,7 @@ function MidiFXPanel() {
           <Text>MIDI FX panel</Text>
         </SubTitle>
         <Button
-          variant="primary"
+          variant="outline-light"
           onClick={onAddEffect}
           disabled={emptyFxCount <= 0}
         >
@@ -141,6 +141,7 @@ function MidiFXPanel() {
               <LastRowContainer>
                 <Button
                   size="sm"
+                  variant="outline-light"
                   disabled={!ccSender}
                   onClick={(e) => {
                     e.stopPropagation();

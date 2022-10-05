@@ -1,12 +1,6 @@
 import { useEffect, useState } from "react";
 import styled from "styled-components";
-import {
-  Dropdown,
-  DropdownButton,
-  Button,
-  OverlayTrigger,
-  Tooltip,
-} from "react-bootstrap";
+import { Dropdown, DropdownButton, Button } from "react-bootstrap";
 import midiOutput from "atoms/selectedMidiOutput";
 import midiOutputs from "atoms/midiOutputs";
 import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
@@ -27,7 +21,8 @@ const Container = styled.div`
 
 const ButtonSection = styled.div`
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-start;
+  gap: 20px;
 `;
 
 const OptionsContainer = styled.div`
@@ -51,6 +46,7 @@ function MidiDropdown() {
 
   return (
     <DropdownButton
+      variant="outline-light"
       title={
         selectedOutput
           ? `Midi Output: ${selectedOutput.name}`
@@ -96,29 +92,11 @@ const MidiSessionControl = ({ onInit }: { onInit: () => Promise<void> }) => {
           <MidiDropdown />
         </OptionsContainer>
         <OptionsContainer>
-          <OverlayTrigger
-            key={"left"}
-            placement={"left"}
-            overlay={
-              !selectedOutput ? (
-                <Tooltip id="tooltip-left">Select MIDI output first</Tooltip>
-              ) : (
-                <div />
-              )
-            }
-          >
-            <Button
-              onClick={selectedOutput ? () => initMidiSession() : () => {}}
-              variant="success"
-            >
+          {selectedOutput && (
+            <Button onClick={() => initMidiSession()} variant="outline-light">
               Start MIDI
             </Button>
-          </OverlayTrigger>
-        </OptionsContainer>
-        <OptionsContainer>
-          <Button variant="secondary" onClick={() => setSessionPanel(true)}>
-            Config Session
-          </Button>
+          )}
         </OptionsContainer>
       </ButtonSection>
       <MidiSessionConfigPanel

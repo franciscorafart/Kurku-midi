@@ -13,8 +13,13 @@ const VideoCanvasContainer = styled.div`
   padding: 8px;
 `;
 
-const Video = styled.video``;
-const Canvas = styled.canvas``;
+const Video = styled.video`
+  display: none;
+`;
+const Canvas = styled.canvas`
+  min-height: 380px;
+  border: 1px dashed white;
+`;
 
 function VideoCanvas({
   canvasRef,

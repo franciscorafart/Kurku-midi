@@ -3,6 +3,20 @@ import Nav from "react-bootstrap/Nav";
 import Navbar from "react-bootstrap/Navbar";
 import logo from "assets/kurku-logo.png";
 import { Button } from "react-bootstrap";
+import styled from "styled-components";
+
+const StyledContainer = styled(Container)`
+  max-width: 2000px;
+  color: black;
+`;
+
+const StyledNav = styled(Nav)`
+  gap: 20px;
+`;
+
+const Span = styled.span`
+  color: black;
+`;
 
 function Header({
   kurkuModal,
@@ -13,8 +27,8 @@ function Header({
 }) {
   return (
     <>
-      <Navbar expand="lg" bg="dark" variant="dark">
-        <Container>
+      <Navbar expand="lg" bg="light" variant="dark">
+        <StyledContainer>
           <Navbar.Brand href="#home">
             <img
               alt=""
@@ -23,20 +37,20 @@ function Header({
               height="30"
               className="d-inline-block align-top"
             />{" "}
-            Kurku - Body tracking web MIDI controller
+            <Span>Kurku - Body tracking web MIDI controller</Span>
           </Navbar.Brand>
-          <Navbar.Collapse id="responsive-navbar-nav">
-            <Nav.Link href="#home">Back to website</Nav.Link>
-          </Navbar.Collapse>
-          <Nav className="me-auto">
-            <Button onClick={kurkuModal} variant="secondary">
+          <StyledNav>
+            <Button href="https://kurku.tech" variant="outline-dark">
+              Home
+            </Button>
+            <Button onClick={kurkuModal} variant="outline-dark">
               What is Kurku?
             </Button>
-            <Button onClick={howToUseModal} variant="secondary">
+            <Button onClick={howToUseModal} variant="outline-dark">
               How to use
             </Button>
-          </Nav>
-        </Container>
+          </StyledNav>
+        </StyledContainer>
       </Navbar>
     </>
   );
