@@ -15,8 +15,8 @@ export const EmptyEffectContainer = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 140px;
-  width: 180px;
+  height: 160px;
+  width: 200px;
   padding: 0 8px 8px 8px;
   border: 1px dashed ${theme.notSelecteble};
   border-radius: 5px;
@@ -36,6 +36,7 @@ export const EffectContainer = styled(EmptyEffectContainer)<{
           : theme.selectable
         : theme.notSelecteble};
   background-color: ${theme.background};
+  gap: 6px;
 `;
 
 export const CloseContainer = styled.div`
@@ -63,6 +64,7 @@ export const EffectBox = styled.div<{ selectable?: boolean }>`
   align-content: flex-start;
   cursor: ${({ selectable }) => (selectable ? "pointer" : "auto")};
   color: ${theme.text};
+  gap: 6px;
 `;
 
 export const EffectData = styled.div``;

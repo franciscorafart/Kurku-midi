@@ -1,7 +1,7 @@
 import midiSession from "atoms/midiEffects";
 import { getBodyParts } from "utils/utils";
 import { mapGlobalConfigsToMidi } from "utils/midiUtils";
-import { useRecoilValue } from "recoil";
+import { useRecoilValue, useSetRecoilState } from "recoil";
 import { machineConfig } from "utils/bodytracking";
 import keypoints from "atoms/keypoints";
 import { useEffect, useMemo } from "react";
@@ -9,6 +9,7 @@ import { isEmpty } from "lodash";
 import { makeCCSender } from "utils/midiCtx";
 import sessionConfig from "atoms/sessionConfig";
 import midiOutput from "atoms/selectedMidiOutput";
+import valueMap from "atoms/valueMap";
 import MidiSessionControls from "./MidiSessionControls";
 
 function ConfigMidiBridge({
@@ -22,6 +23,7 @@ function ConfigMidiBridge({
 }) {
   const kpValues = useRecoilValue(keypoints);
   const midiSessionControls = useRecoilValue(midiSession);
+  const setValueMap = useSetRecoilState(valueMap);
   const sessionCfg = useRecoilValue(sessionConfig);
   const config = machineConfig[sessionCfg.machineType];
 
@@ -41,7 +43,13 @@ function ConfigMidiBridge({
         videoWidth
       );
 
-      mapGlobalConfigsToMidi(midiSessionControls, bodyPartPositions, ccSender);
+      const valueObjectMap = mapGlobalConfigsToMidi(
+        midiSessionControls,
+        bodyPartPositions,
+        ccSender
+      );
+      setValueMap(valueObjectMap);
+      // TODO: make object that stores input and outut values keyed on effect identifier and assign it to the recoil state
     }
   }, [
     kpValues,
@@ -50,6 +58,7 @@ function ConfigMidiBridge({
     videoHeight,
     videoWidth,
     ccSender,
+    setValueMap,
   ]);
 
   return (

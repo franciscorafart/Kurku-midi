@@ -19,6 +19,8 @@ import { Text, SubTitle } from "./shared";
 import { v4 } from "uuid";
 import { makeCCSender } from "utils/midiCtx";
 import midiOutput from "atoms/selectedMidiOutput";
+import MidiMeter from "./MidiMeter";
+import valueMap from "atoms/valueMap";
 
 const Container = styled.div`
   display: flex;
@@ -42,6 +44,16 @@ const LastRowContainer = styled.div`
   justify-content: flex-end;
 `;
 
+const ColumnContainer = styled.div`
+  display: flex;
+  justify-content: space-between;
+`;
+
+const ColumnItem = styled.div`
+  display: flex;
+  flex-direction: column;
+`;
+
 const firstUpperCase = (t: string) =>
   t[0].toLocaleUpperCase().concat(t.slice(1));
 
@@ -61,6 +73,8 @@ const MAX_FX = 5;
 function MidiFXPanel() {
   const [selectedUid, setSelectedUid] = useRecoilState(selectedMidiEffect);
   const [fx, setFx] = useRecoilState(midiEffects);
+  const inputOutputMap = useRecoilValue(valueMap);
+
   const handleDisconnect = useCallback(
     (uid: string) => {
       const idxOfRemove = fx.findIndex((msc) => msc.uid === uid);
@@ -104,6 +118,7 @@ function MidiFXPanel() {
     [selectedOutput]
   );
 
+  // console.log("inputOutputMap", inputOutputMap);
   return (
     <Container>
       <UpperBar>
@@ -133,11 +148,23 @@ function MidiFXPanel() {
               key={`${mEff.controller}-${mEff.bodyPart}`}
               selectable
             >
-              <EffectData>{firstUpperCase(mEff.bodyPart)}</EffectData>
-              <EffectData>CC: {mEff.controller}</EffectData>
-              <EffectData>
-                {mEff.direction.toUpperCase()} Axis <br></br>
-              </EffectData>
+              {" "}
+              <ColumnContainer>
+                <ColumnItem>
+                  <EffectData>{firstUpperCase(mEff.bodyPart)}</EffectData>
+                  <EffectData>CC: {mEff.controller}</EffectData>
+                  <EffectData>
+                    {mEff.direction.toUpperCase()} Axis <br></br>
+                  </EffectData>
+                </ColumnItem>
+                <ColumnItem>
+                  {/* <MidiMeter variant="input" /> */}
+                  <MidiMeter
+                    pct={(inputOutputMap[mEff.uid]?.output || 0) / 127}
+                    variant="output"
+                  />
+                </ColumnItem>
+              </ColumnContainer>
               <LastRowContainer>
                 <Button
                   size="sm"
