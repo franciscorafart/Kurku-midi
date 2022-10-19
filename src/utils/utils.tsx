@@ -143,7 +143,7 @@ export const scaleWindowToRange = (
       rangeEnd,
       rangeStart + (windowedValue - windowStart) * scaleFactor
     ),
-    scaleFactor,
+    windowedValue,
   ];
 };
 

@@ -16,7 +16,7 @@ export const mapGlobalConfigsToMidi = (
     if (position !== undefined) {
       const screenRange = effect.screenRange;
       const valueRange = effect.valueRange;
-      const [scaledValue, _] = scaleWindowToRange(
+      const [scaledValue, windowedValue] = scaleWindowToRange(
         screenRange.a,
         screenRange.b,
         valueRange.x,
@@ -27,8 +27,7 @@ export const mapGlobalConfigsToMidi = (
       ccSender(channel, controller, scaledValue);
       const uid = effect.uid;
 
-      // TODO: figure out input value
-      valueObject[uid] = { input: 0, output: scaledValue };
+      valueObject[uid] = { input: windowedValue, output: scaledValue };
     }
   }
 

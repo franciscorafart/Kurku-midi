@@ -13,6 +13,7 @@ import { useRecoilState, useRecoilValue } from "recoil";
 import selectedMidiEffect from "atoms/selectedMidiEffect";
 import CloseButton from "react-bootstrap/CloseButton";
 import Button from "react-bootstrap/Button";
+// import { ToggleButton } from "react-bootstrap";
 import theme from "config/theme";
 import { Text, SubTitle } from "./shared";
 // @ts-ignore
@@ -52,6 +53,9 @@ const ColumnContainer = styled.div`
 const ColumnItem = styled.div`
   display: flex;
   flex-direction: column;
+`;
+const ColumnItem2 = styled(ColumnItem)`
+  flex-direction: row;
 `;
 
 const firstUpperCase = (t: string) =>
@@ -157,13 +161,18 @@ function MidiFXPanel() {
                     {mEff.direction.toUpperCase()} Axis <br></br>
                   </EffectData>
                 </ColumnItem>
-                <ColumnItem>
-                  {/* <MidiMeter variant="input" /> */}
+                <ColumnItem2>
                   <MidiMeter
-                    pct={(inputOutputMap[mEff.uid]?.output || 0) / 127}
-                    variant="output"
+                    variant="input"
+                    value={inputOutputMap[mEff.uid]?.input || 0}
                   />
-                </ColumnItem>
+                  <MidiMeter
+                    base={127}
+                    value={inputOutputMap[mEff.uid]?.output || 0}
+                    variant="output"
+                    cap
+                  />
+                </ColumnItem2>
               </ColumnContainer>
               <LastRowContainer>
                 <Button
@@ -180,6 +189,18 @@ function MidiFXPanel() {
                 >
                   Map
                 </Button>
+                {/* <ToggleButton
+                  size="sm"
+                  variant="outline-light"
+                  disabled={!ccSender}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                  }}
+                  value={1}
+                  active={false}
+                >
+                  Mute
+                </ToggleButton> */}
               </LastRowContainer>
             </EffectBox>
           </EffectContainer>

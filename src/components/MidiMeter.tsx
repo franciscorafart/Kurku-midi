@@ -1,5 +1,12 @@
 import styled from "styled-components";
 
+const Container = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 24px;
+`;
+
 const MeterContainer = styled.div`
   height: 100%;
   display: flex;
@@ -16,16 +23,31 @@ const MeterDiv = styled.div<{ pct: number; variant: Variant }>`
   height: ${({ pct }) => Math.floor(100 * pct)}%;
 `;
 
+const Span = styled.span`
+  font-size: 8px;
+`;
+
 type MidiMeterProps = {
-  pct: number;
+  value: number;
+  base?: number;
   variant?: Variant;
+  cap?: boolean;
 };
 
-export default function Meter({ pct = 0, variant = "output" }: MidiMeterProps) {
-  console.log("pct", pct);
+export default function Meter({
+  value = 0,
+  base = 1,
+  variant = "output",
+  cap,
+}: MidiMeterProps) {
+  const pct = value / base;
   return (
-    <MeterContainer>
-      <MeterDiv variant={variant} pct={pct} />
-    </MeterContainer>
+    <Container>
+      <Span>{variant === "input" ? "IN" : "OUT"}</Span>
+      <MeterContainer>
+        <MeterDiv variant={variant} pct={pct} />
+      </MeterContainer>
+      <Span>{cap ? Math.floor(value) : value.toFixed(2)}</Span>
+    </Container>
   );
 }
