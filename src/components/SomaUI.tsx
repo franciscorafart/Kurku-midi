@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 import MidiFXPanel from "./MidiFXPanel";
 import { initBodyTracking, setupCamera } from "utils/bodytracking";
@@ -12,8 +12,11 @@ import HowToUse from "./HowToUse";
 import WhatIsKurku from "./WhatIsKurku";
 import Header from "components/Header";
 import { Text, SubTitle } from "./shared";
-import { initSessions } from "localDB";
-import { PAID_CUSTOMER } from "~/App";
+import ADI, { initEffects, initSessions } from "localDB";
+import { User } from "context";
+
+import storedSessions from "atoms/storedSessions";
+import storedEffects from "atoms/storedEffects";
 
 const Container = styled.div`
   display: flex;
@@ -37,6 +40,9 @@ const StyledText = styled(Text)`
 
 function SomaUI() {
   const setKeypoints = useSetRecoilState(keypoints);
+  const setSessions = useSetRecoilState(storedSessions);
+  const setEffects = useSetRecoilState(storedEffects);
+
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
@@ -44,15 +50,20 @@ function SomaUI() {
 
   const [showModal, setShowModal] = useState(false);
   const [showKurkuModal, setShowKurkuModal] = useState(false);
+  const isPaidUser = useContext(User);
+  const isInitialized = ADI.isInitialized();
 
   useEffect(() => {
     const populateSessions = async () => {
-      if (PAID_CUSTOMER) {
-        await initSessions();
-      }
+      const cachedSessions = await initSessions();
+      const cachedEffects = await initEffects();
+      setSessions(cachedSessions);
+      setEffects(cachedEffects);
     };
-    populateSessions();
-  }, []);
+    if (isPaidUser && isInitialized) {
+      populateSessions();
+    }
+  }, [setEffects, setSessions, isPaidUser, isInitialized]);
 
   const initTracking = async () => {
     const video = videoRef.current;

@@ -5,12 +5,14 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import * as serviceWorkerRegistration from "./serviceWorkerRegistration";
 import NewVersionModal from "./components/NewVersionModal";
 import ADI, { initializeADI } from "./localDB";
+import { User } from "context";
 
 export const PAID_CUSTOMER = true;
 
 function App() {
   const [waitingWorker, setWaitingWorker] = useState<any>(null);
   const [newVersion, setNewVersion] = useState(false);
+  const [initialized, setInitialized] = useState(false);
   const onServiceWorkerUpdate = (registration: ServiceWorkerRegistration) => {
     setWaitingWorker(registration && registration.waiting);
     setNewVersion(true);
@@ -30,15 +32,22 @@ function App() {
         onUpdate: onServiceWorkerUpdate,
       });
 
-      if (!ADI.isInitialized()) initializeADI();
+      if (!ADI.isInitialized()) {
+        initializeADI();
+      }
+      setInitialized(true);
     } else {
       serviceWorkerRegistration.unregister();
+      setInitialized(true);
     }
-  }, []);
+  }, [setInitialized]);
+
   return (
     <RecoilRoot>
-      <SomaUI />
-      <NewVersionModal open={newVersion} onClose={updateServiceWorker} />
+      <User.Provider value={PAID_CUSTOMER}>
+        {initialized && <SomaUI />}
+        <NewVersionModal open={newVersion} onClose={updateServiceWorker} />
+      </User.Provider>
     </RecoilRoot>
   );
 }

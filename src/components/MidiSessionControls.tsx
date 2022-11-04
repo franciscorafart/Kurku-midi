@@ -54,6 +54,7 @@ function MidiDropdown() {
           : "Select Midi Output"
       }
       onSelect={(e) => onSelect(e as keyof MidiOutputType)}
+      size="lg"
     >
       {options.map((o) => (
         <Dropdown.Item key={o.id} eventKey={o.id}>
@@ -94,7 +95,11 @@ const MidiSessionControl = ({ onInit }: { onInit: () => Promise<void> }) => {
         </OptionsContainer>
         <OptionsContainer>
           {selectedOutput && (
-            <Button onClick={() => initMidiSession()} variant="outline-light">
+            <Button
+              onClick={() => initMidiSession()}
+              variant="outline-light"
+              size="lg"
+            >
               Start MIDI
             </Button>
           )}
