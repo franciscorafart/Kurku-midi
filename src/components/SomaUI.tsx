@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 import MidiFXPanel from "./MidiFXPanel";
 import { initBodyTracking, setupCamera } from "utils/bodytracking";
@@ -12,6 +12,8 @@ import HowToUse from "./HowToUse";
 import WhatIsKurku from "./WhatIsKurku";
 import Header from "components/Header";
 import { Text, SubTitle } from "./shared";
+import { initSessions } from "localDB";
+import { PAID_CUSTOMER } from "~/App";
 
 const Container = styled.div`
   display: flex;
@@ -42,6 +44,15 @@ function SomaUI() {
 
   const [showModal, setShowModal] = useState(false);
   const [showKurkuModal, setShowKurkuModal] = useState(false);
+
+  useEffect(() => {
+    const populateSessions = async () => {
+      if (PAID_CUSTOMER) {
+        await initSessions();
+      }
+    };
+    populateSessions();
+  }, []);
 
   const initTracking = async () => {
     const video = videoRef.current;

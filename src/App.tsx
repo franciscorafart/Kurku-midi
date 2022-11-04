@@ -4,8 +4,9 @@ import { RecoilRoot } from "recoil";
 import "bootstrap/dist/css/bootstrap.min.css";
 import * as serviceWorkerRegistration from "./serviceWorkerRegistration";
 import NewVersionModal from "./components/NewVersionModal";
+import ADI, { initializeADI } from "./localDB";
 
-const PAID_CUSTOMER = false;
+export const PAID_CUSTOMER = true;
 
 function App() {
   const [waitingWorker, setWaitingWorker] = useState<any>(null);
@@ -28,6 +29,8 @@ function App() {
       serviceWorkerRegistration.register({
         onUpdate: onServiceWorkerUpdate,
       });
+
+      if (!ADI.isInitialized()) initializeADI();
     } else {
       serviceWorkerRegistration.unregister();
     }
