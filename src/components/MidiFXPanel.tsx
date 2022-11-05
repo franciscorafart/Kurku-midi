@@ -1,4 +1,10 @@
-import { useCallback, useContext, useEffect, useMemo } from "react";
+import React, {
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import styled from "styled-components";
 import {
   Container as FXContainer,
@@ -29,6 +35,7 @@ import storedSessions from "atoms/storedSessions";
 import { User } from "context";
 import storedEffects from "atoms/storedEffects";
 import { defaultMidiEffects } from "config/midi";
+import Form from "react-bootstrap/Form";
 
 const Container = styled.div`
   display: flex;
@@ -124,7 +131,11 @@ const sessionToDBSessions = (id: string, name: string) => {
   };
 };
 
-function SessionsDropdown() {
+function SessionsDropdown({
+  onSelectCallback,
+}: {
+  onSelectCallback: () => void;
+}) {
   const options = useRecoilValue(storedSessions);
   const [selectedSes, setSelectedSes] = useRecoilState(selectedSession);
   const selectedOption = options?.find((o) => o.id === selectedSes);
@@ -132,8 +143,9 @@ function SessionsDropdown() {
   const onSelect = (e: keyof DBSession) => {
     const selected = options?.find((o) => o.id === e);
     setSelectedSes(selected?.id ?? "");
+    onSelectCallback();
   };
-
+  // TODO: Implement delete button and confirm modal for sessions
   return (
     <DropdownButton
       variant="outline-light"
@@ -156,32 +168,41 @@ function MidiFXPanel() {
   const [selectedUid, setSelectedUid] = useRecoilState(selectedMidiEffect);
   const [selectedSessionUid, setSelectedSessionUid] =
     useRecoilState(selectedSession);
-  const [storedFx, setStoredFx] = useRecoilState(storedEffects);
+  const [storedFx, setStoredFx] = useRecoilState(storedEffects); // TODO: Store this a key value pair instead of array
+  const [storedSess, setStoredSess] = useRecoilState(storedSessions);
 
   const [fx, setFx] = useRecoilState(midiEffects);
   const inputOutputMap = useRecoilValue(valueMap);
   const isPaidUser = useContext(User);
+  const [sessionName, setSessionName] = useState("");
+  const [effectsToRemove, setEffectsToRemove] = useState<string[]>([]);
 
   useEffect(() => {
     if (selectedSessionUid) {
       const displayStored = storedFx
         .filter((sEff) => sEff.sessionId === selectedSessionUid)
         .map((sEff) => dbEffectToEffect(sEff));
+
+      const sess = storedSess.find((ss) => ss.id === selectedSessionUid);
+
+      setSessionName(sess?.name || "");
       setFx(displayStored);
     }
-  }, [selectedSessionUid, setFx, storedFx]);
+  }, [selectedSessionUid, setFx, storedFx, storedSess]);
 
   const handleDisconnect = useCallback(
     (uid: string) => {
       const idxOfRemove = fx.findIndex((msc) => msc.uid === uid);
+      const elementToRemove = fx.find((msc) => msc.uid === uid);
       const newMidiFx = [...fx];
 
-      if (idxOfRemove !== undefined) {
+      if (idxOfRemove !== undefined && elementToRemove !== undefined) {
         newMidiFx.splice(idxOfRemove, 1);
         setFx(newMidiFx);
+        setEffectsToRemove([...effectsToRemove, elementToRemove.uid]);
       }
     },
-    [fx, setFx]
+    [effectsToRemove, fx, setFx]
   );
 
   const emptyFxCount = MAX_FX - fx.length;
@@ -219,7 +240,7 @@ function MidiFXPanel() {
 
     ADI.cacheItem(
       sessionId,
-      sessionToDBSessions(sessionId, "tempName"), // TODO: Figure out way to modify session name
+      sessionToDBSessions(sessionId, sessionName),
       "sessions"
     );
 
@@ -232,12 +253,50 @@ function MidiFXPanel() {
     }
 
     // Update local state
-    setStoredFx(storedFx.concat(fx.map((f) => effectToDBEffect(f, sessionId))));
-  }, [fx, selectedSessionUid, setStoredFx, storedFx]);
+    if (selectedSessionUid) {
+      // new effects
+      const existingFXIds = fx.map((f) => f.uid).concat(effectsToRemove);
+      setStoredFx(
+        storedFx
+          .filter((sEff) => !existingFXIds.includes(sEff.id))
+          .concat(fx.map((f) => effectToDBEffect(f, sessionId)))
+      );
+
+      setStoredSess(
+        storedSess
+          .filter((s) => s.id !== sessionId)
+          .concat(sessionToDBSessions(sessionId, sessionName))
+      );
+    } else {
+      setStoredFx(
+        storedFx.concat(fx.map((f) => effectToDBEffect(f, sessionId)))
+      );
+
+      setStoredSess([
+        ...storedSess,
+        sessionToDBSessions(sessionId, sessionName),
+      ]);
+    }
+  }, [
+    selectedSessionUid,
+    sessionName,
+    fx,
+    effectsToRemove,
+    setStoredFx,
+    storedFx,
+    setStoredSess,
+    storedSess,
+  ]);
 
   const newSession = () => {
     setFx(defaultMidiEffects);
     setSelectedSessionUid("");
+    setSessionName("");
+  };
+
+  const onNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const v = e.target.value;
+    setSessionName(v);
   };
 
   return (
@@ -250,7 +309,22 @@ function MidiFXPanel() {
           <Button variant="outline-light" onClick={newSession} size="lg">
             New Session
           </Button>
-          {isPaidUser && <SessionsDropdown />}
+          <Form>
+            <Form.Group>
+              <Form.Control
+                type="text"
+                value={sessionName}
+                onChange={onNameChange}
+              />
+            </Form.Group>
+          </Form>
+          {isPaidUser && (
+            <SessionsDropdown
+              onSelectCallback={() => {
+                setEffectsToRemove([]);
+              }}
+            />
+          )}
           <Button
             variant="outline-light"
             onClick={onSaveSession}
