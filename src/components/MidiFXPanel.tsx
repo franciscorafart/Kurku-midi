@@ -176,6 +176,7 @@ function MidiFXPanel() {
   const isPaidUser = useContext(User);
   const [sessionName, setSessionName] = useState("");
   const [effectsToRemove, setEffectsToRemove] = useState<string[]>([]);
+  const [dirty, setDirty] = useState(false);
 
   useEffect(() => {
     if (selectedSessionUid) {
@@ -200,6 +201,7 @@ function MidiFXPanel() {
         newMidiFx.splice(idxOfRemove, 1);
         setFx(newMidiFx);
         setEffectsToRemove([...effectsToRemove, elementToRemove.uid]);
+        setDirty(true);
       }
     },
     [effectsToRemove, fx, setFx]
@@ -226,6 +228,7 @@ function MidiFXPanel() {
     });
 
     setFx(newMidiFx);
+    setDirty(true);
   }, [fx, setFx]);
 
   const selectedOutput = useRecoilValue(midiOutput);
@@ -277,6 +280,8 @@ function MidiFXPanel() {
         sessionToDBSessions(sessionId, sessionName),
       ]);
     }
+
+    setDirty(false);
   }, [
     selectedSessionUid,
     sessionName,
@@ -292,11 +297,13 @@ function MidiFXPanel() {
     setFx(defaultMidiEffects);
     setSelectedSessionUid("");
     setSessionName("");
+    setDirty(true);
   };
 
   const onNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const v = e.target.value;
     setSessionName(v);
+    setDirty(true);
   };
 
   return (
@@ -306,15 +313,13 @@ function MidiFXPanel() {
           <Text>MIDI FX panel</Text>
         </SubTitle>
         <ButtonContainer>
-          <Button variant="outline-light" onClick={newSession} size="lg">
-            New Session
-          </Button>
           <Form>
             <Form.Group>
               <Form.Control
                 type="text"
                 value={sessionName}
                 onChange={onNameChange}
+                placeholder="Session name"
               />
             </Form.Group>
           </Form>
@@ -322,11 +327,12 @@ function MidiFXPanel() {
             <SessionsDropdown
               onSelectCallback={() => {
                 setEffectsToRemove([]);
+                setDirty(false);
               }}
             />
           )}
           <Button
-            variant="outline-light"
+            variant={dirty ? "outline-warning" : "outline-light"}
             onClick={onSaveSession}
             disabled={!isPaidUser}
             size="lg"
@@ -340,6 +346,9 @@ function MidiFXPanel() {
             size="lg"
           >
             Add Effect
+          </Button>
+          <Button variant="outline-light" onClick={newSession} size="lg">
+            New Session
           </Button>
         </ButtonContainer>
       </UpperBar>
