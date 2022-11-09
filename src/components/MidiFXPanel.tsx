@@ -36,6 +36,9 @@ import { User } from "context";
 import storedEffects from "atoms/storedEffects";
 import { defaultMidiEffects } from "config/midi";
 import Form from "react-bootstrap/Form";
+import ConfirmationModal, {
+  ConfirmationModalBaseProps,
+} from "./ConfirmationModal";
 
 const Container = styled.div`
   display: flex;
@@ -133,34 +136,47 @@ const sessionToDBSessions = (id: string, name: string) => {
 
 function SessionsDropdown({
   onSelectCallback,
+  selectedSes,
+  setSelectedSes,
+  dirty,
+  onDirtyCallback,
 }: {
+  dirty: boolean;
+  onDirtyCallback: (id: string) => void;
   onSelectCallback: () => void;
+  selectedSes: string;
+  setSelectedSes: (id: string) => void;
 }) {
   const options = useRecoilValue(storedSessions);
-  const [selectedSes, setSelectedSes] = useRecoilState(selectedSession);
   const selectedOption = options?.find((o) => o.id === selectedSes);
 
   const onSelect = (e: keyof DBSession) => {
     const selected = options?.find((o) => o.id === e);
-    setSelectedSes(selected?.id ?? "");
-    onSelectCallback();
+    if (dirty) {
+      onDirtyCallback(selected?.id ?? "");
+    } else {
+      setSelectedSes(selected?.id ?? "");
+      onSelectCallback();
+    }
   };
   // TODO: Implement delete button and confirm modal for sessions
   return (
-    <DropdownButton
-      variant="outline-light"
-      title={
-        selectedOption ? `Session: ${selectedOption.name}` : "Select Session"
-      }
-      onSelect={(e) => onSelect(e as keyof DBSession)}
-      size="lg"
-    >
-      {options.map((o) => (
-        <Dropdown.Item key={o.id} eventKey={o.id}>
-          {o.name}
-        </Dropdown.Item>
-      ))}
-    </DropdownButton>
+    <>
+      <DropdownButton
+        variant="outline-light"
+        title={
+          selectedOption ? `Session: ${selectedOption.name}` : "Select Session"
+        }
+        onSelect={(e) => onSelect(e as keyof DBSession)}
+        size="lg"
+      >
+        {options.map((o) => (
+          <Dropdown.Item key={o.id} eventKey={o.id}>
+            {o.name}
+          </Dropdown.Item>
+        ))}
+      </DropdownButton>
+    </>
   );
 }
 
@@ -170,6 +186,9 @@ function MidiFXPanel() {
     useRecoilState(selectedSession);
   const [storedFx, setStoredFx] = useRecoilState(storedEffects); // TODO: Store this a key value pair instead of array
   const [storedSess, setStoredSess] = useRecoilState(storedSessions);
+  const [modal, setModal] = useState<ConfirmationModalBaseProps | undefined>(
+    undefined
+  );
 
   const [fx, setFx] = useRecoilState(midiEffects);
   const inputOutputMap = useRecoilValue(valueMap);
@@ -239,6 +258,16 @@ function MidiFXPanel() {
   );
 
   const onSaveSession = useCallback(async () => {
+    if (!sessionName) {
+      setModal({
+        type: "sessionName",
+        title: "Set session name",
+        text: "Your session needs a name!",
+        onCancel: () => setModal(undefined),
+      });
+      return;
+    }
+
     const sessionId = selectedSessionUid || v4();
 
     ADI.cacheItem(
@@ -257,7 +286,7 @@ function MidiFXPanel() {
 
     // Update local state
     if (selectedSessionUid) {
-      // new effects
+      // Overwrite effects
       const existingFXIds = fx.map((f) => f.uid).concat(effectsToRemove);
       setStoredFx(
         storedFx
@@ -271,6 +300,7 @@ function MidiFXPanel() {
           .concat(sessionToDBSessions(sessionId, sessionName))
       );
     } else {
+      // new effect
       setStoredFx(
         storedFx.concat(fx.map((f) => effectToDBEffect(f, sessionId)))
       );
@@ -293,12 +323,28 @@ function MidiFXPanel() {
     storedSess,
   ]);
 
-  const newSession = () => {
+  const makeNewSession = useCallback(() => {
     setFx(defaultMidiEffects);
     setSelectedSessionUid("");
     setSessionName("");
-    setDirty(true);
-  };
+    setDirty(false);
+    setModal(undefined);
+    setEffectsToRemove([]);
+  }, [setFx, setSelectedSessionUid]);
+
+  const newSession = useCallback(() => {
+    if (dirty) {
+      setModal({
+        type: "newSession",
+        title: "Confirm new session",
+        text: `Make new session without saving ${sessionName}?`,
+        onConfirm: makeNewSession,
+        onCancel: () => setModal(undefined),
+      });
+    } else {
+      makeNewSession();
+    }
+  }, [dirty, makeNewSession, sessionName]);
 
   const onNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const v = e.target.value;
@@ -325,9 +371,27 @@ function MidiFXPanel() {
           </Form>
           {isPaidUser && (
             <SessionsDropdown
+              dirty={dirty}
+              selectedSes={selectedSessionUid}
+              setSelectedSes={setSelectedSessionUid}
+              onDirtyCallback={(id: string) => {
+                setModal({
+                  type: "selectSession",
+                  text: `Select session without saving ${sessionName}`,
+                  title: "Select session",
+                  onConfirm: () => {
+                    setSelectedSessionUid(id);
+                    setEffectsToRemove([]);
+                    setDirty(false);
+                    setModal(undefined);
+                  },
+                  onCancel: () => setModal(undefined),
+                });
+              }}
               onSelectCallback={() => {
                 setEffectsToRemove([]);
                 setDirty(false);
+                setModal(undefined);
               }}
             />
           )}
@@ -428,6 +492,16 @@ function MidiFXPanel() {
             </EmptyEffectContainer>
           ))}
       </StlFXContainer>
+      {modal && (
+        <ConfirmationModal
+          show={!!modal}
+          type={modal.type}
+          text={modal.text}
+          title={modal.title}
+          onConfirm={modal.onConfirm}
+          onCancel={modal.onCancel}
+        />
+      )}
     </Container>
   );
 }
