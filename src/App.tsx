@@ -6,7 +6,9 @@ import * as serviceWorkerRegistration from "./serviceWorkerRegistration";
 import NewVersionModal from "./components/NewVersionModal";
 import ADI, { initializeADI } from "./localDB";
 import { User } from "context";
+import { MetaMaskProvider } from "metamask-react";
 
+// TODO: Move to recoil state and set after
 export const PAID_CUSTOMER = true;
 
 function App() {
@@ -44,10 +46,12 @@ function App() {
 
   return (
     <RecoilRoot>
-      <User.Provider value={PAID_CUSTOMER}>
-        {initialized && <SomaUI />}
-        <NewVersionModal open={newVersion} onClose={updateServiceWorker} />
-      </User.Provider>
+      <MetaMaskProvider>
+        <User.Provider value={PAID_CUSTOMER}>
+          {initialized && <SomaUI />}
+          <NewVersionModal open={newVersion} onClose={updateServiceWorker} />
+        </User.Provider>
+      </MetaMaskProvider>
     </RecoilRoot>
   );
 }
