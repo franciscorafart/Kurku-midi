@@ -1,0 +1,35 @@
+import { MidiEffectType } from "config/midi";
+import { ChannelType, InputOutputMap } from "./types";
+import { scaleWindowToRange } from "./utils";
+
+export const mapGlobalConfigsToMidi = (
+  midiFx: MidiEffectType[],
+  bodyPartPositions: any, // TODO: create body part positions type
+  ccSender: (channel: ChannelType, controller: number, velocity: number) => void
+) => {
+  const valueObject: InputOutputMap = {};
+
+  for (const effect of midiFx) {
+    const bodyPart = effect.bodyPart;
+    const position = bodyPartPositions[bodyPart][effect.direction];
+
+    if (position !== undefined) {
+      const screenRange = effect.screenRange;
+      const valueRange = effect.valueRange;
+      const [scaledValue, windowedValue] = scaleWindowToRange(
+        screenRange.a,
+        screenRange.b,
+        valueRange.x,
+        valueRange.y,
+        position
+      );
+      const { channel, controller } = effect;
+      ccSender(channel, controller, scaledValue);
+      const uid = effect.uid;
+
+      valueObject[uid] = { input: windowedValue, output: scaledValue };
+    }
+  }
+
+  return valueObject;
+};
