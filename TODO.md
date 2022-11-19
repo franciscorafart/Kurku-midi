@@ -1,5 +1,13 @@
-- Initialize Midi and hook up to device (hardcode everything at the)
-- How to codify body mnoement into midi messages?
+Auth
 
-UI:
-- Make Midi Body tracker Panel
+Payment
+
+- Server
+- Stripe service
+
+Expiry date storage
+
+- Assymetric encryption of date in the back end and decrypt in the front end https://stackoverflow.com/questions/54087514/asymmetric-encryption-using-nodejs-crypto-module
+
+- Mongo db
+- Store encrypted in local storage

@@ -27,10 +27,10 @@ export type StatusType =
   | "connected";
 enum StatusToButtonText {
   initializing = "Initializing...",
-  unavailable = "Unavailable",
-  notConnected = "Connect",
+  unavailable = "Login with Metamask",
+  notConnected = "Login with MetaMask",
   connecting = "Connecting...",
-  connected = "Connected",
+  connected = "Connected to MetaMask",
 }
 
 enum Blockchains {
@@ -64,7 +64,7 @@ function Header({
   const allProps = useMetaMask();
   const { status, connect, account, chainId, ethereum } = allProps;
   const buttonText = StatusToButtonText[status];
-  console.log(allProps);
+
   return (
     <>
       <Navbar expand="lg" bg="light" variant="dark">

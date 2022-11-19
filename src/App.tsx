@@ -1,20 +1,39 @@
 import { useEffect, useState } from "react";
 import SomaUI from "./components/SomaUI";
-import { RecoilRoot } from "recoil";
+import { RecoilRoot, useRecoilValue } from "recoil";
 import "bootstrap/dist/css/bootstrap.min.css";
 import * as serviceWorkerRegistration from "./serviceWorkerRegistration";
 import NewVersionModal from "./components/NewVersionModal";
 import ADI, { initializeADI } from "./localDB";
 import { User } from "context";
 import { MetaMaskProvider } from "metamask-react";
+import account from "./atoms/account";
 
 // TODO: Move to recoil state and set after
 export const PAID_CUSTOMER = true;
 
 function App() {
+  return (
+    <RecoilRoot>
+      <MetaMaskProvider>
+        <UIInitializer />
+      </MetaMaskProvider>
+    </RecoilRoot>
+  );
+}
+
+export default App;
+
+const UIInitializer = () => {
+  const [initialized, setInitialized] = useState(false);
   const [waitingWorker, setWaitingWorker] = useState<any>(null);
   const [newVersion, setNewVersion] = useState(false);
-  const [initialized, setInitialized] = useState(false);
+  const userAccount = useRecoilValue(account);
+  const now = new Date();
+  const expiry = new Date(userAccount.dateExpiry);
+  const paidCustomer =
+    userAccount.walletAddress && userAccount.dateExpiry ? expiry < now : false;
+
   const onServiceWorkerUpdate = (registration: ServiceWorkerRegistration) => {
     setWaitingWorker(registration && registration.waiting);
     setNewVersion(true);
@@ -28,7 +47,7 @@ function App() {
   };
 
   useEffect(() => {
-    if (PAID_CUSTOMER) {
+    if (paidCustomer) {
       console.log("Register Service Worker");
       serviceWorkerRegistration.register({
         onUpdate: onServiceWorkerUpdate,
@@ -42,18 +61,12 @@ function App() {
       serviceWorkerRegistration.unregister();
       setInitialized(true);
     }
-  }, [setInitialized]);
-
+  }, [setInitialized, paidCustomer]);
+  console.log("paidCustomer", paidCustomer);
   return (
-    <RecoilRoot>
-      <MetaMaskProvider>
-        <User.Provider value={PAID_CUSTOMER}>
-          {initialized && <SomaUI />}
-          <NewVersionModal open={newVersion} onClose={updateServiceWorker} />
-        </User.Provider>
-      </MetaMaskProvider>
-    </RecoilRoot>
+    <User.Provider value={paidCustomer}>
+      {initialized && <SomaUI />}
+      <NewVersionModal open={newVersion} onClose={updateServiceWorker} />
+    </User.Provider>
   );
-}
-
-export default App;
+};
