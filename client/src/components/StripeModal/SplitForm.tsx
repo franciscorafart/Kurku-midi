@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useState } from "react";
 import {
   useStripe,
   useElements,
@@ -10,7 +10,14 @@ import {
 import Spinner from "react-bootstrap/Spinner";
 
 import styled from "styled-components";
-import { Form, FormGroup, FormLabel, Button, Alert } from "react-bootstrap";
+import {
+  Form,
+  FormGroup,
+  FormLabel,
+  Button,
+  Alert,
+  FormControl,
+} from "react-bootstrap";
 
 const options = {
   style: {
@@ -39,7 +46,13 @@ const initialFormState = {
   expiry: false,
 };
 
-const SplitForm = ({ displayAlert, handleClose }) => {
+const SplitForm = ({
+  displayAlert,
+  handleClose,
+}: {
+  displayAlert: (display: boolean, variant: string, message: string) => void;
+  handleClose: () => void;
+}) => {
   const stripe = useStripe();
   const elements = useElements();
 
@@ -57,12 +70,12 @@ const SplitForm = ({ displayAlert, handleClose }) => {
     setErrorAlert({ display: false, variant: "", message: "" });
   };
 
-  const handleFormEmail = (e) => {
-    const emailAddress = e.target.value;
+  const handleFormEmail = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const emailAddress = e.currentTarget.value;
     setFormEmail(emailAddress);
   };
 
-  const handleSubmit = async (event) => {
+  const handleSubmit = async (event: React.SyntheticEvent) => {
     event.preventDefault();
 
     if (!stripe || !elements) {
@@ -82,7 +95,7 @@ const SplitForm = ({ displayAlert, handleClose }) => {
       card,
     });
 
-    if (error) {
+    if (error || !paymentMethod) {
       setSpinner(false);
       setErrorAlert({
         display: true,
@@ -146,7 +159,7 @@ const SplitForm = ({ displayAlert, handleClose }) => {
       });
   };
 
-  const formValid = (fieldValid) => {
+  const formValid = (fieldValid: { [index: string]: boolean }) => {
     const validFormStateClone = { ...formValidState };
     const updatedFormState = {
       ...validFormStateClone,
@@ -191,7 +204,7 @@ const SplitForm = ({ displayAlert, handleClose }) => {
           <FormLabel>Card number</FormLabel>
           <CardNumberElement
             onFocus={clearMessage}
-            options={options}
+            // options={options}
             onReady={() => {}}
             onChange={(e) => {
               const validField = e.complete === true && e.error === undefined;
@@ -204,7 +217,7 @@ const SplitForm = ({ displayAlert, handleClose }) => {
           <FormLabel>Expiration date</FormLabel>
           <CardExpiryElement
             onFocus={clearMessage}
-            options={options}
+            // options={options}
             onReady={() => {}}
             onChange={(e) => {
               const validField = e.complete === true && e.error === undefined;
@@ -217,7 +230,7 @@ const SplitForm = ({ displayAlert, handleClose }) => {
           <FormLabel>CVC</FormLabel>
           <CardCvcElement
             onFocus={clearMessage}
-            options={options}
+            // options={options}
             onReady={() => {}}
             onChange={(e) => {
               const validField = e.complete === true && e.error === undefined;

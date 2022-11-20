@@ -16,7 +16,13 @@ const PositionedAlert = styled(Alert)`
   float: left;
 `;
 
-const StripeModal = ({ open, handleClose }) => {
+const StripeModal = ({
+  open,
+  handleClose,
+}: {
+  open: boolean;
+  handleClose: () => void;
+}) => {
   const isProduction = process.env.NODE_ENV === "production";
 
   const stripeKey = isProduction

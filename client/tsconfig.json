@@ -20,5 +20,5 @@
       "~/*": ["*"] // resolve any `~/foo/bar` to `<baseUrl>/foo/bar`
     }
   },
-  "include": ["client/src", "types/*"]
+  "include": ["src", "types/*"]
 }

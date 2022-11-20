@@ -23,3 +23,4 @@
 - [] Enable / disable features
 - [] Tooltips for disabled features
 - [] How to use => Metamask connection and Stripe payment
+- [] Look into crypto payments with metamask https://docs.metamask.io/guide/sending-transactions.html#example
