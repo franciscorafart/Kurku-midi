@@ -21,14 +21,28 @@ function WhatIsKurku({
             This software allows you to map the position of different body parts
             to MIDI continuous control messages (CC) using just your webcam.
           </p>
-          <p>Paid tier with extra features coming soon.</p>
-          {/* <h4>Paid Tier</h4>
+          <h4>Paid Tier</h4>
           <p>Paying users get a few extra features:</p>
           <ul>
-            <li>Offline use</li>
-            <li>Session saving</li>
-            <li>Faster tracking algorithms</li>
-          </ul> */}
+            <li>
+              <h5>Offline use</h5>You don't need an internet connection, Kurku
+              runs like a desktop app on your browser for paying users.
+            </li>
+            <li>
+              <h5>Session saving:</h5>Save your confgurations and don't waste
+              time setting it up next time you use Kurku.
+            </li>
+            <li>
+              <h5>More accuracy:</h5>Use more precise algorithms for tracking
+              body movement.
+            </li>
+          </ul>
+          <h4>MetaMask login</h4>
+          <p>
+            We use the MetaMask crypto wallet to authenticate users that want to
+            access the Paid Tier. By using MetaMask we avoid storing your
+            personal information. Crypto payments coming soon{" "}
+          </p>
           <p>Please provide feedback at rafart@rafartmusic.com</p>
         </Modal.Body>
         <Modal.Footer>

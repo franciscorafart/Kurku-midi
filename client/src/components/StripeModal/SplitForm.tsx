@@ -17,6 +17,7 @@ import {
   Button,
   Alert,
   FormControl,
+  FormText,
 } from "react-bootstrap";
 
 const options = {
@@ -140,6 +141,11 @@ const SplitForm = ({
             }
 
             if (result.paymentIntent) {
+              // TODO:
+              // 1. POST to write subscription to DB. Get encrypted date back
+              // 2. Write encrypted date to local storage
+              // 3. Update User account with unencrypted date
+
               handleClose();
               displayAlert(
                 true,
@@ -174,6 +180,13 @@ const SplitForm = ({
 
   return (
     <FormContainer>
+      <FormText>
+        1 year access to Kurku is $20 USD and you can access the paid features
+        login in with your MetaMask wallet. Pay with your credit card via
+        Stripe. Your email is for Stripe billing purposes, we don't store your
+        data.
+      </FormText>
+
       <Form onSubmit={handleSubmit}>
         {errorAlert.display && (
           <Alert key={errorAlert.variant} variant={errorAlert.variant}>
@@ -184,10 +197,12 @@ const SplitForm = ({
           <FormLabel>Amount (USD)</FormLabel>
           <Form.Control
             onFocus={clearMessage}
-            onChange={(e) => setPrice(Number(e.target.value))}
+            // onChange={(e) => setPrice(Number(e.target.value))}
+            value={20}
             type="number"
-            placeholder="30"
-            required
+            disabled
+            // placeholder="30"
+            // required
           />
         </FormGroup>
         <FormGroup>

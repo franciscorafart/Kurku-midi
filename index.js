@@ -45,6 +45,8 @@ app.post("/get_intent", (req, res) => {
   const payload = req.body;
   const { amount, currency, paymentMethodId, customerEmail } = payload;
 
+  // TODO: Look for user. If not present, Save user without a new date
+
   getStripeIntent(amount, currency, paymentMethodId, customerEmail)
     .then((data) => {
       const state = { clientSecret: data.client_secret };
@@ -54,6 +56,9 @@ app.post("/get_intent", (req, res) => {
     })
     .catch((e) => res.json(JSON.stringify({ stripe_error: e })));
 });
+
+// TODO:
+// app.post("/set_expiry", (req, res) => {});
 
 const getStripeIntent = async (
   amount,

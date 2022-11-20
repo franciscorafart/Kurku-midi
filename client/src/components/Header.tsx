@@ -1,3 +1,4 @@
+import { useContext, useState } from "react";
 import Container from "react-bootstrap/Container";
 import Nav from "react-bootstrap/Nav";
 import Navbar from "react-bootstrap/Navbar";
@@ -5,6 +6,8 @@ import logo from "assets/kurku-logo.png";
 import { Button } from "react-bootstrap";
 import styled from "styled-components";
 import { useMetaMask } from "metamask-react";
+import StripeModal from "./StripeModal";
+import { User } from "context";
 
 const StyledContainer = styled(Container)`
   max-width: 2000px;
@@ -61,6 +64,9 @@ function Header({
   kurkuModal: () => void;
   howToUseModal: () => void;
 }) {
+  const [displayForm, setDisplayForm] = useState(false);
+  const isPaidUser = useContext(User);
+
   const allProps = useMetaMask();
   const { status, connect, account, chainId, ethereum } = allProps;
   const buttonText = StatusToButtonText[status];
@@ -69,7 +75,7 @@ function Header({
     <>
       <Navbar expand="lg" bg="light" variant="dark">
         <StyledContainer>
-          <Navbar.Brand href="#home">
+          <Navbar.Brand href="https://kurku.tech">
             <img
               alt=""
               src={logo}
@@ -80,20 +86,33 @@ function Header({
             <Span>Kurku - Body tracking web MIDI controller</Span>
           </Navbar.Brand>
           <StyledNav>
-            <Button href="https://kurku.tech" variant="outline-dark">
-              Home
-            </Button>
             <Button onClick={kurkuModal} variant="outline-dark">
               What is Kurku?
             </Button>
             <Button onClick={howToUseModal} variant="outline-dark">
               How to use
             </Button>
-            <Button disabled={!(status === "notConnected")} onClick={connect}>
+            <Button
+              variant="outline-dark"
+              disabled={!(status === "notConnected")}
+              onClick={connect}
+            >
               {buttonText}
             </Button>
+            {!isPaidUser && status === "connected" && (
+              <Button
+                variant="outline-dark"
+                onClick={() => setDisplayForm(true)}
+              >
+                Get paid feature access
+              </Button>
+            )}
           </StyledNav>
         </StyledContainer>
+        <StripeModal
+          open={displayForm}
+          handleClose={() => setDisplayForm(false)}
+        />
       </Navbar>
     </>
   );
