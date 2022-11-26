@@ -19,6 +19,9 @@ import {
   FormControl,
   FormText,
 } from "react-bootstrap";
+import account from "atoms/account";
+import { useRecoilState } from "recoil";
+import { fetchBodyBase } from "../shared";
 
 const options = {
   style: {
@@ -56,6 +59,7 @@ const SplitForm = ({
 }) => {
   const stripe = useStripe();
   const elements = useElements();
+  const [userAccount, setUserAccount] = useRecoilState(account);
 
   const [errorAlert, setErrorAlert] = useState({
     display: false,
@@ -65,7 +69,8 @@ const SplitForm = ({
   const [spinner, setSpinner] = useState(false);
   const [formEmail, setFormEmail] = useState("");
   const [formValidState, setFormValidState] = useState(initialFormState);
-  const [price, setPrice] = useState(0);
+  // const [price, setPrice] = useState(0);
+  const price = 20; // USD
 
   const clearMessage = () => {
     setErrorAlert({ display: false, variant: "", message: "" });
@@ -141,17 +146,49 @@ const SplitForm = ({
             }
 
             if (result.paymentIntent) {
-              // TODO:
-              // 1. POST to write subscription to DB. Get encrypted date back
-              // 2. Write encrypted date to local storage
-              // 3. Update User account with unencrypted date
+              fetch("/addTransaction", {
+                method: "POST",
+                cache: "no-cache",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                redirect: "follow",
+                referrerPolicy: "no-referrer",
+                body: JSON.stringify({
+                  walletId: userAccount.walletAddress,
+                  intent: result.paymentIntent.id,
+                }),
+              })
+                .then((response) => response.json())
+                .then((data) => {
+                  // TODO:
+                  // 1. Get encrypted date back
+                  // 2. Write encrypted date to local storage
+                  // 3. Update User account with unencrypted date
 
+                  const dateString = new Date(data.expiry).toLocaleDateString();
+                  setUserAccount({
+                    ...userAccount,
+                    dateExpiry: dateString,
+                  });
+
+                  handleClose();
+                  displayAlert(
+                    true,
+                    "success",
+                    `Your payment was submitted successfully. You have access until ${dateString}.`
+                  );
+                })
+                .catch((e) => {
+                  setSpinner(false);
+                  setErrorAlert({
+                    display: true,
+                    variant: "danger",
+                    message: `There was an error. Please reach out to support: ${e}`,
+                  });
+                });
+            } else {
               handleClose();
-              displayAlert(
-                true,
-                "success",
-                "Your support was submitted successfully"
-              );
             }
           });
       })

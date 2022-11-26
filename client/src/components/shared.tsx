@@ -87,3 +87,20 @@ export const SubTitle2 = styled.h6`
   text-align: center;
   color: ${theme.text};
 `;
+
+export const fetchBodyBase = {
+  method: "POST",
+  cache: "no-cache",
+  headers: {
+    "Content-Type": "application/json",
+  },
+  redirect: "follow",
+  referrerPolicy: "no-referrer",
+  body: "",
+};
+
+export type TransactionResponse = {
+  walletId: string;
+  date: string;
+  expiry: string;
+};

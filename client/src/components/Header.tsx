@@ -1,4 +1,4 @@
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import Container from "react-bootstrap/Container";
 import Nav from "react-bootstrap/Nav";
 import Navbar from "react-bootstrap/Navbar";
@@ -8,6 +8,8 @@ import styled from "styled-components";
 import { useMetaMask } from "metamask-react";
 import StripeModal from "./StripeModal";
 import { User } from "context";
+import accountInState from "atoms/account";
+import { useRecoilState } from "recoil";
 
 const StyledContainer = styled(Container)`
   max-width: 2000px;
@@ -22,12 +24,19 @@ const Span = styled.span`
   color: black;
 `;
 
+const SubscriptionInfo = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;
+
 export type StatusType =
   | "initializing"
   | "unavailable"
   | "notConnected"
   | "connecting"
   | "connected";
+
 enum StatusToButtonText {
   initializing = "Initializing...",
   unavailable = "Login with Metamask",
@@ -66,10 +75,26 @@ function Header({
 }) {
   const [displayForm, setDisplayForm] = useState(false);
   const isPaidUser = useContext(User);
+  const [userAccount, setUserAccount] = useRecoilState(accountInState);
 
   const allProps = useMetaMask();
   const { status, connect, account, chainId, ethereum } = allProps;
+  console.log("connectProps", allProps);
   const buttonText = StatusToButtonText[status];
+
+  useEffect(() => {
+    if (account) {
+      setUserAccount({
+        dateExpiry: userAccount.dateExpiry,
+        walletAddress: account,
+      });
+    }
+  }, [
+    account,
+    setUserAccount,
+    userAccount.walletAddress,
+    userAccount.dateExpiry,
+  ]);
 
   return (
     <>
@@ -106,6 +131,12 @@ function Header({
               >
                 Get paid feature access
               </Button>
+            )}
+            {isPaidUser && (
+              <SubscriptionInfo>
+                Subscribed until{" "}
+                {new Date(userAccount.dateExpiry).toLocaleDateString()}
+              </SubscriptionInfo>
             )}
           </StyledNav>
         </StyledContainer>

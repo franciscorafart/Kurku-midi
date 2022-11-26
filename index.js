@@ -31,7 +31,6 @@ app.use(
 );
 
 const path = require("path");
-
 // Secure Cors
 const origin = {
   origin: isProduction ? "https://www.heroku.com/" : "*",
@@ -63,51 +62,59 @@ mongoose.connection.on("connected", (err, res) => {
 app.post("/get_intent", (req, res) => {
   const payload = req.body;
   const { amount, currency, paymentMethodId, customerEmail } = payload;
+  console.log("[auload", payload);
+  // TODO: Look for user. If not present, Save user without a new date
 
   getStripeIntent(amount, currency, paymentMethodId, customerEmail)
     .then((data) => {
+      console.log("intent data", data);
       const state = { clientSecret: data.client_secret };
-      res.status(200).json(state);
+      const response = JSON.stringify(state);
+
+      res.status(200);
+      res.send(response);
     })
     .catch((e) => {
-      res.status(400).json({ stripe_error: e });
+      res.status(400);
+      res.send(JSON.stringify({ stripe_error: e }));
     });
 });
 
 app.post("/addTransaction", (req, res) => {
   const payload = req.body;
   const { walletId, intent } = payload;
+
   // TODO: Validate: Find intent with stripe to avoid rouge api calls
   const valid = true;
 
   if (valid && walletId) {
     const now = new Date();
-    const date = new Date(now.setFullYear(now.getFullYear() + 1)).toUTCString();
+    let expiry = new Date();
+    expiry = new Date(expiry.setFullYear(expiry.getFullYear() + 1));
+
     new Transaction({
       walletId,
-      date: date,
+      date: now.toUTCString(),
+      expiry: expiry.toUTCString(),
       dev: !isProduction,
     })
       .save()
       .then(
-        // TODO: Encrypt date and send
-        () => res.status(200).json({ date: date })
+        () => res.status(200).json({ expiry: expiry.toUTCString() }).send() // TODO: Encrypt date and send
       )
-      .catch((error) =>
-        res.status(400).json({ error, message: "Invalid transaction" })
-      );
-
-    // console.log("transaction", t);
+      .catch((error) => {
+        console.log("this error?");
+        res.status(500).json({ error, message: "Invalid transaction" }).send();
+      });
   } else {
-    res.status(400).json({ message: "Invalid transaction" });
+    res.status(400).json({ message: "Invalid transaction" }).send();
   }
 });
 
-app.post("/getLatestTransaction", (req, res) => {
+app.post("/getTransactions", (req, res) => {
   const payload = req.body;
   const { walletId } = payload;
 
-  // TODO: Validation and sort (Return only 1)
   Transaction.find({ walletId: walletId })
     .then((transactions) => res.status(200).json({ data: transactions }))
     .catch((e) => res.status(400).json(e));

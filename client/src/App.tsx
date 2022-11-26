@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import SomaUI from "./components/SomaUI";
-import { RecoilRoot, useRecoilValue } from "recoil";
+import { RecoilRoot, useRecoilState } from "recoil";
 import "bootstrap/dist/css/bootstrap.min.css";
 import * as serviceWorkerRegistration from "./serviceWorkerRegistration";
 import NewVersionModal from "./components/NewVersionModal";
@@ -8,6 +8,7 @@ import ADI, { initializeADI } from "./localDB";
 import { User } from "context";
 import { MetaMaskProvider } from "metamask-react";
 import account from "./atoms/account";
+import { fetchBodyBase, TransactionResponse } from "./components/shared";
 
 function App() {
   return (
@@ -25,12 +26,13 @@ const UIInitializer = () => {
   const [initialized, setInitialized] = useState(false);
   const [waitingWorker, setWaitingWorker] = useState<any>(null);
   const [newVersion, setNewVersion] = useState(false);
-  const userAccount = useRecoilValue(account);
+  const [userAccount, setUserAccount] = useRecoilState(account);
+
   const now = new Date();
-  const expiry = new Date(userAccount.dateExpiry);
+  const expiry = useMemo(() => new Date(userAccount.dateExpiry), [userAccount]);
   // TODO: Decrypt
   const paidCustomer =
-    userAccount.walletAddress && userAccount.dateExpiry ? expiry < now : false;
+    userAccount.walletAddress && userAccount.dateExpiry ? expiry > now : false;
 
   const onServiceWorkerUpdate = (registration: ServiceWorkerRegistration) => {
     setWaitingWorker(registration && registration.waiting);
@@ -43,6 +45,46 @@ const UIInitializer = () => {
     setNewVersion(false);
     window.location.reload();
   };
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      if (userAccount.walletAddress) {
+        // Get encrypted date locally first (key: wallet, value: encrypted date)
+        try {
+          const res = await fetch("/getTransactions", {
+            method: "POST",
+            cache: "no-cache",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            redirect: "follow",
+            referrerPolicy: "no-referrer",
+            body: JSON.stringify({
+              walletId: userAccount.walletAddress,
+            }),
+          });
+          const { data } = (await res.json()) as {
+            data: TransactionResponse[];
+          };
+          const latest = data.length
+            ? data.sort((t1, t2) =>
+                new Date(t1.expiry) > new Date(t2.expiry) ? -1 : 1
+              )[0]
+            : null;
+          console.log("latest", latest);
+          if (latest) {
+            setUserAccount({
+              walletAddress: latest.walletId,
+              dateExpiry: latest.expiry,
+            });
+          }
+        } catch (e) {
+          console.error("Couldn't fetch user account", e);
+        }
+      }
+    };
+    fetchUserData();
+  }, [userAccount.walletAddress, setUserAccount]);
 
   useEffect(() => {
     if (paidCustomer) {
@@ -60,7 +102,7 @@ const UIInitializer = () => {
       setInitialized(true);
     }
   }, [setInitialized, paidCustomer]);
-  console.log("paidCustomer", paidCustomer);
+
   return (
     <User.Provider value={paidCustomer}>
       {initialized && <SomaUI />}
