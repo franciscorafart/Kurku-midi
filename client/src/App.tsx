@@ -9,9 +9,6 @@ import { User } from "context";
 import { MetaMaskProvider } from "metamask-react";
 import account from "./atoms/account";
 
-// TODO: Move to recoil state and set after
-export const PAID_CUSTOMER = true;
-
 function App() {
   return (
     <RecoilRoot>
@@ -31,6 +28,7 @@ const UIInitializer = () => {
   const userAccount = useRecoilValue(account);
   const now = new Date();
   const expiry = new Date(userAccount.dateExpiry);
+  // TODO: Decrypt
   const paidCustomer =
     userAccount.walletAddress && userAccount.dateExpiry ? expiry < now : false;
 
