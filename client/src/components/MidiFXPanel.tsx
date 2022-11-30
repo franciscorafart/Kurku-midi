@@ -39,6 +39,8 @@ import Form from "react-bootstrap/Form";
 import ConfirmationModal, {
   ConfirmationModalBaseProps,
 } from "./ConfirmationModal";
+import OverlayTrigger from "react-bootstrap/OverlayTrigger";
+import Tooltip from "react-bootstrap/Tooltip";
 
 const Container = styled.div`
   display: flex;
@@ -93,8 +95,6 @@ const findCC = (ccList: number[]) => {
 
   return 1;
 };
-
-const MAX_FX = 5;
 
 const effectToDBEffect = (effect: MidiEffectType, sessionId: string) => {
   return {
@@ -225,8 +225,8 @@ function MidiFXPanel() {
     },
     [effectsToRemove, fx, setFx]
   );
-
-  const emptyFxCount = MAX_FX - fx.length;
+  const maxFx = isPaidUser ? 8 : 2;
+  const emptyFxCount = maxFx - fx.length;
 
   const onAddEffect = useCallback(() => {
     const newMidiFx = [...fx];
@@ -395,22 +395,38 @@ function MidiFXPanel() {
               }}
             />
           )}
-          <Button
-            variant={dirty ? "outline-warning" : "outline-light"}
-            onClick={onSaveSession}
-            disabled={!isPaidUser}
-            size="lg"
+          <OverlayTrigger
+            overlay={
+              !isPaidUser ? <Tooltip>Saving on paid tier</Tooltip> : <div />
+            }
           >
-            Save
-          </Button>
-          <Button
-            variant="outline-light"
-            onClick={onAddEffect}
-            disabled={emptyFxCount <= 0}
-            size="lg"
+            <Button
+              variant={dirty ? "outline-warning" : "outline-light"}
+              onClick={isPaidUser ? onSaveSession : undefined}
+              // disabled={!isPaidUser}
+              size="lg"
+            >
+              Save
+            </Button>
+          </OverlayTrigger>
+          <OverlayTrigger
+            overlay={
+              !isPaidUser ? (
+                <Tooltip>Add more effects on paid tier</Tooltip>
+              ) : (
+                <div />
+              )
+            }
           >
-            Add Effect
-          </Button>
+            <Button
+              variant="outline-light"
+              onClick={emptyFxCount > 0 ? onAddEffect : undefined}
+              // disabled={emptyFxCount <= 0}
+              size="lg"
+            >
+              Add Effect
+            </Button>
+          </OverlayTrigger>
           <Button variant="outline-light" onClick={newSession} size="lg">
             New Session
           </Button>
