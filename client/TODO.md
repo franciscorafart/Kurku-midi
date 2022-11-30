@@ -41,3 +41,21 @@
 
 [] Put api keys on Heroku
 [] Add heroku post build script for client code
+
+## Testing
+
+### Local storage
+
+A. Server error
+
+1.  Pay with Stripe
+2.  Have /addTransaction return a 500
+3.  See if local storage works
+
+B. Offline (same)
+
+Encryption
+
+- Manually change encryted date of another user into local storage
+- Login offline
+- It should throw an error in the UI

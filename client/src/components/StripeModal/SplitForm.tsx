@@ -172,6 +172,10 @@ const SplitForm = ({
                     dateExpiry: dateString,
                   });
 
+                  // Storing locally for offline use
+                  localStorage.setItem("walletId", userAccount.walletAddress);
+                  localStorage.setItem("expiry", dateString);
+
                   handleClose();
                   displayAlert(
                     true,

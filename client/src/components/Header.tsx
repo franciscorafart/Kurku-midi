@@ -79,11 +79,11 @@ function Header({
 
   const allProps = useMetaMask();
   const { status, connect, account, chainId, ethereum } = allProps;
-  console.log("connectProps", allProps);
   const buttonText = StatusToButtonText[status];
 
   useEffect(() => {
     if (account) {
+      console.log("setting user account on load");
       setUserAccount({
         dateExpiry: userAccount.dateExpiry,
         walletAddress: account,

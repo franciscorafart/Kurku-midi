@@ -8,7 +8,7 @@ import ADI, { initializeADI } from "./localDB";
 import { User } from "context";
 import { MetaMaskProvider } from "metamask-react";
 import account from "./atoms/account";
-import { fetchBodyBase, TransactionResponse } from "./components/shared";
+import { TransactionResponse } from "./components/shared";
 
 function App() {
   return (
@@ -48,7 +48,10 @@ const UIInitializer = () => {
 
   useEffect(() => {
     const fetchUserData = async () => {
-      if (userAccount.walletAddress) {
+      const walletAddress =
+        userAccount.walletAddress || localStorage.getItem("walletId");
+
+      if (walletAddress) {
         // Get encrypted date locally first (key: wallet, value: encrypted date)
         try {
           const res = await fetch("/getTransactions", {
@@ -60,7 +63,7 @@ const UIInitializer = () => {
             redirect: "follow",
             referrerPolicy: "no-referrer",
             body: JSON.stringify({
-              walletId: userAccount.walletAddress,
+              walletId: walletAddress,
             }),
           });
           const { data } = (await res.json()) as {
@@ -79,7 +82,15 @@ const UIInitializer = () => {
             });
           }
         } catch (e) {
-          console.error("Couldn't fetch user account", e);
+          console.error("Couldn't fetch user account, trying local storage", e);
+          const exp = localStorage.getItem("expiry");
+          if (exp) {
+            // TODO: Decrypt
+            setUserAccount({
+              walletAddress: walletAddress,
+              dateExpiry: exp,
+            });
+          }
         }
       }
     };

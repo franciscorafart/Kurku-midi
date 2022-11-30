@@ -113,6 +113,7 @@ app.post("/addTransaction", (req, res) => {
 app.post("/getTransactions", (req, res) => {
   const payload = req.body;
   const { walletId } = payload;
+  // res.status(400).json({ message: "Invalid transaction" }).send();
 
   Transaction.find({ walletId: walletId })
     .then((transactions) => res.status(200).json({ data: transactions }))
