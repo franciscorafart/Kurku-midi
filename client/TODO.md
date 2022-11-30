@@ -1,7 +1,7 @@
 ### Auth
 
 - [x] Metamask
-  - [] Disconnect button
+  - [x] Disconnect button => With metamask
 
 ### Payment
 
@@ -14,8 +14,8 @@
 - [] Integrate to UI flow
   - [] On load fetch user from api
     fetch from local storage if not
-  - [] Disable functionality unpaid
-  - [] Tooltips when unpaid
+  - [x] Disable functionality unpaid
+  - [x] Tooltips when unpaid
 - [] Test and find bugs
 
 ### Expiry date storage
@@ -28,7 +28,16 @@
 
 ### Paid customers
 
-- [] Enable / disable features
-- [] Tooltips for disabled features
-- [] How to use => Metamask connection and Stripe payment
+- [x] Enable / disable features
+- [x] Tooltips for disabled features
+- [x] How to use => Metamask connection and Stripe payment
 - [] Look into crypto payments with metamask https://docs.metamask.io/guide/sending-transactions.html#example
+
+# UI
+
+[] Try Kurku website color sections
+
+# Deploy paid features
+
+[] Put api keys on Heroku
+[] Add heroku post build script for client code

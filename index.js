@@ -103,7 +103,6 @@ app.post("/addTransaction", (req, res) => {
         () => res.status(200).json({ expiry: expiry.toUTCString() }).send() // TODO: Encrypt date and send
       )
       .catch((error) => {
-        console.log("this error?");
         res.status(500).json({ error, message: "Invalid transaction" }).send();
       });
   } else {

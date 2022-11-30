@@ -89,6 +89,7 @@ function Header({
         walletAddress: account,
       });
     }
+    // Else get from local storage
   }, [
     account,
     setUserAccount,
