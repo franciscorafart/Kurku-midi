@@ -33,7 +33,7 @@ app.use(
 const path = require("path");
 // Secure Cors
 const origin = {
-  origin: isProduction ? "https://www.heroku.com/" : "*",
+  origin: isProduction ? "https://app.kurku.tech" : "*",
 };
 app.use(cors(origin));
 
