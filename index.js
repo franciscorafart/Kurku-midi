@@ -33,7 +33,7 @@ app.use(
 const path = require("path");
 // Secure Cors
 const origin = {
-  origin: isProduction ? "https://app.kurku.tech" : "*",
+  origin: isProduction ? "https://www.heroku.com/" : "*",
 };
 app.use(cors(origin));
 
@@ -45,7 +45,8 @@ app.get("*", (req, res) => {
 
 const port = process.env.PORT || 8000;
 
-app.listen(port, () => {
+// TODO: Try this and roll back static file
+app.listen(port, "0.0.0.0", () => {
   console.log(`Runing on port ${port}`);
 });
 
