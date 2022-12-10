@@ -9,7 +9,7 @@ declare module "styled-components" {
   export default value;
 }
 
-declare module "lodash" {
-  const value: any;
-  export default value;
-}
+// declare module "lodash" {
+//   const value: any;
+//   export default value;
+// }
