@@ -3,3 +3,8 @@ declare module "*.wav" {
   const value: any;
   export default value;
 }
+
+declare module "styled-components" {
+  const value: any;
+  export default value;
+}
