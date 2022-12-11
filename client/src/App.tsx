@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import SomaUI from "./components/SomaUI";
 import { RecoilRoot, useRecoilState } from "recoil";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 import * as serviceWorkerRegistration from "./serviceWorkerRegistration";
 import NewVersionModal from "./components/NewVersionModal";
@@ -13,9 +14,13 @@ import { TransactionResponse } from "./components/shared";
 function App() {
   return (
     <RecoilRoot>
-      <MetaMaskProvider>
-        <UIInitializer />
-      </MetaMaskProvider>
+      <BrowserRouter>
+        <MetaMaskProvider>
+          <Routes>
+            <Route path="/" element={<UIInitializer />}></Route>
+          </Routes>
+        </MetaMaskProvider>
+      </BrowserRouter>
     </RecoilRoot>
   );
 }
