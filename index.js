@@ -38,7 +38,8 @@ const origin = {
 app.use(cors(origin));
 
 // serves the built version of your react app
-app.use(express.static(path.join(__dirname, "client/build")));
+console.log("__dirname", __dirname);
+app.use(express.static(path.join(__dirname, "/client/build")));
 app.get("*", (req, res) => {
   res.sendFile(path.join(__dirname + "/client/build/index.html"));
 });
