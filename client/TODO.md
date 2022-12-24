@@ -1,3 +1,15 @@
+# Deploy paid features
+
+[x] Make AWS API
+[] Roll back Heroku backend
+[] Hook up front end to API
+[] Whitelist Heroku ip on load balancer.
+
+## Fixes
+
+[] Write wallet Id to local storage on wallet connect, not only on payment sucessful
+[] Filter last date from transactions (on the backend)
+
 ### Auth
 
 - [x] Metamask
@@ -36,11 +48,6 @@
 # UI
 
 [] Try Kurku website color sections
-
-# Deploy paid features
-
-[] Put api keys on Heroku
-[] Add heroku post build script for client code
 
 ## Testing
 

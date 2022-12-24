@@ -21,7 +21,7 @@ import {
 } from "react-bootstrap";
 import account from "atoms/account";
 import { useRecoilState } from "recoil";
-import { fetchBodyBase } from "../shared";
+import { apiUrl } from "../../constants";
 
 const options = {
   style: {
@@ -118,7 +118,7 @@ const SplitForm = ({
       customerEmail: formEmail,
     };
 
-    fetch("/get_intent", {
+    fetch(`${apiUrl}/get_intent`, {
       method: "POST",
       cache: "no-cache",
       headers: {
@@ -146,7 +146,7 @@ const SplitForm = ({
             }
 
             if (result.paymentIntent) {
-              fetch("/addTransaction", {
+              fetch(`${apiUrl}/addTransaction`, {
                 method: "POST",
                 cache: "no-cache",
                 headers: {

@@ -10,6 +10,7 @@ import { User } from "context";
 import { MetaMaskProvider } from "metamask-react";
 import account from "./atoms/account";
 import { TransactionResponse } from "./components/shared";
+import { apiUrl } from "./constants";
 
 function App() {
   return (
@@ -59,7 +60,7 @@ const UIInitializer = () => {
       if (walletAddress) {
         // Get encrypted date locally first (key: wallet, value: encrypted date)
         try {
-          const res = await fetch("/getTransactions", {
+          const res = await fetch(`${apiUrl}/getTransactions`, {
             method: "POST",
             cache: "no-cache",
             headers: {
