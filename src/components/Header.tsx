@@ -77,8 +77,8 @@ function Header({
   const isPaidUser = useContext(User);
   const [userAccount, setUserAccount] = useRecoilState(accountInState);
 
-  const allProps = useMetaMask();
-  const { status, connect, account, chainId, ethereum } = allProps;
+  const metamaskProps = useMetaMask();
+  const { status, connect, account, chainId, ethereum } = metamaskProps;
   const buttonText = StatusToButtonText[status];
 
   useEffect(() => {
@@ -88,6 +88,8 @@ function Header({
         dateExpiry: userAccount.dateExpiry,
         walletAddress: account,
       });
+
+      localStorage.setItem("walletId", account); // Always set on connect to avoid user changing it
     }
     // Else get from local storage
   }, [

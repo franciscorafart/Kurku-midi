@@ -80,12 +80,14 @@ const UIInitializer = () => {
                 new Date(t1.expiry) > new Date(t2.expiry) ? -1 : 1
               )[0]
             : null;
-          console.log("latest", latest);
+
           if (latest) {
             setUserAccount({
               walletAddress: latest.walletId,
               dateExpiry: latest.expiry,
             });
+
+            localStorage.setItem("expiry", latest.expiry); // Reset ls date
           }
         } catch (e) {
           console.error("Couldn't fetch user account, trying local storage", e);

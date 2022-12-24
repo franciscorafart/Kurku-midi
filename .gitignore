@@ -11,6 +11,9 @@
 # production
 /build
 
+# assets
+/src/assets/*.wav
+
 # misc
 .DS_Store
 .env
@@ -22,5 +25,3 @@
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-
-# static.json
