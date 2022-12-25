@@ -92,11 +92,14 @@ const UIInitializer = () => {
             const now2 = new Date();
             if (new Date(latest.expiry) < now2) {
               // If expired, disable offline use
-              serviceWorkerRegistration.unregister();
+              console.log("unregister 1");
+
+              // serviceWorkerRegistration.unregister();
             }
           } else {
             // If no subscription data for user, unregister.
-            serviceWorkerRegistration.unregister();
+            console.log("unregister 2");
+            // serviceWorkerRegistration.unregister();
           }
         } catch (e) {
           console.error("Couldn't fetch user account, trying local storage", e);
