@@ -83,7 +83,6 @@ function Header({
 
   useEffect(() => {
     if (account) {
-      console.log("setting user account on load");
       setUserAccount({
         dateExpiry: userAccount.dateExpiry,
         walletAddress: account,

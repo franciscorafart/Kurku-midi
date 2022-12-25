@@ -26,12 +26,7 @@ type Config = {
 };
 
 export function register(config?: Config) {
-  console.log(
-    "env",
-    process.env.NODE_ENV,
-    "PUBLOC_URL",
-    process.env.PUBLIC_URL
-  );
+  console.log("env", process.env.NODE_ENV, "publicurl", process.env.PUBLIC_URL);
   if (process.env.NODE_ENV === "production" && "serviceWorker" in navigator) {
     // The URL constructor is available in all browsers that support SW.
     const publicUrl = new URL(process.env.PUBLIC_URL, window.location.href);
@@ -95,7 +90,7 @@ function registerValidSW(swUrl: string, config?: Config) {
               // It's the perfect time to display a
               // "Content is cached for offline use." message.
               console.log("Content is cached for offline use.");
-              // alert("Kurku offline use enabled");
+              alert("Kurku offline use enabled");
               // Execute callback
               if (config && config.onSuccess) {
                 config.onSuccess(registration);

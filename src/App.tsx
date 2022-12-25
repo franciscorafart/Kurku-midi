@@ -93,13 +93,12 @@ const UIInitializer = () => {
             if (new Date(latest.expiry) < now2) {
               // If expired, disable offline use
               console.log("unregister 1");
-
-              // serviceWorkerRegistration.unregister();
+              serviceWorkerRegistration.unregister();
             }
           } else {
             // If no subscription data for user, unregister.
             console.log("unregister 2");
-            // serviceWorkerRegistration.unregister();
+            serviceWorkerRegistration.unregister();
           }
         } catch (e) {
           console.error("Couldn't fetch user account, trying local storage", e);
@@ -119,7 +118,7 @@ const UIInitializer = () => {
 
   useEffect(() => {
     if (paidCustomer) {
-      console.log("Register Service Worker");
+      console.log("Registering Service Worker");
       serviceWorkerRegistration.register({
         onUpdate: onServiceWorkerUpdate,
       });
