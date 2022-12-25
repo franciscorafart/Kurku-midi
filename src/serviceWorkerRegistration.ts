@@ -66,6 +66,7 @@ export function register(config?: Config) {
         });
       } else {
         // Is not localhost. Just register service worker
+        console.log("Registering valid swURL");
         registerValidSW(swUrl, config);
       }
     });
