@@ -45,6 +45,7 @@
     "eject": "react-scripts eject"
   },
   "proxy": "http://localhost:8000",
+  "homepage": "https://app.kurku.tech",
   "eslintConfig": {
     "extends": [
       "react-app",
