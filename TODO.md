@@ -1,9 +1,11 @@
 # Deploy paid features
 
 [x] Make AWS API
-[] Roll back Heroku backend
-[] Hook up front end to API
+[x] Roll back Heroku backend
+[x] Hook up front end to API
 [] Whitelist Heroku ip on load balancer.
+[x] Figure out why App not available offline => It was being unregistered on load
+[x] Find good spot to unregister service worker => If backend response gives old date, disconnect
 
 ## Fixes
 

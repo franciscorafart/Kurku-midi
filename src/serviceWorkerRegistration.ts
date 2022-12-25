@@ -26,22 +26,10 @@ type Config = {
 };
 
 export function register(config?: Config) {
-  console.log("in register", process.env.NODE_ENV);
   if (process.env.NODE_ENV === "production" && "serviceWorker" in navigator) {
     // The URL constructor is available in all browsers that support SW.
-    console.log({
-      PUBLIC_URL: process.env.PUBLIC_URL,
-      wLocation: window.location.href,
-    });
     const publicUrl = new URL(process.env.PUBLIC_URL, window.location.href);
-    console.log(
-      "publicUrl",
-      publicUrl,
-      "window.location.origin",
-      window.location.origin,
-      "isLocalHost",
-      isLocalhost
-    );
+
     if (publicUrl.origin !== window.location.origin) {
       // Our service worker won't work if PUBLIC_URL is on a different origin
       // from what our page is served on. This might happen if a CDN is used to
@@ -66,7 +54,6 @@ export function register(config?: Config) {
         });
       } else {
         // Is not localhost. Just register service worker
-        console.log("Registering valid swURL");
         registerValidSW(swUrl, config);
       }
     });
@@ -102,7 +89,7 @@ function registerValidSW(swUrl: string, config?: Config) {
               // It's the perfect time to display a
               // "Content is cached for offline use." message.
               console.log("Content is cached for offline use.");
-
+              alert("Kurku offline use enabled");
               // Execute callback
               if (config && config.onSuccess) {
                 config.onSuccess(registration);

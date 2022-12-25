@@ -88,6 +88,15 @@ const UIInitializer = () => {
             });
 
             localStorage.setItem("expiry", latest.expiry); // Reset ls date
+
+            const now2 = new Date();
+            if (new Date(latest.expiry) < now2) {
+              // If expired, disable offline use
+              serviceWorkerRegistration.unregister();
+            }
+          } else {
+            // If no subscription data for user, unregister.
+            serviceWorkerRegistration.unregister();
           }
         } catch (e) {
           console.error("Couldn't fetch user account, trying local storage", e);
@@ -117,10 +126,6 @@ const UIInitializer = () => {
       }
       setInitialized(true);
     }
-    // else {
-    //   serviceWorkerRegistration.unregister();
-    //   setInitialized(true);
-    // }
   }, [setInitialized, paidCustomer]);
 
   return (
