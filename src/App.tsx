@@ -116,10 +116,11 @@ const UIInitializer = () => {
         initializeADI();
       }
       setInitialized(true);
-    } else {
-      serviceWorkerRegistration.unregister();
-      setInitialized(true);
     }
+    // else {
+    //   serviceWorkerRegistration.unregister();
+    //   setInitialized(true);
+    // }
   }, [setInitialized, paidCustomer]);
 
   return (
