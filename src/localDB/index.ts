@@ -11,7 +11,7 @@ const ADI = createDataCacheAPI(cacheMap);
 export default ADI;
 
 /** Enable `ADI` for interactions and caching */
-export async function initializeADI() {
+export function initializeADI() {
   // Subscribe to ADI
   ADI.onApplicationStart();
 }

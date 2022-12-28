@@ -92,12 +92,10 @@ const UIInitializer = () => {
             const now2 = new Date();
             if (new Date(latest.expiry) < now2) {
               // If expired, disable offline use
-              console.log("unregister 1");
               serviceWorkerRegistration.unregister();
             }
           } else {
             // If no subscription data for user, unregister.
-            console.log("unregister 2");
             serviceWorkerRegistration.unregister();
           }
         } catch (e) {
@@ -126,8 +124,8 @@ const UIInitializer = () => {
       if (!ADI.isInitialized()) {
         initializeADI();
       }
-      setInitialized(true);
     }
+    setInitialized(true);
   }, [setInitialized, paidCustomer]);
 
   return (
