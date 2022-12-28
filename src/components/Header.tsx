@@ -84,13 +84,14 @@ function Header({
   const buttonText = StatusToButtonText[status];
 
   useEffect(() => {
+    console.log("account", account);
     if (account) {
       setUserAccount({
         dateExpiry: userAccount.dateExpiry,
         walletAddress: account,
       });
 
-      localStorage.setItem("walletId", account); // Always set on connect to avoid user changing it
+      // localStorage.setItem("walletId", account); // Always set on connect to avoid user changing it
     }
     // Else get from local storage
   }, [

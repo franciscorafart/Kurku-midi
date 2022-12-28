@@ -54,9 +54,7 @@ const UIInitializer = () => {
 
   useEffect(() => {
     const fetchUserData = async () => {
-      const walletAddress =
-        userAccount.walletAddress || localStorage.getItem("walletId");
-
+      const walletAddress = userAccount.walletAddress;
       if (walletAddress) {
         // Get encrypted date locally first (key: wallet, value: encrypted date)
         try {
@@ -87,7 +85,7 @@ const UIInitializer = () => {
               dateExpiry: latest.expiry,
             });
 
-            localStorage.setItem("expiry", latest.expiry); // Reset ls date
+            localStorage.setItem("expiry", latest.expiry); // Reset date
 
             const now2 = new Date();
             if (new Date(latest.expiry) < now2) {

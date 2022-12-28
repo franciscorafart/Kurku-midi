@@ -173,7 +173,7 @@ const SplitForm = ({
                   });
 
                   // Storing locally for offline use
-                  localStorage.setItem("walletId", userAccount.walletAddress);
+                  // localStorage.setItem("walletId", userAccount.walletAddress);
                   localStorage.setItem("expiry", dateString);
 
                   handleClose();

@@ -49,7 +49,7 @@
 
 # UI
 
-[] Try Kurku website color sections
+[x] Try Kurku website color sections
 
 ## Testing
 
@@ -68,3 +68,7 @@ Encryption
 - Manually change encryted date of another user into local storage
 - Login offline
 - It should throw an error in the UI
+
+## Bugs
+
+[] When metamask disconnected and expiry in localStorage, app works as paying customer. => Remove expiry when disconnected.
