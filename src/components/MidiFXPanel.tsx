@@ -453,7 +453,8 @@ function MidiFXPanel() {
                   <EffectData>{firstUpperCase(mEff.bodyPart)}</EffectData>
                   <EffectData>CC: {mEff.controller}</EffectData>
                   <EffectData>
-                    {mEff.direction.toUpperCase()} Axis <br></br>
+                    {mEff.direction === "x" ? "Horizontal" : "Vertical"}
+                    <br></br>
                   </EffectData>
                 </ColumnItem>
                 <ColumnItem2>

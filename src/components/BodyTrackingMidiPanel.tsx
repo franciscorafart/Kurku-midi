@@ -194,7 +194,7 @@ const MidiForm = ({
               checked={formik.values.direction === "x"}
               onChange={formik.handleChange}
             >
-              X
+              Horizontal
             </ToggleButton>
             <ToggleButton
               id="directionY"
@@ -204,7 +204,7 @@ const MidiForm = ({
               checked={formik.values.direction === "y"}
               onChange={formik.handleChange}
             >
-              Y
+              Vertical
             </ToggleButton>
           </BtnGroup>
         </Form.Group>

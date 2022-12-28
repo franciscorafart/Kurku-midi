@@ -1,19 +1,20 @@
 const colors = {
-  light: "#FEFDF9",
   midGray: "#7a7d78",
-  black: "#191713",
-  white: "white",
-  lightBlue: "#86bddb",
+  black: "#222",
+  white: "#f5f5f5",
+  orange: "#ffc107",
 };
 
 const theme = {
-  text: colors.light,
-  text2: colors.lightBlue,
-  background: colors.midGray,
+  text: colors.white,
+  text2: colors.black,
+  background: colors.white,
   background2: colors.black,
+  background3: colors.midGray,
   selected: colors.white,
-  selectable: colors.lightBlue,
-  notSelecteble: colors.light,
+  selectable: colors.orange,
+  notSelecteble: colors.white,
+  border: colors.orange,
 };
 
 export default theme;

@@ -35,7 +35,7 @@ const VideoContentContainer = styled.div`
 `;
 
 const StyledText = styled(Text)`
-  color: ${theme.text};
+  color: ${theme.text2};
 `;
 
 function SomaUI() {

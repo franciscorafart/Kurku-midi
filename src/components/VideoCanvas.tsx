@@ -18,7 +18,7 @@ const Video = styled.video`
 `;
 const Canvas = styled.canvas`
   min-height: 380px;
-  border: 1px dashed white;
+  border: 1px dashed black;
 `;
 
 function VideoCanvas({

@@ -1,4 +1,5 @@
 import styled from "styled-components";
+import theme from "config/theme";
 
 const Container = styled.div`
   display: flex;
@@ -13,7 +14,7 @@ const MeterContainer = styled.div`
   align-items: flex-end;
   heigth: 20px;
   width: 8px;
-  border: 1px solid yellow;
+  border: 1px solid ${theme.border};
 `;
 type Variant = "input" | "output";
 const MeterDiv = styled.div<{ pct: number; variant: Variant }>`

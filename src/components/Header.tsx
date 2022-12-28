@@ -10,10 +10,12 @@ import StripeModal from "./StripeModal";
 import { User } from "context";
 import accountInState from "atoms/account";
 import { useRecoilState } from "recoil";
+import theme from "config/theme";
 
 const StyledContainer = styled(Container)`
   max-width: 2000px;
-  color: black;
+  background-color: ${theme.background};
+  color: ${theme.text2};
 `;
 
 const StyledNav = styled(Nav)`
@@ -21,7 +23,7 @@ const StyledNav = styled(Nav)`
 `;
 
 const Span = styled.span`
-  color: black;
+  color: ${theme.text2};
 `;
 
 const SubscriptionInfo = styled.div`
