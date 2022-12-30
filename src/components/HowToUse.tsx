@@ -17,31 +17,12 @@ function HowToUse({ open, onClose }: { open: boolean; onClose: () => void }) {
           <Modal.Title>How to use?</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <a
-            target="_blank"
-            rel="noreferrer"
-            href="https://youtu.be/6bNk6V5h9YU"
-          >
-            How to use video
-          </a>
-          <h4>Steps</h4>
           <h6>1. Select Midi Ouput</h6>
           <p>
             In the dropdown you will find your connected midi devices and
-            enabled midi buses. Here are helpful links to set up internal MIDI
-            buses:
+            available midi bus channels. Check out the links below to set up
+            internal MIDI buses.
           </p>
-          <Links>
-            <a href="https://support.apple.com/guide/audio-midi-setup/set-up-midi-devices-ams875bae1e0/mac">
-              MAC Midi Configuration
-            </a>
-            <a href="https://help.ableton.com/hc/en-us/articles/209774225-How-to-setup-a-virtual-MIDI-bus#Windows">
-              Mac: MIDI bus to Ableton
-            </a>
-            <a href="https://help.ableton.com/hc/en-us/articles/209774225-How-to-setup-a-virtual-MIDI-bus#Windows">
-              Windows: MIDI bus to Ableton
-            </a>
-          </Links>
           <h6>2. Start MIDI</h6>
           <p>
             When you start body tracking, a pop-up will appear asking for
@@ -61,9 +42,29 @@ function HowToUse({ open, onClose }: { open: boolean; onClose: () => void }) {
             it.
           </p>
           <p>
-            Use a Chromium based browser for a better experience (Brave, Chrome,
-            Opera).
+            Use a Chromium based browser (Brave, Chrome, Opera) or Firefox for a
+            better experience.
           </p>
+          <h5>Useful links</h5>
+          <Links>
+            <a
+              target="_blank"
+              rel="noreferrer"
+              href="https://youtu.be/6bNk6V5h9YU"
+            >
+              How to use Kurku (video)
+            </a>
+
+            <a href="https://youtu.be/dObJhGONBo8">
+              MAC: Midi bus Configuration (video)
+            </a>
+            <a href="https://help.ableton.com/hc/en-us/articles/209774225-How-to-setup-a-virtual-MIDI-bus#Windows">
+              Mac: MIDI bus to Ableton
+            </a>
+            <a href="https://help.ableton.com/hc/en-us/articles/209774225-How-to-setup-a-virtual-MIDI-bus#Windows">
+              Windows: MIDI bus to Ableton
+            </a>
+          </Links>
           <p>Please provide feedback at rafart@rafartmusic.com</p>
         </Modal.Body>
         <Modal.Footer>

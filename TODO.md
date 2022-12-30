@@ -58,7 +58,7 @@
 A. Server error
 
 1.  Pay with Stripe
-2.  Have /addTransaction return a 500
+2.  Have /getTransactions return a 500
 3.  See if local storage works
 
 B. Offline (same)
@@ -71,4 +71,5 @@ Encryption
 
 ## Bugs
 
-[] When metamask disconnected and expiry in localStorage, app works as paying customer. => Remove expiry when disconnected.
+[x] When metamask disconnected and expiry in localStorage, app works as paying customer. => Remove expiry when disconnected.
+[] A user could not pay again before subscription expired.

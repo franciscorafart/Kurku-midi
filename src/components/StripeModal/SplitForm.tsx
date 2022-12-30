@@ -16,7 +16,7 @@ import {
   FormLabel,
   Button,
   Alert,
-  FormControl,
+  // FormControl,
   FormText,
 } from "react-bootstrap";
 import account from "atoms/account";
@@ -26,7 +26,7 @@ import { apiUrl } from "../../constants";
 const options = {
   style: {
     base: {
-      fontSize: 14,
+      fontSize: "14px",
       color: "#424770",
       letterSpacing: "0.025em",
       fontFamily: "Source Code Pro, monospace",
@@ -70,7 +70,7 @@ const SplitForm = ({
   const [formEmail, setFormEmail] = useState("");
   const [formValidState, setFormValidState] = useState(initialFormState);
   // const [price, setPrice] = useState(0);
-  const price = 20; // USD
+  const price = 15; // USD
 
   const clearMessage = () => {
     setErrorAlert({ display: false, variant: "", message: "" });
@@ -222,7 +222,7 @@ const SplitForm = ({
   return (
     <FormContainer>
       <FormText>
-        1 year access to Kurku is $20 USD and you can access the paid features
+        1 year access to Kurku is $15 USD and you can access the paid features
         login in with your MetaMask wallet. Pay with your credit card via
         Stripe. Your email is for Stripe billing purposes, we don't store your
         data.
@@ -239,7 +239,7 @@ const SplitForm = ({
           <Form.Control
             onFocus={clearMessage}
             // onChange={(e) => setPrice(Number(e.target.value))}
-            value={20}
+            value={15}
             type="number"
             disabled
             // placeholder="30"
@@ -260,7 +260,7 @@ const SplitForm = ({
           <FormLabel>Card number</FormLabel>
           <CardNumberElement
             onFocus={clearMessage}
-            // options={options}
+            options={options}
             onReady={() => {}}
             onChange={(e) => {
               const validField = e.complete === true && e.error === undefined;
@@ -273,7 +273,7 @@ const SplitForm = ({
           <FormLabel>Expiration date</FormLabel>
           <CardExpiryElement
             onFocus={clearMessage}
-            // options={options}
+            options={options}
             onReady={() => {}}
             onChange={(e) => {
               const validField = e.complete === true && e.error === undefined;
@@ -286,7 +286,7 @@ const SplitForm = ({
           <FormLabel>CVC</FormLabel>
           <CardCvcElement
             onFocus={clearMessage}
-            // options={options}
+            options={options}
             onReady={() => {}}
             onChange={(e) => {
               const validField = e.complete === true && e.error === undefined;
