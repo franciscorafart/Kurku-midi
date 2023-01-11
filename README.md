@@ -1,6 +1,6 @@
 # Soma controller
 
-## Architecture Overviezw
+## Architecture Overview
 
 ### Audio Mode
 

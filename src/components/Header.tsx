@@ -68,6 +68,13 @@ enum Blockchains {
   fantom = "0xfa", // 250
 }
 
+const renewSoon = (d: string) => {
+  const oneMonthToExpiry = new Date(d);
+  oneMonthToExpiry.setMonth(oneMonthToExpiry.getMonth() - 1);
+
+  return new Date() > oneMonthToExpiry;
+};
+
 function Header({
   kurkuModal,
   howToUseModal,
@@ -78,19 +85,20 @@ function Header({
   const [displayForm, setDisplayForm] = useState(false);
   const isPaidUser = useContext(User);
   const [userAccount, setUserAccount] = useRecoilState(accountInState);
+  const [renew, setRenew] = useState(false);
 
   const metamaskProps = useMetaMask();
   const { status, connect, account, chainId, ethereum } = metamaskProps;
   const buttonText = StatusToButtonText[status];
 
   useEffect(() => {
-    console.log("account", account);
     if (account) {
       setUserAccount({
         dateExpiry: userAccount.dateExpiry,
         walletAddress: account,
       });
 
+      setRenew(renewSoon(userAccount.dateExpiry));
       // localStorage.setItem("walletId", account); // Always set on connect to avoid user changing it
     }
     // Else get from local storage
@@ -135,6 +143,14 @@ function Header({
                 onClick={() => setDisplayForm(true)}
               >
                 Get paid feature access
+              </Button>
+            )}
+            {renew && status === "connected" && (
+              <Button
+                variant="outline-dark"
+                onClick={() => setDisplayForm(true)}
+              >
+                Renew subscription now!
               </Button>
             )}
             {isPaidUser && (
