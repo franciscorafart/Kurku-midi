@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { isMobile } from "react-device-detect";
 import SomaUI from "./components/SomaUI";
 import { RecoilRoot, useRecoilState } from "recoil";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
@@ -11,6 +12,7 @@ import { MetaMaskProvider } from "metamask-react";
 import account from "./atoms/account";
 import { TransactionResponse } from "./components/shared";
 import { apiUrl } from "./constants";
+import MobileWarning from "./components/MobileWarning";
 
 function App() {
   return (
@@ -128,7 +130,8 @@ const UIInitializer = () => {
 
   return (
     <User.Provider value={paidCustomer}>
-      {initialized && <SomaUI />}
+      {isMobile && <MobileWarning />}
+      {!isMobile && initialized && <SomaUI />}
       <NewVersionModal open={newVersion} onClose={updateServiceWorker} />
     </User.Provider>
   );

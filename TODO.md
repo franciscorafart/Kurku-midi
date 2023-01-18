@@ -9,8 +9,9 @@
 
 ## Fixes
 
-[] Write wallet Id to local storage on wallet connect, not only on payment sucessful
-[] Filter last date from transactions (on the backend)
+[x] Write wallet Id to local storage on wallet connect, not only on payment sucessful
+[] Filter last date from transactions (on the backend) => Copy addTransaction code for resubscription
+[] Add warning pop-up on mobile
 
 ### Auth
 
@@ -63,13 +64,15 @@ A. Server error
 
 B. Offline (same)
 
-Encryption
-
-- Manually change encryted date of another user into local storage
-- Login offline
-- It should throw an error in the UI
+C. Test you can log in metamask different browsers
 
 ## Bugs
 
 [x] When metamask disconnected and expiry in localStorage, app works as paying customer. => Remove expiry when disconnected.
-[] A user could not pay again before subscription expired.
+[x] A user could not pay again before subscription expired.
+
+## Encryption
+
+- Manually change encryted date of another user into local storage
+- Login offline
+- It should throw an error in the UI
