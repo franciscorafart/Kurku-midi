@@ -58,7 +58,7 @@ function HowToUse({ open, onClose }: { open: boolean; onClose: () => void }) {
             <a href="https://youtu.be/dObJhGONBo8">
               MAC: Midi bus Configuration (video)
             </a>
-            <a href="https://help.ableton.com/hc/en-us/articles/209774225-How-to-setup-a-virtual-MIDI-bus#Windows">
+            <a href="https://help.ableton.com/hc/en-us/articles/209774225-How-to-setup-a-virtual-MIDI-bus#Mac">
               Mac: MIDI bus to Ableton
             </a>
             <a href="https://help.ableton.com/hc/en-us/articles/209774225-How-to-setup-a-virtual-MIDI-bus#Windows">
