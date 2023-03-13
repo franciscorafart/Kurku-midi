@@ -7,11 +7,11 @@ export const defaultMidiEffects: MidiEffectType[] = [
   {
     uid: v4(),
     sessionId: undefined,
-    direction: "x", // horizontal
-    screenRange: { a: 0.3, b: 0.7 },
+    direction: "y", // horizontal
+    screenRange: { a: 0, b: 1 },
     valueRange: { x: 0, y: 127 },
     scaleFactor: 1,
-    bodyPart: "nose",
+    bodyPart: "rightWrist",
     previousValue: 0,
     targetValue: 0,
     channel: 1,

@@ -84,6 +84,18 @@ function MidiSessionConfigPanel({
             >
               Fast
             </ToggleButton>
+            <ToggleButton
+              id={`radio-beast`}
+              type="radio"
+              name="Beast"
+              value="beast"
+              checked={sessionCfg.machineType === "beast"}
+              onChange={() =>
+                setSessionCfg({ ...sessionCfg, machineType: "beast" })
+              }
+            >
+              Beast
+            </ToggleButton>
           </ButtonGroup>
         </BodyContainer>
       </Offcanvas.Body>

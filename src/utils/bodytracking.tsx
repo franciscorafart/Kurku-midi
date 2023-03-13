@@ -33,6 +33,12 @@ export const machineConfig: { [index: string]: PosenetConfigType } = {
     confidence: 0.9,
     quantBytes: 2,
   },
+  beast: {
+    arch: "ResNet50",
+    skipSize: 2,
+    confidence: 0.9,
+    quantBytes: 2,
+  },
 };
 
 export async function initBodyTracking(

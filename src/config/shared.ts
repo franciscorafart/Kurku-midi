@@ -69,14 +69,14 @@ export type BodyPartPositionType = {
   [index in BodyPartKey]: BodyPartValueRange;
 };
 
-export type MachineType = "slow" | "decent" | "fast";
+export type MachineType = "slow" | "decent" | "fast" | "beast";
 
 export interface SessionConfigType {
   machineType: MachineType;
 }
 
 export const defaultSessionConfig: SessionConfigType = {
-  machineType: "slow",
+  machineType: "fast",
 };
 
 export type Keypoints = posenet.Keypoint[];
