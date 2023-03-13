@@ -12,7 +12,6 @@ let frame = 0;
 export type PosenetConfigType = {
   arch: "MobileNetV1" | "ResNet50";
   skipSize: number;
-  audioSkipSize: number;
   confidence: number;
   quantBytes?: PoseNetQuantBytes;
 };
@@ -21,19 +20,16 @@ export const machineConfig: { [index: string]: PosenetConfigType } = {
   slow: {
     arch: "MobileNetV1",
     skipSize: 5,
-    audioSkipSize: 0.05,
     confidence: 0.5,
   },
   decent: {
     arch: "MobileNetV1",
     skipSize: 2,
-    audioSkipSize: 0.1,
     confidence: 0.7,
   },
   fast: {
     arch: "ResNet50",
     skipSize: 5,
-    audioSkipSize: 0.2,
     confidence: 0.9,
     quantBytes: 2,
   },

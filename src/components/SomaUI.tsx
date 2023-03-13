@@ -1,8 +1,8 @@
-import { useContext, useEffect, useRef, useState } from "react";
+import { useCallback, useContext, useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 import MidiFXPanel from "./MidiFXPanel";
 import { initBodyTracking, setupCamera } from "utils/bodytracking";
-import { useSetRecoilState } from "recoil";
+import { useRecoilValue, useSetRecoilState } from "recoil";
 import keypoints from "atoms/keypoints";
 import BodyTrackingMidiPanel from "./BodyTrackingMidiPanel";
 import theme from "config/theme";
@@ -17,6 +17,7 @@ import { User } from "context";
 
 import storedSessions from "atoms/storedSessions";
 import storedEffects from "atoms/storedEffects";
+import sessionConfig from "atoms/sessionConfig";
 
 const Container = styled.div`
   display: flex;
@@ -42,6 +43,7 @@ function SomaUI() {
   const setKeypoints = useSetRecoilState(keypoints);
   const setSessions = useSetRecoilState(storedSessions);
   const setEffects = useSetRecoilState(storedEffects);
+  const sessionCfg = useRecoilValue(sessionConfig);
 
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -65,7 +67,7 @@ function SomaUI() {
     }
   }, [setEffects, setSessions, isPaidUser, isInitialized]);
 
-  const initTracking = async () => {
+  const initTracking = useCallback(async () => {
     const video = videoRef.current;
     const canvas = canvasRef.current;
 
@@ -86,9 +88,9 @@ function SomaUI() {
       canvas.height = height;
 
       setVideoDim({ height: video.height, width: video.width });
-      initBodyTracking("fast", video, setKeypoints, ratio);
+      initBodyTracking(sessionCfg.machineType, video, setKeypoints, ratio);
     }
-  };
+  }, [sessionCfg.machineType, setKeypoints]);
 
   return (
     <>

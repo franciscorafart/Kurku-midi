@@ -91,6 +91,15 @@ const MidiSessionControl = ({ onInit }: { onInit: () => Promise<void> }) => {
       </TextContainer>
       <ButtonSection>
         <OptionsContainer>
+          <Button
+            onClick={() => setSessionPanel(true)}
+            variant="outline-light"
+            size="lg"
+          >
+            Config
+          </Button>
+        </OptionsContainer>
+        <OptionsContainer>
           <MidiDropdown />
         </OptionsContainer>
         <OptionsContainer>
