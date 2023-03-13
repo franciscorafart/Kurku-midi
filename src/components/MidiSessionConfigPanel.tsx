@@ -6,6 +6,7 @@ import {
   ToggleButton,
   Tooltip,
 } from "react-bootstrap";
+import { QuestionCircle } from "react-bootstrap-icons";
 import styled from "styled-components";
 import sessionConfig from "atoms/sessionConfig";
 
@@ -15,7 +16,12 @@ const BodyContainer = styled.div`
   align-content: space-between;
 `;
 
-const Label = styled.span`
+const Label = styled.span``;
+
+const LabelContainer = styled.div`
+  display: flex;
+  gap: 10px;
+  align-items: center;
   margin-bottom: 8px;
 `;
 
@@ -31,22 +37,25 @@ function MidiSessionConfigPanel({
   return (
     <Offcanvas show={show} placement="start" onHide={onClose}>
       <Offcanvas.Header closeButton>
-        <Offcanvas.Title>Session Configuration</Offcanvas.Title>
+        <Offcanvas.Title>Computer Speed Configuration</Offcanvas.Title>
       </Offcanvas.Header>
       <Offcanvas.Body>
         <BodyContainer>
-          <OverlayTrigger
-            key={"right"}
-            placement={"right"}
-            overlay={
-              <Tooltip id="tooltip-right">
-                Kurku will use a less accurate but faster body-tracking model
-                for slow machines.
-              </Tooltip>
-            }
-          >
+          <LabelContainer>
             <Label>Computer speed</Label>
-          </OverlayTrigger>
+            <OverlayTrigger
+              key={"right"}
+              placement={"right"}
+              overlay={
+                <Tooltip id="tooltip-right">
+                  You can use a less accurate but faster body-tracking model for
+                  slower machines.
+                </Tooltip>
+              }
+            >
+              <QuestionCircle />
+            </OverlayTrigger>
+          </LabelContainer>
           <ButtonGroup>
             <ToggleButton
               id={`radio-slow`}

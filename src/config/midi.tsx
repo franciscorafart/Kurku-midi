@@ -7,7 +7,7 @@ export const defaultMidiEffects: MidiEffectType[] = [
   {
     uid: v4(),
     sessionId: undefined,
-    direction: "y", // horizontal
+    direction: "y", // vertical
     screenRange: { a: 0, b: 1 },
     valueRange: { x: 0, y: 127 },
     scaleFactor: 1,
@@ -17,30 +17,6 @@ export const defaultMidiEffects: MidiEffectType[] = [
     channel: 1,
     controller: 40,
   },
-  //   {
-  //     uid: v4(),
-  //     direction: "y", // vertical
-  //     screenRange: { a: 0.5, b: 0.8 },
-  //     valueRange: { x: 0, y: 127 },
-  //     scaleFactor: 1,
-  //     bodyPart: "leftWrist",
-  //     previousValue: 0,
-  //     targetValue: 0,
-  //     channel: 1,
-  //     controller: 41,
-  //   },
-  //   {
-  //     uid: v4(),
-  //     direction: "y", // vertical
-  //     screenRange: { a: 0.75, b: 1 },
-  //     valueRange: { x: 0, y: 127 },
-  //     scaleFactor: 1,
-  //     bodyPart: "rightWrist",
-  //     previousValue: 0,
-  //     targetValue: 0,
-  //     channel: 1,
-  //     controller: 42,
-  //   },
 ];
 
 export interface MidiEffectType {

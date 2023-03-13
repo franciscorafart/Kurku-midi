@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import styled from "styled-components";
 import { Dropdown, DropdownButton, Button } from "react-bootstrap";
+import { Cpu } from "react-bootstrap-icons";
 import midiOutput from "atoms/selectedMidiOutput";
 import midiOutputs from "atoms/midiOutputs";
 import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
@@ -34,6 +35,10 @@ const OptionsContainer = styled.div`
 const TextContainer = styled.div`
   display: flex;
   justify-content: flex-start;
+`;
+
+const CpuButton = styled(Cpu)`
+  cursor: pointer;
 `;
 
 function MidiDropdown() {
@@ -89,15 +94,14 @@ const MidiSessionControl = ({ onInit }: { onInit: () => Promise<void> }) => {
           <Text>Session Controls</Text>
         </SubTitle>
       </TextContainer>
+
       <ButtonSection>
         <OptionsContainer>
-          <Button
+          <CpuButton
+            color="white"
+            size={32}
             onClick={() => setSessionPanel(true)}
-            variant="outline-light"
-            size="lg"
-          >
-            Config
-          </Button>
+          />
         </OptionsContainer>
         <OptionsContainer>
           <MidiDropdown />
