@@ -11,6 +11,7 @@ import { User } from "context";
 import accountInState from "atoms/account";
 import { useRecoilState } from "recoil";
 import theme from "config/theme";
+import LoginModal from "./Login";
 
 const StyledContainer = styled(Container)`
   max-width: 2000px;
@@ -47,27 +48,6 @@ enum StatusToButtonText {
   connected = "Connected to MetaMask",
 }
 
-enum Blockchains {
-  mainnet = "0x1", // 1
-  // Test nets
-  goerli = "0x5", // 5
-  ropsten = "0x3", // 3
-  rinkeby = "0x4", // 4
-  kovan = "0x2a", // 42
-  mumbai = "0x13881", // 80001
-  // Layers 2
-  arbitrum = "0xa4b1", // 42161
-  optimism = "0xa", // 10
-  // Side chains
-  polygon = "0x89", // 137
-  gnosisChain = "0x64", // 100
-  // Alt layer 1
-  binanceSmartChain = "0x38", // 56
-  avalanche = "0xa86a", // 43114
-  cronos = "0x19", // 25
-  fantom = "0xfa", // 250
-}
-
 const renewSoon = (d: string) => {
   const oneMonthToExpiry = new Date(d);
   oneMonthToExpiry.setMonth(oneMonthToExpiry.getMonth() - 1);
@@ -83,6 +63,7 @@ function Header({
   howToUseModal: () => void;
 }) {
   const [displayForm, setDisplayForm] = useState(false);
+  const [loginForm, setLoginForm] = useState(false);
   const isPaidUser = useContext(User);
   const [userAccount, setUserAccount] = useRecoilState(accountInState);
   const [renew, setRenew] = useState(false);
@@ -137,6 +118,9 @@ function Header({
             >
               {buttonText}
             </Button>
+            <Button variant="outline-dark" onClick={() => setLoginForm(true)}>
+              Login
+            </Button>
             {!isPaidUser && status === "connected" && (
               <Button
                 variant="outline-dark"
@@ -165,6 +149,7 @@ function Header({
           open={displayForm}
           handleClose={() => setDisplayForm(false)}
         />
+        <LoginModal open={loginForm} handleClose={() => setLoginForm(false)} />
       </Navbar>
     </>
   );
