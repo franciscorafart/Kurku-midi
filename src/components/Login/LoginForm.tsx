@@ -65,7 +65,7 @@ const LoginForm = ({
     // TODO: Validations
 
     const payload = {
-      email: formEmail,
+      username: formEmail,
       password: formPassword,
     };
 
