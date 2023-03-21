@@ -80,7 +80,27 @@ const LoginForm = ({
       body: JSON.stringify(payload),
     })
       .then((response) => response.json())
-      .then((data) => {})
+      .then((data) => {
+        if (data.status === "success") {
+          if (formState === "signup") {
+            // Place Notification of success, promt user to log in
+            setErrorAlert({
+              display: true,
+              variant: "success",
+              message: `Sing up succeeded for ${data.email}`,
+            });
+          } else {
+            setErrorAlert({
+              display: true,
+              variant: "success",
+              message: `Log in succeeded`,
+            });
+            // TODO: set up sessionS
+          }
+        } else {
+          throw data.message;
+        }
+      })
       .catch((error) => {
         setSpinner(false);
         setErrorAlert({
@@ -100,9 +120,6 @@ const LoginForm = ({
 
     setFormValidState(updatedFormState);
   };
-
-  const validCheckout = () =>
-    Object.values(formValidState).indexOf(false) === -1;
 
   return (
     <FormContainer>
@@ -145,6 +162,13 @@ const LoginForm = ({
           </FormGroup>
         )}
         <Button
+          type="submit"
+          //   variant={validCheckout() ? "success" : "secondary"}
+          //   disabled={!validCheckout()}
+        >
+          {spinner ? <Spinner animation="border" /> : <span>Submit</span>}
+        </Button>
+        <span
           onClick={() =>
             formState === "login"
               ? setFormState("signup")
@@ -152,14 +176,7 @@ const LoginForm = ({
           }
         >
           {formState === "login" ? "Sign up" : "Log in"}
-        </Button>
-        <Button
-          type="submit"
-          //   variant={validCheckout() ? "success" : "secondary"}
-          //   disabled={!validCheckout()}
-        >
-          {spinner ? <Spinner animation="border" /> : <span>Submit</span>}
-        </Button>
+        </span>
       </Form>
     </FormContainer>
   );
