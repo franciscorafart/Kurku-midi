@@ -15,8 +15,7 @@
 
 ### Auth
 
-- [x] Metamask
-  - [x] Disconnect button => With metamask
+- [] Login with email
 
 ### Payment
 

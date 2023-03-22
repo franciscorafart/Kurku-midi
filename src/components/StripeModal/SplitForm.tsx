@@ -222,10 +222,9 @@ const SplitForm = ({
   return (
     <FormContainer>
       <FormText>
-        1 year access to Kurku is $15 USD and you can access the paid features
-        login in with your MetaMask wallet. Pay with your credit card via
-        Stripe. Your email is for Stripe billing purposes, we don't store your
-        data.
+        1 year access to Kurku is $15 USD and you can access the paid features.
+        Pay with your credit card via Stripe. Your email is for Stripe billing
+        purposes, we don't store your data.
       </FormText>
 
       <Form onSubmit={handleSubmit}>

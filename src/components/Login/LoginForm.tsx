@@ -68,6 +68,7 @@ const LoginForm = ({
       username: formEmail,
       password: formPassword,
     };
+    console.log("running submit");
 
     fetch(`${apiUrl}/${formState}`, {
       method: "POST",
@@ -96,6 +97,10 @@ const LoginForm = ({
               message: `Log in succeeded`,
             });
             // TODO: set up sessionS
+            setUserAccount({
+              dateExpiry: userAccount.dateExpiry,
+              walletAddress: data.id,
+            });
           }
         } else {
           throw data.message;

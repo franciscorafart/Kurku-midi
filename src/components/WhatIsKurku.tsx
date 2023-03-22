@@ -38,12 +38,6 @@ function WhatIsKurku({
               body movement.
             </li> */}
           </ul>
-          <h4>MetaMask login</h4>
-          <p>
-            Kurku uses MetaMask wallet to authenticate users that want to access
-            the Paid Tier. By using MetaMask we avoid storing your personal
-            information.
-          </p>
           <p>Please provide feedback at rafart@rafartmusic.com</p>
         </Modal.Body>
         <Modal.Footer>

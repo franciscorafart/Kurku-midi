@@ -8,7 +8,6 @@ import * as serviceWorkerRegistration from "./serviceWorkerRegistration";
 import NewVersionModal from "./components/NewVersionModal";
 import ADI, { initializeADI } from "./localDB";
 import { User } from "context";
-import { MetaMaskProvider } from "metamask-react";
 import account from "./atoms/account";
 import { TransactionResponse } from "./components/shared";
 import { apiUrl } from "./constants";
@@ -18,11 +17,9 @@ function App() {
   return (
     <RecoilRoot>
       <BrowserRouter>
-        <MetaMaskProvider>
-          <Routes>
-            <Route path="/" element={<UIInitializer />}></Route>
-          </Routes>
-        </MetaMaskProvider>
+        <Routes>
+          <Route path="/" element={<UIInitializer />}></Route>
+        </Routes>
       </BrowserRouter>
     </RecoilRoot>
   );

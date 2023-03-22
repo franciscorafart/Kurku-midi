@@ -5,13 +5,13 @@ import Navbar from "react-bootstrap/Navbar";
 import logo from "assets/kurku-logo.png";
 import { Button } from "react-bootstrap";
 import styled from "styled-components";
-import { useMetaMask } from "metamask-react";
 import StripeModal from "./StripeModal";
 import { User } from "context";
 import accountInState from "atoms/account";
 import { useRecoilState } from "recoil";
 import theme from "config/theme";
 import LoginModal from "./Login";
+import { apiUrl } from "../constants";
 
 const StyledContainer = styled(Container)`
   max-width: 2000px;
@@ -33,19 +33,11 @@ const SubscriptionInfo = styled.div`
   align-items: center;
 `;
 
-export type StatusType =
-  | "initializing"
-  | "unavailable"
-  | "notConnected"
-  | "connecting"
-  | "connected";
+export type StatusType = "notConnected" | "connected";
 
 enum StatusToButtonText {
-  initializing = "Initializing...",
-  unavailable = "Login with Metamask",
-  notConnected = "Login with MetaMask",
-  connecting = "Connecting...",
-  connected = "Connected to MetaMask",
+  notConnected = "Login",
+  connected = "Loged In",
 }
 
 const renewSoon = (d: string) => {
@@ -67,28 +59,37 @@ function Header({
   const isPaidUser = useContext(User);
   const [userAccount, setUserAccount] = useRecoilState(accountInState);
   const [renew, setRenew] = useState(false);
+  const [status, setStatus] = useState<StatusType>("notConnected");
 
-  const metamaskProps = useMetaMask();
-  const { status, connect, account, chainId, ethereum } = metamaskProps;
   const buttonText = StatusToButtonText[status];
 
   useEffect(() => {
-    if (account) {
-      setUserAccount({
-        dateExpiry: userAccount.dateExpiry,
-        walletAddress: account,
-      });
+    const getUser = () => {
+      fetch(`${apiUrl}/user`, {
+        method: "POST",
+        cache: "no-cache",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        redirect: "follow",
+        referrerPolicy: "no-referrer",
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.status === "success") {
+            setUserAccount({
+              dateExpiry: userAccount.dateExpiry,
+              walletAddress: data.id,
+            });
+            setStatus("connected");
+            setRenew(renewSoon(userAccount.dateExpiry));
+          }
+        });
+    };
 
-      setRenew(renewSoon(userAccount.dateExpiry));
-      // localStorage.setItem("walletId", account); // Always set on connect to avoid user changing it
-    }
-    // Else get from local storage
-  }, [
-    account,
-    setUserAccount,
-    userAccount.walletAddress,
-    userAccount.dateExpiry,
-  ]);
+    // TODO: wrap in try catch in case no internet, else get from local storage
+    getUser();
+  }, [setUserAccount, userAccount.walletAddress, userAccount.dateExpiry]);
 
   return (
     <>
@@ -114,12 +115,9 @@ function Header({
             <Button
               variant="outline-dark"
               disabled={!(status === "notConnected")}
-              onClick={connect}
+              onClick={() => setLoginForm(true)}
             >
               {buttonText}
-            </Button>
-            <Button variant="outline-dark" onClick={() => setLoginForm(true)}>
-              Login
             </Button>
             {!isPaidUser && status === "connected" && (
               <Button
