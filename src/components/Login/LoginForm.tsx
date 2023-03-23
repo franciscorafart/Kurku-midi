@@ -61,7 +61,6 @@ const LoginForm = ({
 
   const handleSubmit = async (event: React.SyntheticEvent) => {
     event.preventDefault();
-    console.log("submiting");
     // TODO: Validations
 
     const payload = {
@@ -70,7 +69,7 @@ const LoginForm = ({
     };
     console.log("running submit");
 
-    fetch(`${apiUrl}/${formState}`, {
+    fetch(`${apiUrl}/auth/${formState}`, {
       method: "POST",
       cache: "no-cache",
       headers: {
@@ -82,7 +81,7 @@ const LoginForm = ({
     })
       .then((response) => response.json())
       .then((data) => {
-        if (data.status === "success") {
+        if (data.success) {
           if (formState === "signup") {
             // Place Notification of success, promt user to log in
             setErrorAlert({
@@ -91,6 +90,9 @@ const LoginForm = ({
               message: `Sing up succeeded for ${data.email}`,
             });
           } else {
+            // TODO: Save JWT token in local storage
+            localStorage.setItem("kurkuToken", data.token);
+
             setErrorAlert({
               display: true,
               variant: "success",
@@ -103,7 +105,7 @@ const LoginForm = ({
             });
           }
         } else {
-          throw data.message;
+          throw data.msg;
         }
       })
       .catch((error) => {
@@ -150,7 +152,7 @@ const LoginForm = ({
             onFocus={clearMessage}
             onChange={handleFormPassword}
             type="password"
-            placeholder="jfd9i2302_3MEFI8"
+            placeholder="Password"
             required
           />
         </FormGroup>
@@ -161,7 +163,7 @@ const LoginForm = ({
               onFocus={clearMessage}
               onChange={handleFormRepeatPassword}
               type="password"
-              placeholder="jfd9i2302_3MEFI8"
+              placeholder="Passwprd"
               required
             />
           </FormGroup>

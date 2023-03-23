@@ -56,12 +56,15 @@ const UIInitializer = () => {
       const walletAddress = userAccount.walletAddress;
       if (walletAddress) {
         // Get encrypted date locally first (key: wallet, value: encrypted date)
+        const jwt = localStorage.getItem("kurkuToken");
+
         try {
           const res = await fetch(`${apiUrl}/getTransactions`, {
             method: "POST",
             cache: "no-cache",
             headers: {
               "Content-Type": "application/json",
+              Authorization: jwt || "",
             },
             redirect: "follow",
             referrerPolicy: "no-referrer",

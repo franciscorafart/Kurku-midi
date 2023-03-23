@@ -65,11 +65,14 @@ function Header({
 
   useEffect(() => {
     const getUser = () => {
-      fetch(`${apiUrl}/user`, {
+      const jwt = localStorage.getItem("kurkuToken");
+
+      fetch(`${apiUrl}/auth/user`, {
         method: "POST",
         cache: "no-cache",
         headers: {
           "Content-Type": "application/json",
+          Authorization: jwt || "",
         },
         redirect: "follow",
         referrerPolicy: "no-referrer",

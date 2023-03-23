@@ -117,12 +117,14 @@ const SplitForm = ({
       currency: "usd",
       customerEmail: formEmail,
     };
+    const jwt = localStorage.getItem("kurkuToken");
 
     fetch(`${apiUrl}/get_intent`, {
       method: "POST",
       cache: "no-cache",
       headers: {
         "Content-Type": "application/json",
+        Authorization: jwt || "",
       },
       redirect: "follow",
       referrerPolicy: "no-referrer",
@@ -144,6 +146,7 @@ const SplitForm = ({
                 message: result?.error?.message || "",
               });
             }
+            const jwt = localStorage.getItem("kurkuToken");
 
             if (result.paymentIntent) {
               fetch(`${apiUrl}/addTransaction`, {
@@ -151,6 +154,7 @@ const SplitForm = ({
                 cache: "no-cache",
                 headers: {
                   "Content-Type": "application/json",
+                  Authorization: jwt || "",
                 },
                 redirect: "follow",
                 referrerPolicy: "no-referrer",
