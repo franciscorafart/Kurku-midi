@@ -12,6 +12,7 @@ import { useRecoilState } from "recoil";
 import theme from "config/theme";
 import LoginModal from "./Login";
 import { apiUrl } from "../constants";
+import jwtDecode from "jwt-decode";
 
 const StyledContainer = styled(Container)`
   max-width: 2000px;
@@ -64,15 +65,15 @@ function Header({
   const buttonText = StatusToButtonText[status];
 
   useEffect(() => {
-    const getUser = () => {
-      const jwt = localStorage.getItem("kurkuToken");
+    const jwtToken = localStorage.getItem("kurkuToken") || "";
 
+    const getUser = () => {
       fetch(`${apiUrl}/auth/user`, {
         method: "POST",
         cache: "no-cache",
         headers: {
           "Content-Type": "application/json",
-          Authorization: jwt || "",
+          Authorization: jwtToken,
         },
         redirect: "follow",
         referrerPolicy: "no-referrer",
@@ -87,10 +88,20 @@ function Header({
             setStatus("connected");
             setRenew(renewSoon(userAccount.dateExpiry));
           }
+        })
+        .catch((_) => {
+          const decoded = jwtDecode(jwtToken) as { [index: string]: string };
+          if (decoded.id) {
+            setUserAccount({
+              dateExpiry: userAccount.dateExpiry,
+              walletAddress: decoded.id,
+            });
+            setStatus("connected");
+            setRenew(renewSoon(userAccount.dateExpiry));
+          }
         });
     };
 
-    // TODO: wrap in try catch in case no internet, else get from local storage
     getUser();
   }, [setUserAccount, userAccount.walletAddress, userAccount.dateExpiry]);
 
