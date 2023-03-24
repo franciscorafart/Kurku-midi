@@ -10,6 +10,7 @@ import { makeCCSender } from "utils/midiCtx";
 import sessionConfig from "atoms/sessionConfig";
 import midiOutput from "atoms/selectedMidiOutput";
 import valueMap from "atoms/valueMap";
+import muteMidi from "atoms/muteMidi";
 import MidiSessionControls from "./MidiSessionControls";
 
 function ConfigMidiBridge({
@@ -28,6 +29,7 @@ function ConfigMidiBridge({
   const config = machineConfig[sessionCfg.machineType];
 
   const selectedOutput = useRecoilValue(midiOutput);
+  const muted = useRecoilValue(muteMidi);
 
   const ccSender = useMemo(
     () => (selectedOutput ? makeCCSender(selectedOutput) : undefined),
@@ -35,7 +37,7 @@ function ConfigMidiBridge({
   );
 
   useEffect(() => {
-    if (!isEmpty(kpValues) && ccSender) {
+    if (!isEmpty(kpValues) && ccSender && !muted) {
       const bodyPartPositions = getBodyParts(
         kpValues,
         config.confidence,
@@ -52,13 +54,14 @@ function ConfigMidiBridge({
       // TODO: make object that stores input and outut values keyed on effect identifier and assign it to the recoil state
     }
   }, [
+    ccSender,
+    config.confidence,
     kpValues,
     midiSessionControls,
-    config.confidence,
+    muted,
+    setValueMap,
     videoHeight,
     videoWidth,
-    ccSender,
-    setValueMap,
   ]);
 
   return (

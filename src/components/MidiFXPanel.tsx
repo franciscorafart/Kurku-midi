@@ -15,7 +15,12 @@ import {
   EffectData,
 } from "./shared";
 import midiEffects from "atoms/midiEffects";
-import { Dropdown, DropdownButton, Button } from "react-bootstrap";
+import {
+  Dropdown,
+  DropdownButton,
+  Button,
+  ToggleButton,
+} from "react-bootstrap";
 import { useRecoilState, useRecoilValue } from "recoil";
 import selectedMidiEffect from "atoms/selectedMidiEffect";
 import CloseButton from "react-bootstrap/CloseButton";
@@ -41,6 +46,7 @@ import ConfirmationModal, {
 } from "./ConfirmationModal";
 import OverlayTrigger from "react-bootstrap/OverlayTrigger";
 import Tooltip from "react-bootstrap/Tooltip";
+import muteMidi from "atoms/muteMidi";
 
 const Container = styled.div`
   display: flex;
@@ -196,6 +202,8 @@ function MidiFXPanel() {
   const [sessionName, setSessionName] = useState("");
   const [effectsToRemove, setEffectsToRemove] = useState<string[]>([]);
   const [dirty, setDirty] = useState(false);
+  const selectedOutput = useRecoilValue(midiOutput);
+  const [muted, setMuted] = useRecoilState(muteMidi);
 
   useEffect(() => {
     if (selectedSessionUid) {
@@ -209,6 +217,21 @@ function MidiFXPanel() {
       setFx(displayStored);
     }
   }, [selectedSessionUid, setFx, storedFx, storedSess]);
+
+  const handleUserKeyPress = (event: KeyboardEvent) => {
+    const { code } = event;
+    if (code === "Space") {
+      setMuted(!muted);
+    }
+  };
+
+  useEffect(() => {
+    window.addEventListener("keydown", handleUserKeyPress);
+
+    return () => {
+      window.removeEventListener("keydown", handleUserKeyPress);
+    };
+  });
 
   const handleDisconnect = useCallback(
     (uid: string) => {
@@ -249,8 +272,6 @@ function MidiFXPanel() {
     setFx(newMidiFx);
     setDirty(true);
   }, [fx, setFx]);
-
-  const selectedOutput = useRecoilValue(midiOutput);
 
   const ccSender = useMemo(
     () => (selectedOutput ? makeCCSender(selectedOutput) : undefined),
@@ -430,6 +451,19 @@ function MidiFXPanel() {
           <Button variant="outline-light" onClick={newSession} size="lg">
             New Session
           </Button>
+          <ToggleButton
+            size="lg"
+            variant="outline-light"
+            disabled={!ccSender}
+            onClick={(e) => {
+              e.stopPropagation();
+              setMuted(!muted);
+            }}
+            value={1}
+            active={muted}
+          >
+            Mute
+          </ToggleButton>
         </ButtonContainer>
       </UpperBar>
       <StlFXContainer>
@@ -485,18 +519,6 @@ function MidiFXPanel() {
                 >
                   Map
                 </Button>
-                {/* <ToggleButton
-                  size="sm"
-                  variant="outline-light"
-                  disabled={!ccSender}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                  }}
-                  value={1}
-                  active={false}
-                >
-                  Mute
-                </ToggleButton> */}
               </LastRowContainer>
             </EffectBox>
           </EffectContainer>
