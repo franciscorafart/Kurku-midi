@@ -60,7 +60,7 @@ const UIInitializer = () => {
 
         try {
           const res = await fetch(`${apiUrl}/transactions/list`, {
-            method: "POST",
+            method: "GET",
             cache: "no-cache",
             headers: {
               "Content-Type": "application/json",
@@ -68,13 +68,12 @@ const UIInitializer = () => {
             },
             redirect: "follow",
             referrerPolicy: "no-referrer",
-            body: JSON.stringify({
-              userId: userId,
-            }),
           });
           const { data } = (await res.json()) as {
             data: TransactionResponse[];
           };
+
+          // TODO: Do this in the backend and have endpoint return one transaction only
           const latest = data.length
             ? data.sort((t1, t2) =>
                 new Date(t1.expiry) > new Date(t2.expiry) ? -1 : 1
