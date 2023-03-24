@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import styled from "styled-components";
 import { Form, FormGroup, FormLabel, Button, Alert } from "react-bootstrap";
 import account from "atoms/account";
@@ -39,6 +39,16 @@ const LoginForm = ({
   const [formEmail, setFormEmail] = useState("");
   const [formPassword, setFormPassword] = useState("");
   const [formRepeatPassword, setFormRepeatPassword] = useState("");
+
+  const resetForm = () => {
+    setFormEmail("");
+    setFormPassword("");
+    setFormRepeatPassword("");
+  };
+
+  useEffect(() => {
+    resetForm();
+  }, [mode]);
 
   const clearMessage = () => {
     setAlert({ display: false, variant: "", message: "" });
@@ -85,10 +95,9 @@ const LoginForm = ({
             setAlert({
               display: true,
               variant: "success",
-              message: `Sing up succeeded for ${data.email}`,
+              message: `Sing up succeeded for ${data.email}. Please log in.`,
             });
           } else {
-            // TODO: Save JWT token in local storage
             localStorage.setItem("kurkuToken", data.token);
 
             setAlert({
@@ -96,7 +105,7 @@ const LoginForm = ({
               variant: "success",
               message: `Log in succeeded`,
             });
-            // TODO: set up sessionS
+
             setUserAccount({
               dateExpiry: userAccount.dateExpiry,
               userId: data.id,
@@ -139,6 +148,7 @@ const LoginForm = ({
           <FormLabel>Email</FormLabel>
           <Form.Control
             onFocus={clearMessage}
+            value={formEmail}
             onChange={handleFormEmail}
             type="email"
             placeholder="name@example.com"
@@ -150,6 +160,7 @@ const LoginForm = ({
           <FormLabel>Password</FormLabel>
           <Form.Control
             onFocus={clearMessage}
+            value={formPassword}
             onChange={handleFormPassword}
             type="password"
             placeholder="Password"
@@ -162,6 +173,7 @@ const LoginForm = ({
             <FormLabel>Repeat Password</FormLabel>
             <Form.Control
               onFocus={clearMessage}
+              value={formRepeatPassword}
               onChange={handleFormRepeatPassword}
               type="password"
               placeholder="Password"
