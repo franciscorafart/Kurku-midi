@@ -1,7 +1,7 @@
 import { atom } from "recoil";
 
 const defaultAccount = {
-  walletAddress: "",
+  userId: "",
   dateExpiry: "",
 };
 

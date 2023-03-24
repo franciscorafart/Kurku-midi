@@ -103,7 +103,7 @@ export const fetchBodyBase = {
 };
 
 export type TransactionResponse = {
-  walletId: string;
+  userId: string;
   date: string;
   expiry: string;
 };

@@ -21,8 +21,6 @@ const LoginModal = ({
   open: boolean;
   handleClose: () => void;
 }) => {
-  const isProduction = process.env.NODE_ENV === "production";
-
   const [alert, setAlert] = useState({
     display: false,
     message: "",

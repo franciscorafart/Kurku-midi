@@ -101,7 +101,7 @@ const LoginForm = ({
             // TODO: set up sessionS
             setUserAccount({
               dateExpiry: userAccount.dateExpiry,
-              walletAddress: data.id,
+              userId: data.id,
             });
           }
         } else {

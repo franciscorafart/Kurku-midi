@@ -37,7 +37,7 @@ const UIInitializer = () => {
   const expiry = useMemo(() => new Date(userAccount.dateExpiry), [userAccount]);
   // TODO: Decrypt
   const paidCustomer =
-    userAccount.walletAddress && userAccount.dateExpiry ? expiry > now : false;
+    userAccount.userId && userAccount.dateExpiry ? expiry > now : false;
 
   const onServiceWorkerUpdate = (registration: ServiceWorkerRegistration) => {
     setWaitingWorker(registration && registration.waiting);
@@ -53,8 +53,8 @@ const UIInitializer = () => {
 
   useEffect(() => {
     const fetchUserData = async () => {
-      const walletAddress = userAccount.walletAddress;
-      if (walletAddress) {
+      const userId = userAccount.userId;
+      if (userId) {
         // Get encrypted date locally first (key: wallet, value: encrypted date)
         const jwt = localStorage.getItem("kurkuToken");
 
@@ -69,7 +69,7 @@ const UIInitializer = () => {
             redirect: "follow",
             referrerPolicy: "no-referrer",
             body: JSON.stringify({
-              walletId: walletAddress,
+              userId: userId,
             }),
           });
           const { data } = (await res.json()) as {
@@ -83,7 +83,7 @@ const UIInitializer = () => {
 
           if (latest) {
             setUserAccount({
-              walletAddress: latest.walletId,
+              userId: latest.userId,
               dateExpiry: latest.expiry,
             });
 
@@ -104,7 +104,7 @@ const UIInitializer = () => {
           if (exp) {
             // TODO: Decrypt
             setUserAccount({
-              walletAddress: walletAddress,
+              userId: userId,
               dateExpiry: exp,
             });
           }
@@ -112,7 +112,7 @@ const UIInitializer = () => {
       }
     };
     fetchUserData();
-  }, [userAccount.walletAddress, setUserAccount]);
+  }, [userAccount.userId, setUserAccount]);
 
   useEffect(() => {
     if (paidCustomer) {

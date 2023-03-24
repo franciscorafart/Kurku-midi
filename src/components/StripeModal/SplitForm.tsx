@@ -159,7 +159,7 @@ const SplitForm = ({
                 redirect: "follow",
                 referrerPolicy: "no-referrer",
                 body: JSON.stringify({
-                  walletId: userAccount.walletAddress,
+                  userId: userAccount.userId,
                   intent: result.paymentIntent.id,
                 }),
               })
@@ -177,7 +177,7 @@ const SplitForm = ({
                   });
 
                   // Storing locally for offline use
-                  // localStorage.setItem("walletId", userAccount.walletAddress);
+                  // localStorage.setItem("userId", userAccount.userId);
                   localStorage.setItem("expiry", dateString);
 
                   handleClose();

@@ -82,7 +82,7 @@ function Header({
           if (data.status === "success") {
             setUserAccount({
               dateExpiry: userAccount.dateExpiry,
-              walletAddress: data.id,
+              userId: data.id,
             });
             setStatus("connected");
             setRenew(renewSoon(userAccount.dateExpiry));
@@ -95,7 +95,7 @@ function Header({
           if (decoded.id) {
             setUserAccount({
               dateExpiry: userAccount.dateExpiry,
-              walletAddress: decoded.id,
+              userId: decoded.id,
             });
             setStatus("connected");
             setRenew(renewSoon(userAccount.dateExpiry));
@@ -104,7 +104,7 @@ function Header({
     };
 
     getUser();
-  }, [setUserAccount, userAccount.walletAddress, userAccount.dateExpiry]);
+  }, [setUserAccount, userAccount.userId, userAccount.dateExpiry]);
 
   const handleLogout = () => {
     const jwtToken = localStorage.getItem("kurkuToken") || "";
@@ -125,7 +125,7 @@ function Header({
           localStorage.removeItem("kurkuToken");
           setStatus("notConnected");
           setUserAccount({
-            walletAddress: "",
+            userId: "",
             dateExpiry: "",
           });
         }
