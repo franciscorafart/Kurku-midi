@@ -1,5 +1,7 @@
 import styled from "styled-components";
 import theme from "config/theme";
+import { useRecoilValue } from "recoil";
+import muteMidi from "atoms/muteMidi";
 
 const Container = styled.div`
   display: flex;
@@ -8,7 +10,7 @@ const Container = styled.div`
   width: 24px;
 `;
 
-const MeterContainer = styled.div`
+const MeterContainer = styled.div<{ muted: boolean }>`
   height: 100%;
   display: flex;
   align-items: flex-end;
@@ -41,14 +43,19 @@ export default function Meter({
   variant = "output",
   cap,
 }: MidiMeterProps) {
+  const muted = useRecoilValue(muteMidi);
   const pct = value / base;
   return (
     <Container>
-      <Span>{variant === "input" ? "IN" : "OUT"}</Span>
-      <MeterContainer>
-        <MeterDiv variant={variant} pct={pct} />
-      </MeterContainer>
-      <Span>{cap ? Math.floor(value) : value.toFixed(2)}</Span>
+      {!muted && (
+        <>
+          <Span>{variant === "input" ? "IN" : "OUT"}</Span>
+          <MeterContainer muted={muted}>
+            <MeterDiv variant={variant} pct={pct} />
+          </MeterContainer>
+          <Span>{cap ? Math.floor(value) : value.toFixed(2)}</Span>
+        </>
+      )}
     </Container>
   );
 }
