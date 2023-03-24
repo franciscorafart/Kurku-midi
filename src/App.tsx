@@ -59,7 +59,7 @@ const UIInitializer = () => {
         const jwt = localStorage.getItem("kurkuToken");
 
         try {
-          const res = await fetch(`${apiUrl}/getTransactions`, {
+          const res = await fetch(`${apiUrl}/transactions/list`, {
             method: "POST",
             cache: "no-cache",
             headers: {
