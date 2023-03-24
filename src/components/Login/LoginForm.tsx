@@ -1,6 +1,4 @@
-import React, { useState } from "react";
-import Spinner from "react-bootstrap/Spinner";
-
+import React, { useMemo, useState } from "react";
 import styled from "styled-components";
 import { Form, FormGroup, FormLabel, Button, Alert } from "react-bootstrap";
 import account from "atoms/account";
@@ -11,37 +9,39 @@ const FormContainer = styled.div`
   padding: 20px;
 `;
 
-const initialFormState = {
-  ccNumber: false,
-  csv: false,
-  expiry: false,
+const ButtonContainer = styled.div`
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 20px;
+`;
+
+const passwordValid = (pw1: string) => pw1.length >= 8;
+const isRepeatValid = (pw1: string, pw2: string) => Boolean(pw1) && pw1 === pw2;
+const validateEmail = (email: string) => {
+  const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return regex.test(email);
 };
 
 const LoginForm = ({
-  displayAlert,
+  mode,
   handleClose,
 }: {
-  displayAlert: (display: boolean, variant: string, message: string) => void;
+  mode: string;
   handleClose: () => void;
 }) => {
   const [userAccount, setUserAccount] = useRecoilState(account);
 
-  const [errorAlert, setErrorAlert] = useState({
+  const [alert, setAlert] = useState({
     display: false,
     variant: "",
     message: "",
   });
-  const [spinner, setSpinner] = useState(false);
   const [formEmail, setFormEmail] = useState("");
   const [formPassword, setFormPassword] = useState("");
   const [formRepeatPassword, setFormRepeatPassword] = useState("");
 
-  const [formState, setFormState] = useState<"login" | "signup">("login");
-
-  const [formValidState, setFormValidState] = useState(initialFormState);
-
   const clearMessage = () => {
-    setErrorAlert({ display: false, variant: "", message: "" });
+    setAlert({ display: false, variant: "", message: "" });
   };
 
   const handleFormEmail = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -61,15 +61,13 @@ const LoginForm = ({
 
   const handleSubmit = async (event: React.SyntheticEvent) => {
     event.preventDefault();
-    // TODO: Validations
 
     const payload = {
       username: formEmail,
       password: formPassword,
     };
-    console.log("running submit");
 
-    fetch(`${apiUrl}/auth/${formState}`, {
+    fetch(`${apiUrl}/auth/${mode}`, {
       method: "POST",
       cache: "no-cache",
       headers: {
@@ -82,9 +80,9 @@ const LoginForm = ({
       .then((response) => response.json())
       .then((data) => {
         if (data.success) {
-          if (formState === "signup") {
+          if (mode === "signup") {
             // Place Notification of success, promt user to log in
-            setErrorAlert({
+            setAlert({
               display: true,
               variant: "success",
               message: `Sing up succeeded for ${data.email}`,
@@ -93,7 +91,7 @@ const LoginForm = ({
             // TODO: Save JWT token in local storage
             localStorage.setItem("kurkuToken", data.token);
 
-            setErrorAlert({
+            setAlert({
               display: true,
               variant: "success",
               message: `Log in succeeded`,
@@ -103,14 +101,14 @@ const LoginForm = ({
               dateExpiry: userAccount.dateExpiry,
               userId: data.id,
             });
+            handleClose();
           }
         } else {
           throw data.msg;
         }
       })
       .catch((error) => {
-        setSpinner(false);
-        setErrorAlert({
+        setAlert({
           display: true,
           variant: "danger",
           message: `There was an error: ${error}`,
@@ -118,24 +116,25 @@ const LoginForm = ({
       });
   };
 
-  const formValid = (fieldValid: { [index: string]: boolean }) => {
-    const validFormStateClone = { ...formValidState };
-    const updatedFormState = {
-      ...validFormStateClone,
-      ...fieldValid,
-    };
-
-    setFormValidState(updatedFormState);
-  };
+  const formValid = useMemo(
+    () =>
+      mode === "login"
+        ? validateEmail(formEmail) && passwordValid(formPassword)
+        : validateEmail(formEmail) &&
+          passwordValid(formPassword) &&
+          isRepeatValid(formPassword, formRepeatPassword),
+    [formEmail, formPassword, formRepeatPassword, mode]
+  );
 
   return (
     <FormContainer>
       <Form onSubmit={handleSubmit}>
-        {errorAlert.display && (
-          <Alert key={errorAlert.variant} variant={errorAlert.variant}>
-            {errorAlert.message}
+        {alert.display && (
+          <Alert key={alert.variant} variant={alert.variant}>
+            {alert.message}
           </Alert>
         )}
+
         <FormGroup>
           <FormLabel>Email</FormLabel>
           <Form.Control
@@ -143,6 +142,7 @@ const LoginForm = ({
             onChange={handleFormEmail}
             type="email"
             placeholder="name@example.com"
+            isValid={validateEmail(formEmail)}
             required
           />
         </FormGroup>
@@ -153,37 +153,28 @@ const LoginForm = ({
             onChange={handleFormPassword}
             type="password"
             placeholder="Password"
+            isValid={passwordValid(formPassword)}
             required
           />
         </FormGroup>
-        {formState === "signup" && (
+        {mode === "signup" && (
           <FormGroup>
             <FormLabel>Repeat Password</FormLabel>
             <Form.Control
               onFocus={clearMessage}
               onChange={handleFormRepeatPassword}
               type="password"
-              placeholder="Passwprd"
+              placeholder="Password"
+              isValid={isRepeatValid(formPassword, formRepeatPassword)}
               required
             />
           </FormGroup>
         )}
-        <Button
-          type="submit"
-          //   variant={validCheckout() ? "success" : "secondary"}
-          //   disabled={!validCheckout()}
-        >
-          {spinner ? <Spinner animation="border" /> : <span>Submit</span>}
-        </Button>
-        <span
-          onClick={() =>
-            formState === "login"
-              ? setFormState("signup")
-              : setFormState("login")
-          }
-        >
-          {formState === "login" ? "Sign up" : "Log in"}
-        </span>
+        <ButtonContainer>
+          <Button type="submit" disabled={!formValid}>
+            <span>Submit</span>
+          </Button>
+        </ButtonContainer>
       </Form>
     </FormContainer>
   );
