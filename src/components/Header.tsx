@@ -37,8 +37,8 @@ const SubscriptionInfo = styled.div`
 export type StatusType = "notConnected" | "connected";
 
 enum StatusToButtonText {
-  notConnected = "Login",
-  connected = "Loged In",
+  notConnected = "Log In",
+  connected = "Log Out",
 }
 
 const renewSoon = (d: string) => {
@@ -66,7 +66,6 @@ function Header({
 
   useEffect(() => {
     const jwtToken = localStorage.getItem("kurkuToken") || "";
-
     const getUser = () => {
       fetch(`${apiUrl}/auth/user`, {
         method: "POST",
@@ -90,7 +89,9 @@ function Header({
           }
         })
         .catch((_) => {
-          const decoded = jwtDecode(jwtToken) as { [index: string]: string };
+          const decoded = jwtToken
+            ? (jwtDecode(jwtToken) as { [index: string]: string })
+            : {};
           if (decoded.id) {
             setUserAccount({
               dateExpiry: userAccount.dateExpiry,
@@ -105,6 +106,31 @@ function Header({
     getUser();
   }, [setUserAccount, userAccount.walletAddress, userAccount.dateExpiry]);
 
+  const handleLogout = () => {
+    const jwtToken = localStorage.getItem("kurkuToken") || "";
+
+    fetch(`${apiUrl}/auth/logout`, {
+      method: "POST",
+      cache: "no-cache",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: jwtToken,
+      },
+      redirect: "follow",
+      referrerPolicy: "no-referrer",
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.success) {
+          localStorage.removeItem("kurkuToken");
+          setStatus("notConnected");
+          setUserAccount({
+            walletAddress: "",
+            dateExpiry: "",
+          });
+        }
+      });
+  };
   return (
     <>
       <Navbar expand="lg" bg="light" variant="dark">
@@ -128,8 +154,11 @@ function Header({
             </Button>
             <Button
               variant="outline-dark"
-              disabled={!(status === "notConnected")}
-              onClick={() => setLoginForm(true)}
+              onClick={
+                status === "notConnected"
+                  ? () => setLoginForm(true)
+                  : () => handleLogout()
+              }
             >
               {buttonText}
             </Button>
