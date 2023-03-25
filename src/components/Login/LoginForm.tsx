@@ -73,7 +73,7 @@ const LoginForm = ({
     event.preventDefault();
 
     const payload = {
-      username: formEmail,
+      email: formEmail,
       password: formPassword,
     };
 
