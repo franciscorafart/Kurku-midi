@@ -38,7 +38,6 @@ import selectedSession from "atoms/selectedSession";
 import { DBSession } from "localDB/sessionConfig";
 import storedSessions from "atoms/storedSessions";
 import { User } from "context";
-import storedEffects from "atoms/storedEffects";
 import { defaultMidiEffects } from "config/midi";
 import Form from "react-bootstrap/Form";
 import ConfirmationModal, {
@@ -46,6 +45,8 @@ import ConfirmationModal, {
 } from "./ConfirmationModal";
 import OverlayTrigger from "react-bootstrap/OverlayTrigger";
 import Tooltip from "react-bootstrap/Tooltip";
+import storedEffects from "atoms/storedEffects";
+import accountInState from "atoms/account";
 import muteMidi from "atoms/muteMidi";
 
 const Container = styled.div`
@@ -204,7 +205,12 @@ function MidiFXPanel() {
   const [dirty, setDirty] = useState(false);
   const selectedOutput = useRecoilValue(midiOutput);
   const [muted, setMuted] = useRecoilState(muteMidi);
+  const userAccount = useRecoilValue(accountInState);
 
+  const connected = useMemo(
+    () => Boolean(userAccount.userId),
+    [userAccount.userId]
+  );
   useEffect(() => {
     if (selectedSessionUid) {
       const displayStored = storedFx
@@ -248,7 +254,7 @@ function MidiFXPanel() {
     },
     [effectsToRemove, fx, setFx]
   );
-  const maxFx = isPaidUser ? 8 : 2;
+  const maxFx = connected ? (isPaidUser ? 8 : 3) : 1;
   const emptyFxCount = maxFx - fx.length;
 
   const onAddEffect = useCallback(() => {
@@ -418,7 +424,11 @@ function MidiFXPanel() {
           )}
           <OverlayTrigger
             overlay={
-              !isPaidUser ? <Tooltip>Saving on paid tier</Tooltip> : <div />
+              !isPaidUser ? (
+                <Tooltip>Save more sessions on paid tier</Tooltip>
+              ) : (
+                <div />
+              )
             }
           >
             <Button
@@ -433,7 +443,7 @@ function MidiFXPanel() {
           <OverlayTrigger
             overlay={
               !isPaidUser ? (
-                <Tooltip>Add more effects on paid tier</Tooltip>
+                <Tooltip>Add up to 8 effects with paid tier</Tooltip>
               ) : (
                 <div />
               )
@@ -451,19 +461,33 @@ function MidiFXPanel() {
           <Button variant="outline-light" onClick={newSession} size="lg">
             New Session
           </Button>
-          <ToggleButton
-            size="lg"
-            variant="outline-light"
-            disabled={!ccSender}
-            onClick={(e) => {
-              e.stopPropagation();
-              setMuted(!muted);
-            }}
-            value={1}
-            active={muted}
+          <OverlayTrigger
+            overlay={
+              !isPaidUser ? (
+                <Tooltip>Mute MIDI with paid tier</Tooltip>
+              ) : (
+                <div />
+              )
+            }
           >
-            Mute
-          </ToggleButton>
+            <ToggleButton
+              size="lg"
+              variant="outline-light"
+              disabled={!ccSender}
+              onClick={
+                isPaidUser
+                  ? (e) => {
+                      e.stopPropagation();
+                      setMuted(!muted);
+                    }
+                  : undefined
+              }
+              value={1}
+              active={muted}
+            >
+              Mute
+            </ToggleButton>
+          </OverlayTrigger>
         </ButtonContainer>
       </UpperBar>
       <StlFXContainer>

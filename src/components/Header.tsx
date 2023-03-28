@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useMemo, useState } from "react";
 import Container from "react-bootstrap/Container";
 import Nav from "react-bootstrap/Nav";
 import Navbar from "react-bootstrap/Navbar";
@@ -60,9 +60,14 @@ function Header({
   const isPaidUser = useContext(User);
   const [userAccount, setUserAccount] = useRecoilState(accountInState);
   const [renew, setRenew] = useState(false);
-  const [status, setStatus] = useState<StatusType>("notConnected");
 
-  const buttonText = StatusToButtonText[status];
+  const connected = useMemo(
+    () => Boolean(userAccount.userId),
+    [userAccount.userId]
+  );
+  const buttonText = connected
+    ? StatusToButtonText.connected
+    : StatusToButtonText.notConnected;
 
   useEffect(() => {
     const jwtToken = localStorage.getItem("kurkuToken") || "";
@@ -85,7 +90,6 @@ function Header({
               dateExpiry: userAccount.dateExpiry,
               userId: data.id,
             });
-            setStatus("connected");
             setRenew(renewSoon(userAccount.dateExpiry));
           }
         })
@@ -98,7 +102,6 @@ function Header({
               dateExpiry: userAccount.dateExpiry,
               userId: decoded.id,
             });
-            setStatus("connected");
             setRenew(renewSoon(userAccount.dateExpiry));
           }
         });
@@ -132,7 +135,6 @@ function Header({
     // the token later.
     localStorage.removeItem("kurkuToken");
     localStorage.removeItem("expiry");
-    setStatus("notConnected");
     setUserAccount({
       userId: "",
       dateExpiry: "",
@@ -162,14 +164,12 @@ function Header({
             <Button
               variant="outline-dark"
               onClick={
-                status === "notConnected"
-                  ? () => setLoginForm(true)
-                  : () => handleLogout()
+                !connected ? () => setLoginForm(true) : () => handleLogout()
               }
             >
               {buttonText}
             </Button>
-            {!isPaidUser && status === "connected" && (
+            {!isPaidUser && connected && (
               <Button
                 variant="outline-dark"
                 onClick={() => setDisplayForm(true)}
@@ -178,7 +178,7 @@ function Header({
                 Subscribe
               </Button>
             )}
-            {renew && status === "connected" && (
+            {renew && connected && (
               <Button
                 variant="outline-dark"
                 onClick={() => setDisplayForm(true)}
