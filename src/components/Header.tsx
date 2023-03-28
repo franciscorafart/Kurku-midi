@@ -66,6 +66,7 @@ function Header({
 
   useEffect(() => {
     const jwtToken = localStorage.getItem("kurkuToken") || "";
+    console.log("getUser!");
     const getUser = () => {
       fetch(`${apiUrl}/auth/user`, {
         method: "POST",
@@ -122,14 +123,20 @@ function Header({
       .then((response) => response.json())
       .then((data) => {
         if (data.success) {
-          localStorage.removeItem("kurkuToken");
-          setStatus("notConnected");
-          setUserAccount({
-            userId: "",
-            dateExpiry: "",
-          });
+          console.log("Log out sucessful");
         }
       });
+
+    // Remove local storage anyway.
+    // TODO: If no server, figure out how to invalidate
+    // the token later.
+    localStorage.removeItem("kurkuToken");
+    localStorage.removeItem("expiry");
+    setStatus("notConnected");
+    setUserAccount({
+      userId: "",
+      dateExpiry: "",
+    });
   };
   return (
     <>
@@ -166,8 +173,9 @@ function Header({
               <Button
                 variant="outline-dark"
                 onClick={() => setDisplayForm(true)}
+                // disabled
               >
-                Get paid feature access
+                Subscribe
               </Button>
             )}
             {renew && status === "connected" && (
