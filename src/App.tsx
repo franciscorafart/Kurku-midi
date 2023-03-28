@@ -36,6 +36,8 @@ const UIInitializer = () => {
   const now = new Date();
   const expiry = useMemo(() => new Date(userAccount.dateExpiry), [userAccount]);
   // TODO: Decrypt
+
+  const connected = Boolean(userAccount.userId);
   const paidCustomer =
     userAccount.userId && userAccount.dateExpiry ? expiry > now : false;
 
@@ -119,13 +121,14 @@ const UIInitializer = () => {
       serviceWorkerRegistration.register({
         onUpdate: onServiceWorkerUpdate,
       });
-
+    }
+    if (connected) {
       if (!ADI.isInitialized()) {
         initializeADI();
       }
     }
     setInitialized(true);
-  }, [setInitialized, paidCustomer]);
+  }, [setInitialized, paidCustomer, connected]);
 
   return (
     <User.Provider value={paidCustomer}>

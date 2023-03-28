@@ -295,6 +295,19 @@ function MidiFXPanel() {
       return;
     }
 
+    // NOTE: MAke sure logged users can only create 1 session, even if they
+    // are downgraded from paid to logged. They just keep the ones they had.
+    if (!isPaidUser && storedSess.length >= 1 && !selectedSessionUid) {
+      setModal({
+        type: "sessionName",
+        title: "Get paid tier",
+        text: "You need a paid tier to save more than one session",
+        onCancel: () => setModal(undefined),
+      });
+
+      return;
+    }
+
     const sessionId = selectedSessionUid || v4();
 
     ADI.cacheItem(
@@ -340,14 +353,15 @@ function MidiFXPanel() {
 
     setDirty(false);
   }, [
-    selectedSessionUid,
     sessionName,
+    isPaidUser,
+    storedSess,
+    selectedSessionUid,
     fx,
     effectsToRemove,
     setStoredFx,
     storedFx,
     setStoredSess,
-    storedSess,
   ]);
 
   const makeNewSession = useCallback(() => {
@@ -396,7 +410,7 @@ function MidiFXPanel() {
               />
             </Form.Group>
           </Form>
-          {isPaidUser && (
+          {connected && (
             <SessionsDropdown
               dirty={dirty}
               selectedSes={selectedSessionUid}
@@ -433,7 +447,7 @@ function MidiFXPanel() {
           >
             <Button
               variant={dirty ? "outline-warning" : "outline-light"}
-              onClick={isPaidUser ? onSaveSession : undefined}
+              onClick={connected ? onSaveSession : undefined}
               // disabled={!isPaidUser}
               size="lg"
             >

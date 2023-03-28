@@ -1,9 +1,10 @@
-import { useCallback, useContext, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import styled from "styled-components";
 import MidiFXPanel from "./MidiFXPanel";
 import { initBodyTracking, setupCamera } from "utils/bodytracking";
 import { useRecoilValue, useSetRecoilState } from "recoil";
 import keypoints from "atoms/keypoints";
+import accountInState from "atoms/account";
 import BodyTrackingMidiPanel from "./BodyTrackingMidiPanel";
 import theme from "config/theme";
 import ConfigMidiBridge from "./ConfigMidiBridge";
@@ -13,7 +14,6 @@ import WhatIsKurku from "./WhatIsKurku";
 import Header from "components/Header";
 import { Text, SubTitle } from "./shared";
 import ADI, { initEffects, initSessions } from "localDB";
-import { User } from "context";
 
 import storedSessions from "atoms/storedSessions";
 import storedEffects from "atoms/storedEffects";
@@ -52,8 +52,13 @@ function SomaUI() {
 
   const [showModal, setShowModal] = useState(false);
   const [showKurkuModal, setShowKurkuModal] = useState(false);
-  const isPaidUser = useContext(User);
+  const userAccount = useRecoilValue(accountInState);
+
   const isInitialized = ADI.isInitialized();
+  const connected = useMemo(
+    () => Boolean(userAccount.userId),
+    [userAccount.userId]
+  );
 
   useEffect(() => {
     const populateSessions = async () => {
@@ -62,10 +67,10 @@ function SomaUI() {
       setSessions(cachedSessions);
       setEffects(cachedEffects);
     };
-    if (isPaidUser && isInitialized) {
+    if (connected && isInitialized) {
       populateSessions();
     }
-  }, [setEffects, setSessions, isPaidUser, isInitialized]);
+  }, [setEffects, setSessions, connected, isInitialized]);
 
   const initTracking = useCallback(async () => {
     const video = videoRef.current;
