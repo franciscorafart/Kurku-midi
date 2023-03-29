@@ -54,7 +54,7 @@ type Effect =
 
 const initializeEffect = async (
   audioCtx: BaseAudioContext,
-  effect: AudioEffectType,
+  effect: AudioEffectType
 ) => {
   let node;
   const defaultValues = effect.defaultValues;
@@ -103,7 +103,7 @@ const wrapAndConnectEffect = (
   previousEffect: AudioNode,
   effect: Effect,
   audioCtx: AudioContext,
-  audioEffect: AudioEffectType,
+  audioEffect: AudioEffectType
 ): AudioNode | WrappedEffect => {
   if (wrappedEffectKeys.includes(audioEffect.key)) {
     const wrappedEffect: WrappedEffect = audioCtx.createGain();
@@ -163,7 +163,6 @@ const attachEffects = async (
 
   // Interate through effects, intialize and connect
   for (const effectConfig of audioEffects) {
-    // console.log("effectConfig", effectConfig);
     const effect = await initializeEffect(audioCtx, effectConfig);
 
     if (effect) {
@@ -221,7 +220,7 @@ const prepareMicSource = async (
   audioFXs: KeyedEffectType
 ): Promise<MediaStreamAudioSourceNode> => {
   const stream = await navigator.mediaDevices.getUserMedia({
-    audio: true
+    audio: true,
   });
 
   const micSource = audioCtx.createMediaStreamSource(stream);

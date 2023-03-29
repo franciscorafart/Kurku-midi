@@ -1,4 +1,4 @@
-import { useContext, useEffect, useMemo, useState } from "react";
+import { useCallback, useContext, useEffect, useMemo, useState } from "react";
 import Container from "react-bootstrap/Container";
 import Nav from "react-bootstrap/Nav";
 import Navbar from "react-bootstrap/Navbar";
@@ -10,7 +10,7 @@ import { User } from "context";
 import accountInState from "atoms/account";
 import { useRecoilState } from "recoil";
 import theme from "config/theme";
-import LoginModal from "./Login";
+import LoginModal from "./LoginModal";
 import { apiUrl } from "../constants";
 import jwtDecode from "jwt-decode";
 
@@ -69,46 +69,45 @@ function Header({
     ? StatusToButtonText.connected
     : StatusToButtonText.notConnected;
 
-  useEffect(() => {
+  const getUser = useCallback(() => {
     const jwtToken = localStorage.getItem("kurkuToken") || "";
-    console.log("getUser!");
-    const getUser = () => {
-      fetch(`${apiUrl}/auth/user`, {
-        method: "POST",
-        cache: "no-cache",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: jwtToken,
-        },
-        redirect: "follow",
-        referrerPolicy: "no-referrer",
+    fetch(`${apiUrl}/auth/user`, {
+      method: "POST",
+      cache: "no-cache",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: jwtToken,
+      },
+      redirect: "follow",
+      referrerPolicy: "no-referrer",
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.status === "success") {
+          setUserAccount({
+            dateExpiry: userAccount.dateExpiry,
+            userId: data.id,
+          });
+          setRenew(renewSoon(userAccount.dateExpiry));
+        }
       })
-        .then((response) => response.json())
-        .then((data) => {
-          if (data.status === "success") {
-            setUserAccount({
-              dateExpiry: userAccount.dateExpiry,
-              userId: data.id,
-            });
-            setRenew(renewSoon(userAccount.dateExpiry));
-          }
-        })
-        .catch((_) => {
-          const decoded = jwtToken
-            ? (jwtDecode(jwtToken) as { [index: string]: string })
-            : {};
-          if (decoded.id) {
-            setUserAccount({
-              dateExpiry: userAccount.dateExpiry,
-              userId: decoded.id,
-            });
-            setRenew(renewSoon(userAccount.dateExpiry));
-          }
-        });
-    };
+      .catch((_) => {
+        const decoded = jwtToken
+          ? (jwtDecode(jwtToken) as { [index: string]: string })
+          : {};
+        if (decoded.id) {
+          setUserAccount({
+            dateExpiry: userAccount.dateExpiry,
+            userId: decoded.id,
+          });
+          setRenew(renewSoon(userAccount.dateExpiry));
+        }
+      });
+  }, [setUserAccount, userAccount.dateExpiry]);
 
+  useEffect(() => {
     getUser();
-  }, [setUserAccount, userAccount.userId, userAccount.dateExpiry]);
+  }, []);
 
   const handleLogout = () => {
     const jwtToken = localStorage.getItem("kurkuToken") || "";
@@ -135,6 +134,7 @@ function Header({
     // the token later.
     localStorage.removeItem("kurkuToken");
     localStorage.removeItem("expiry");
+
     setUserAccount({
       userId: "",
       dateExpiry: "",

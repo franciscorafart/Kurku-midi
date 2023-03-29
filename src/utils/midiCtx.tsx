@@ -55,9 +55,10 @@ export const initMidi = async () => {
   const res = await navigator.requestMIDIAccess();
   const midiOut = [];
 
-  for (const input of res.inputs.values()) {
-    input.onmidimessage = getMIDIMessage;
-  }
+  // Print midi output
+  // for (const input of res.inputs.values()) {
+  //   input.onmidimessage = getMIDIMessage;
+  // }
 
   for (var entry of res.outputs) {
     var output = entry[1];
