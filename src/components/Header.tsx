@@ -1,5 +1,6 @@
 import { useCallback, useContext, useEffect, useMemo, useState } from "react";
 import Container from "react-bootstrap/Container";
+import Alert from "react-bootstrap/Alert";
 import Nav from "react-bootstrap/Nav";
 import Navbar from "react-bootstrap/Navbar";
 import logo from "assets/kurku-logo.png";
@@ -61,6 +62,11 @@ function Header({
   const [userAccount, setUserAccount] = useRecoilState(accountInState);
   const [renew, setRenew] = useState(false);
 
+  const [alert, setAlert] = useState({
+    display: false,
+    variant: "",
+    message: "",
+  });
   const connected = useMemo(
     () => Boolean(userAccount.userId),
     [userAccount.userId]
@@ -71,6 +77,7 @@ function Header({
 
   const getUser = useCallback(() => {
     const jwtToken = localStorage.getItem("kurkuToken") || "";
+
     fetch(`${apiUrl}/auth/user`, {
       method: "POST",
       cache: "no-cache",
@@ -95,7 +102,15 @@ function Header({
         const decoded = jwtToken
           ? (jwtDecode(jwtToken) as { [index: string]: string })
           : {};
+
+        // TODO: Figure out how to add expiry data in Token instead of storing it locally
+        // where it can be altered
         if (decoded.id) {
+          setAlert({
+            display: true,
+            variant: "success",
+            message: "Loading local data",
+          });
           setUserAccount({
             dateExpiry: userAccount.dateExpiry,
             userId: decoded.id,
@@ -125,7 +140,11 @@ function Header({
       .then((response) => response.json())
       .then((data) => {
         if (data.success) {
-          console.log("Log out sucessful");
+          setAlert({
+            display: true,
+            variant: "success",
+            message: "Log out successful",
+          });
         }
       });
 
@@ -154,6 +173,11 @@ function Header({
             />{" "}
             <Span>Kurku - Body tracking web MIDI controller</Span>
           </Navbar.Brand>
+          {alert.display && (
+            <Alert key={alert.variant} variant={alert.variant}>
+              {alert.message}
+            </Alert>
+          )}
           <StyledNav>
             <Button onClick={kurkuModal} variant="outline-dark">
               What is Kurku?
@@ -173,7 +197,7 @@ function Header({
               <Button
                 variant="outline-dark"
                 onClick={() => setDisplayForm(true)}
-                // disabled
+                disabled
               >
                 Subscribe
               </Button>
