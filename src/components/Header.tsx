@@ -83,7 +83,7 @@ function Header({
     })
       .then((response) => response.json())
       .then((data) => {
-        if (data.status === "success") {
+        if (data.success) {
           setUserAccount({
             dateExpiry: userAccount.dateExpiry,
             userId: data.id,
