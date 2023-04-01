@@ -174,3 +174,13 @@ const boundToValues = (start: number, finish: number, v: number): number => {
 
   return v;
 };
+
+export const passwordValid = (pw1: string) => pw1.length >= 8;
+
+export const isRepeatValid = (pw1: string, pw2: string) =>
+  Boolean(pw1) && pw1 === pw2;
+
+export const validateEmail = (email: string) => {
+  const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return regex.test(email);
+};

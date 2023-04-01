@@ -4,6 +4,7 @@ import { Form, FormGroup, FormLabel, Button, Alert } from "react-bootstrap";
 import account from "atoms/account";
 import { useRecoilState } from "recoil";
 import { apiUrl } from "../../constants";
+import { isRepeatValid, passwordValid, validateEmail } from "utils/utils";
 
 const FormContainer = styled.div`
   padding: 20px;
@@ -14,13 +15,6 @@ const ButtonContainer = styled.div`
   justify-content: flex-end;
   padding-top: 20px;
 `;
-
-const passwordValid = (pw1: string) => pw1.length >= 8;
-const isRepeatValid = (pw1: string, pw2: string) => Boolean(pw1) && pw1 === pw2;
-const validateEmail = (email: string) => {
-  const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  return regex.test(email);
-};
 
 const LoginForm = ({
   mode,

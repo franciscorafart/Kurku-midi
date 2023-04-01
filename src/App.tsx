@@ -12,6 +12,7 @@ import account from "./atoms/account";
 import { TransactionResponse } from "./components/shared";
 import { apiUrl } from "./constants";
 import MobileWarning from "./components/MobileWarning";
+import ResetPassword from "./pages/ResetPassword";
 
 function App() {
   return (
@@ -19,6 +20,7 @@ function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<UIInitializer />}></Route>
+          <Route path="/reset-password" element={<ResetPassword />}></Route>
         </Routes>
       </BrowserRouter>
     </RecoilRoot>
