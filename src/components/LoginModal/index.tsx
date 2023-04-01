@@ -3,6 +3,12 @@ import Modal from "react-bootstrap/Modal";
 import Button from "react-bootstrap/Button";
 import LoginForm from "./LoginForm";
 
+enum TitleText {
+  login = "Log In",
+  signup = "Sign Up",
+  password = "Password Recovery",
+}
+
 const LoginModal = ({
   open,
   handleClose,
@@ -10,9 +16,9 @@ const LoginModal = ({
   open: boolean;
   handleClose: () => void;
 }) => {
-  const [formMode, setFormMode] = useState<"login" | "signup">("login");
-  const title = formMode === "login" ? "Log In" : "Sign Up";
-
+  const [formMode, setFormMode] = useState<"login" | "signup" | "password">(
+    "login"
+  );
   return (
     <div>
       <Modal
@@ -22,12 +28,20 @@ const LoginModal = ({
         centered
       >
         <Modal.Header>
-          <Modal.Title id="contained-modal-title-vcenter">{title}</Modal.Title>
+          <Modal.Title id="contained-modal-title-vcenter">
+            {TitleText[formMode]}
+          </Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <LoginForm mode={formMode} handleClose={handleClose} />
         </Modal.Body>
         <Modal.Footer>
+          <Button
+            variant="outline-dark"
+            onClick={() => setFormMode("password")}
+          >
+            Forgot Password?
+          </Button>
           <Button
             variant="outline-dark"
             onClick={() =>

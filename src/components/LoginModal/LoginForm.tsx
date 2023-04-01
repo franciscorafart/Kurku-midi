@@ -68,7 +68,7 @@ const LoginForm = ({
 
     const payload = {
       email: formEmail,
-      password: formPassword,
+      password: formPassword || "",
     };
 
     fetch(`${apiUrl}/auth/${mode}`, {
@@ -90,6 +90,12 @@ const LoginForm = ({
               display: true,
               variant: "success",
               message: `Sing up succeeded for ${data.email}. Please log in.`,
+            });
+          } else if (mode === "password") {
+            setAlert({
+              display: true,
+              variant: "success",
+              message: `Password recovery email sent to ${data.email}.`,
             });
           } else {
             localStorage.setItem("kurkuToken", data.token);
@@ -123,9 +129,11 @@ const LoginForm = ({
     () =>
       mode === "login"
         ? validateEmail(formEmail) && passwordValid(formPassword)
-        : validateEmail(formEmail) &&
+        : mode === "signup"
+        ? validateEmail(formEmail) &&
           passwordValid(formPassword) &&
-          isRepeatValid(formPassword, formRepeatPassword),
+          isRepeatValid(formPassword, formRepeatPassword)
+        : validateEmail(formEmail),
     [formEmail, formPassword, formRepeatPassword, mode]
   );
 
@@ -150,18 +158,20 @@ const LoginForm = ({
             required
           />
         </FormGroup>
-        <FormGroup>
-          <FormLabel>Password</FormLabel>
-          <Form.Control
-            onFocus={clearMessage}
-            value={formPassword}
-            onChange={handleFormPassword}
-            type="password"
-            placeholder="Password"
-            isValid={passwordValid(formPassword)}
-            required
-          />
-        </FormGroup>
+        {mode !== "password" && (
+          <FormGroup>
+            <FormLabel>Password</FormLabel>
+            <Form.Control
+              onFocus={clearMessage}
+              value={formPassword}
+              onChange={handleFormPassword}
+              type="password"
+              placeholder="Password"
+              isValid={passwordValid(formPassword)}
+              required
+            />
+          </FormGroup>
+        )}
         {mode === "signup" && (
           <FormGroup>
             <FormLabel>Repeat Password</FormLabel>
