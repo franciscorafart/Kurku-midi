@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect, useCallback } from "react";
 import styled from "styled-components";
 import { Form, FormGroup, FormLabel, Button, Alert } from "react-bootstrap";
 import theme from "config/theme";
@@ -35,8 +35,40 @@ const ButtonContainer = styled.div`
 function ResetPassword() {
   const [showModal, setShowModal] = useState(false);
   const [showKurkuModal, setShowKurkuModal] = useState(false);
+  const [token, setToken] = useState("");
 
-  // NOTE: Where do I get email from
+  useEffect(() => {
+    const validateToken = () => {
+      const queryString = window.location.search;
+
+      const urlParams = new URLSearchParams(queryString);
+
+      const recoveryToken = urlParams.get("recovery") || "";
+      fetch(`${apiUrl}/auth/validate-recovery-token`, {
+        method: "POST",
+        cache: "no-cache",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        redirect: "follow",
+        referrerPolicy: "no-referrer",
+        body: JSON.stringify({ recoveryToken }),
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.success) {
+            setToken(recoveryToken);
+          } else {
+            throw data.msg;
+          }
+        })
+        .catch((e) => {
+          console.error(e);
+        });
+    };
+
+    validateToken();
+  }, []);
 
   const [alert, setAlert] = useState({
     display: false,
@@ -60,44 +92,48 @@ function ResetPassword() {
     setAlert({ display: false, variant: "", message: "" });
   };
 
-  const handleSubmit = async (event: React.SyntheticEvent) => {
-    event.preventDefault();
+  const handleSubmit = useCallback(
+    async (event: React.SyntheticEvent) => {
+      event.preventDefault();
 
-    const payload = {
-      password: formPassword,
-    };
+      const payload = {
+        recoveryToken: token,
+        password: formPassword,
+      };
 
-    fetch(`${apiUrl}/auth/reset-password`, {
-      method: "POST",
-      cache: "no-cache",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      redirect: "follow",
-      referrerPolicy: "no-referrer",
-      body: JSON.stringify(payload),
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        if (data.success) {
-          // Place Notification of success, promt user to log in
+      fetch(`${apiUrl}/auth/reset-password`, {
+        method: "POST",
+        cache: "no-cache",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        redirect: "follow",
+        referrerPolicy: "no-referrer",
+        body: JSON.stringify(payload),
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.success) {
+            // Place Notification of success, prompt user to log in
+            setAlert({
+              display: true,
+              variant: "success",
+              message: `Password reset successful for ${data.email}. Please log in.`,
+            });
+          } else {
+            throw data.msg;
+          }
+        })
+        .catch((error) => {
           setAlert({
             display: true,
-            variant: "success",
-            message: `Password reset successful for ${data.email}. Please log in.`,
+            variant: "danger",
+            message: `There was an error: ${error}`,
           });
-        } else {
-          throw data.msg;
-        }
-      })
-      .catch((error) => {
-        setAlert({
-          display: true,
-          variant: "danger",
-          message: `There was an error: ${error}`,
         });
-      });
-  };
+    },
+    [formPassword, token]
+  );
 
   const formValid = useMemo(
     () =>
@@ -113,45 +149,49 @@ function ResetPassword() {
           kurkuModal={() => setShowKurkuModal(true)}
           howToUseModal={() => setShowModal(true)}
         />
-        <FormContainer>
-          <StyledForm onSubmit={handleSubmit}>
-            {alert.display && (
-              <Alert key={alert.variant} variant={alert.variant}>
-                {alert.message}
-              </Alert>
-            )}
-            <FormGroup>
-              <FormLabel>Password</FormLabel>
-              <Form.Control
-                onFocus={clearMessage}
-                value={formPassword}
-                onChange={handleFormPassword}
-                type="password"
-                placeholder="Password"
-                isValid={passwordValid(formPassword)}
-                required
-              />
-            </FormGroup>
-            <FormGroup>
-              <FormLabel>Repeat Password</FormLabel>
-              <Form.Control
-                onFocus={clearMessage}
-                value={formRepeatPassword}
-                onChange={handleFormRepeatPassword}
-                type="password"
-                placeholder="Password"
-                isValid={isRepeatValid(formPassword, formRepeatPassword)}
-                required
-              />
-            </FormGroup>
+        {Boolean(token) ? (
+          <FormContainer>
+            <StyledForm onSubmit={handleSubmit}>
+              {alert.display && (
+                <Alert key={alert.variant} variant={alert.variant}>
+                  {alert.message}
+                </Alert>
+              )}
+              <FormGroup>
+                <FormLabel>Password</FormLabel>
+                <Form.Control
+                  onFocus={clearMessage}
+                  value={formPassword}
+                  onChange={handleFormPassword}
+                  type="password"
+                  placeholder="Password"
+                  isValid={passwordValid(formPassword)}
+                  required
+                />
+              </FormGroup>
+              <FormGroup>
+                <FormLabel>Repeat Password</FormLabel>
+                <Form.Control
+                  onFocus={clearMessage}
+                  value={formRepeatPassword}
+                  onChange={handleFormRepeatPassword}
+                  type="password"
+                  placeholder="Password"
+                  isValid={isRepeatValid(formPassword, formRepeatPassword)}
+                  required
+                />
+              </FormGroup>
 
-            <ButtonContainer>
-              <Button type="submit" disabled={!formValid}>
-                <span>Submit</span>
-              </Button>
-            </ButtonContainer>
-          </StyledForm>
-        </FormContainer>
+              <ButtonContainer>
+                <Button type="submit" disabled={!formValid || !Boolean(token)}>
+                  <span>Submit</span>
+                </Button>
+              </ButtonContainer>
+            </StyledForm>
+          </FormContainer>
+        ) : (
+          <h2>Link expired or invalid</h2>
+        )}
         <HowToUse open={showModal} onClose={() => setShowModal(false)} />
         <WhatIsKurku
           open={showKurkuModal}

@@ -99,7 +99,6 @@ const LoginForm = ({
             });
           } else {
             localStorage.setItem("kurkuToken", data.token);
-
             setAlert({
               display: true,
               variant: "success",
