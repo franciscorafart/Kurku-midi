@@ -89,7 +89,7 @@ const LoginForm = ({
             setAlert({
               display: true,
               variant: "success",
-              message: `Sing up succeeded for ${data.email}. Please log in.`,
+              message: `Sign up succeeded for ${data.email}. Please confirm your email`,
             });
           } else if (mode === "password") {
             setAlert({

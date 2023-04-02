@@ -1,12 +1,11 @@
-import { useMemo, useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
 import styled from "styled-components";
-import { Form, FormGroup, FormLabel, Button, Alert } from "react-bootstrap";
+import { Form, Button, Alert } from "react-bootstrap";
 import theme from "config/theme";
 import HowToUse from "components/HowToUse";
 import WhatIsKurku from "components/WhatIsKurku";
 import Header from "components/Header";
 import { apiUrl } from "../constants";
-import { isRepeatValid, passwordValid } from "utils/utils";
 
 const Container = styled.div`
   display: flex;
@@ -32,7 +31,7 @@ const ButtonContainer = styled.div`
   padding-top: 20px;
 `;
 
-function ResetPassword() {
+function ConfirmEmail() {
   const [showModal, setShowModal] = useState(false);
   const [showKurkuModal, setShowKurkuModal] = useState(false);
   const [token, setToken] = useState("");
@@ -40,10 +39,9 @@ function ResetPassword() {
   useEffect(() => {
     const validateToken = () => {
       const queryString = window.location.search;
-
       const urlParams = new URLSearchParams(queryString);
 
-      const recoveryToken = urlParams.get("recovery") || "";
+      const recoveryToken = urlParams.get("confirmation") || "";
       fetch(`${apiUrl}/auth/validate-token`, {
         method: "POST",
         cache: "no-cache",
@@ -76,32 +74,15 @@ function ResetPassword() {
     message: "",
   });
 
-  const [formPassword, setFormPassword] = useState("");
-  const [formRepeatPassword, setFormRepeatPassword] = useState("");
-
-  const handleFormPassword = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const password = e.currentTarget.value;
-    setFormPassword(password);
-  };
-
-  const handleFormRepeatPassword = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const password = e.currentTarget.value;
-    setFormRepeatPassword(password);
-  };
-  const clearMessage = () => {
-    setAlert({ display: false, variant: "", message: "" });
-  };
-
   const handleSubmit = useCallback(
     async (event: React.SyntheticEvent) => {
       event.preventDefault();
 
       const payload = {
-        recoveryToken: token,
-        password: formPassword,
+        confirmationToken: token,
       };
 
-      fetch(`${apiUrl}/auth/reset-password`, {
+      fetch(`${apiUrl}/auth/confirm-user`, {
         method: "POST",
         cache: "no-cache",
         headers: {
@@ -118,7 +99,7 @@ function ResetPassword() {
             setAlert({
               display: true,
               variant: "success",
-              message: `Password reset successful for ${data.email}. Please log in.`,
+              message: `Email ${data.email} confirmed. Please log in.`,
             });
           } else {
             throw data.msg;
@@ -132,14 +113,7 @@ function ResetPassword() {
           });
         });
     },
-    [formPassword, token]
-  );
-
-  const formValid = useMemo(
-    () =>
-      passwordValid(formPassword) &&
-      isRepeatValid(formPassword, formRepeatPassword),
-    [formPassword, formRepeatPassword]
+    [token]
   );
 
   return (
@@ -157,34 +131,9 @@ function ResetPassword() {
                   {alert.message}
                 </Alert>
               )}
-              <FormGroup>
-                <FormLabel>Password</FormLabel>
-                <Form.Control
-                  onFocus={clearMessage}
-                  value={formPassword}
-                  onChange={handleFormPassword}
-                  type="password"
-                  placeholder="Password"
-                  isValid={passwordValid(formPassword)}
-                  required
-                />
-              </FormGroup>
-              <FormGroup>
-                <FormLabel>Repeat Password</FormLabel>
-                <Form.Control
-                  onFocus={clearMessage}
-                  value={formRepeatPassword}
-                  onChange={handleFormRepeatPassword}
-                  type="password"
-                  placeholder="Password"
-                  isValid={isRepeatValid(formPassword, formRepeatPassword)}
-                  required
-                />
-              </FormGroup>
-
               <ButtonContainer>
-                <Button type="submit" disabled={!formValid || !Boolean(token)}>
-                  <span>Submit</span>
+                <Button type="submit" disabled={!Boolean(token)}>
+                  <span>Confirm Email</span>
                 </Button>
               </ButtonContainer>
             </StyledForm>
@@ -202,4 +151,4 @@ function ResetPassword() {
   );
 }
 
-export default ResetPassword;
+export default ConfirmEmail;

@@ -13,6 +13,7 @@ import { TransactionResponse } from "./components/shared";
 import { apiUrl } from "./constants";
 import MobileWarning from "./components/MobileWarning";
 import ResetPassword from "./pages/ResetPassword";
+import ConfirmEmail from "./pages/ConfirmEmail";
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
         <Routes>
           <Route path="/" element={<UIInitializer />}></Route>
           <Route path="/reset-password" element={<ResetPassword />}></Route>
+          <Route path="/confirm-user" element={<ConfirmEmail />}></Route>
         </Routes>
       </BrowserRouter>
     </RecoilRoot>
