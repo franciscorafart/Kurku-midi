@@ -97,6 +97,12 @@ const LoginForm = ({
               variant: "success",
               message: `Password recovery email sent to ${data.email}.`,
             });
+          } else if (mode === "resend-confirm") {
+            setAlert({
+              display: true,
+              variant: "success",
+              message: `Confirm user request sent to ${data.email}.`,
+            });
           } else {
             localStorage.setItem("kurkuToken", data.token);
             setAlert({
@@ -157,7 +163,7 @@ const LoginForm = ({
             required
           />
         </FormGroup>
-        {mode !== "password" && (
+        {(mode === "login" || mode === "signup") && (
           <FormGroup>
             <FormLabel>Password</FormLabel>
             <Form.Control

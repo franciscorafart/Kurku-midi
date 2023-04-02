@@ -25,9 +25,9 @@ const StyledForm = styled(Form)`
   width: 30%;
 `;
 
-const ButtonContainer = styled.div`
+const VStack = styled.div`
   display: flex;
-  justify-content: flex-end;
+  justify-content: center;
   padding-top: 20px;
 `;
 
@@ -35,6 +35,7 @@ function ConfirmEmail() {
   const [showModal, setShowModal] = useState(false);
   const [showKurkuModal, setShowKurkuModal] = useState(false);
   const [token, setToken] = useState("");
+  const [email, setEmail] = useState("");
 
   useEffect(() => {
     const validateToken = () => {
@@ -56,6 +57,7 @@ function ConfirmEmail() {
         .then((data) => {
           if (data.success) {
             setToken(recoveryToken);
+            setEmail(data.email);
           } else {
             throw data.msg;
           }
@@ -131,11 +133,14 @@ function ConfirmEmail() {
                   {alert.message}
                 </Alert>
               )}
-              <ButtonContainer>
+              <VStack>
+                <span>{email}</span>
+              </VStack>
+              <VStack>
                 <Button type="submit" disabled={!Boolean(token)}>
                   <span>Confirm Email</span>
                 </Button>
-              </ButtonContainer>
+              </VStack>
             </StyledForm>
           </FormContainer>
         ) : (
