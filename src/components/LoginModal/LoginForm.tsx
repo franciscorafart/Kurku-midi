@@ -125,7 +125,7 @@ const LoginForm = ({
         setAlert({
           display: true,
           variant: "danger",
-          message: `There was an error: ${error}`,
+          message: error,
         });
       });
   };
