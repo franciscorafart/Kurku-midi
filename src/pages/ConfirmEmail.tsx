@@ -127,6 +127,7 @@ function ConfirmEmail() {
         <Header
           kurkuModal={() => setShowKurkuModal(true)}
           howToUseModal={() => setShowModal(true)}
+          hideOptions
         />
         {Boolean(token) ? (
           <FormContainer>

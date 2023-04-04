@@ -52,9 +52,11 @@ const renewSoon = (d: string) => {
 function Header({
   kurkuModal,
   howToUseModal,
+  hideOptions,
 }: {
   kurkuModal: () => void;
   howToUseModal: () => void;
+  hideOptions?: Boolean;
 }) {
   const [displayForm, setDisplayForm] = useState(false);
   const [loginForm, setLoginForm] = useState(false);
@@ -178,45 +180,47 @@ function Header({
               {alert.message}
             </Alert>
           )}
-          <StyledNav>
-            <Button onClick={kurkuModal} variant="outline-dark">
-              What is Kurku?
-            </Button>
-            <Button onClick={howToUseModal} variant="outline-dark">
-              How to use
-            </Button>
-            <Button
-              variant="outline-dark"
-              onClick={
-                !connected ? () => setLoginForm(true) : () => handleLogout()
-              }
-            >
-              {buttonText}
-            </Button>
-            {!isPaidUser && connected && (
+          {!hideOptions && (
+            <StyledNav>
+              <Button onClick={kurkuModal} variant="outline-dark">
+                What is Kurku?
+              </Button>
+              <Button onClick={howToUseModal} variant="outline-dark">
+                How to use
+              </Button>
               <Button
                 variant="outline-dark"
-                onClick={() => setDisplayForm(true)}
-                disabled
+                onClick={
+                  !connected ? () => setLoginForm(true) : () => handleLogout()
+                }
               >
-                Subscribe
+                {buttonText}
               </Button>
-            )}
-            {renew && connected && (
-              <Button
-                variant="outline-dark"
-                onClick={() => setDisplayForm(true)}
-              >
-                Renew subscription now!
-              </Button>
-            )}
-            {isPaidUser && (
-              <SubscriptionInfo>
-                Subscribed until{" "}
-                {new Date(userAccount.dateExpiry).toLocaleDateString()}
-              </SubscriptionInfo>
-            )}
-          </StyledNav>
+              {!isPaidUser && connected && (
+                <Button
+                  variant="outline-dark"
+                  onClick={() => setDisplayForm(true)}
+                  disabled
+                >
+                  Subscribe
+                </Button>
+              )}
+              {renew && connected && (
+                <Button
+                  variant="outline-dark"
+                  onClick={() => setDisplayForm(true)}
+                >
+                  Renew subscription now!
+                </Button>
+              )}
+              {isPaidUser && (
+                <SubscriptionInfo>
+                  Subscribed until{" "}
+                  {new Date(userAccount.dateExpiry).toLocaleDateString()}
+                </SubscriptionInfo>
+              )}
+            </StyledNav>
+          )}
         </StyledContainer>
         <StripeModal
           open={displayForm}
