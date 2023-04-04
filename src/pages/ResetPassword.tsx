@@ -6,7 +6,7 @@ import HowToUse from "components/HowToUse";
 import WhatIsKurku from "components/WhatIsKurku";
 import Header from "components/Header";
 import { apiUrl } from "../constants";
-import { isRepeatValid, passwordValid } from "utils/utils";
+import { goHome, isRepeatValid, passwordValid } from "utils/utils";
 
 const Container = styled.div`
   display: flex;
@@ -36,6 +36,7 @@ function ResetPassword() {
   const [showModal, setShowModal] = useState(false);
   const [showKurkuModal, setShowKurkuModal] = useState(false);
   const [token, setToken] = useState("");
+  const [success, setSuccess] = useState(false);
 
   useEffect(() => {
     const validateToken = () => {
@@ -92,6 +93,12 @@ function ResetPassword() {
     setAlert({ display: false, variant: "", message: "" });
   };
 
+  const formSuccess = () => {
+    setSuccess(true);
+    setFormRepeatPassword("");
+    setFormPassword("");
+  };
+
   const handleSubmit = useCallback(
     async (event: React.SyntheticEvent) => {
       event.preventDefault();
@@ -120,6 +127,7 @@ function ResetPassword() {
               variant: "success",
               message: `Password reset successful for ${data.email}. Please log in.`,
             });
+            formSuccess();
           } else {
             throw data.msg;
           }
@@ -183,9 +191,18 @@ function ResetPassword() {
               </FormGroup>
 
               <ButtonContainer>
-                <Button type="submit" disabled={!formValid || !Boolean(token)}>
-                  <span>Submit</span>
-                </Button>
+                {!success ? (
+                  <Button
+                    type="submit"
+                    disabled={!formValid || !Boolean(token)}
+                  >
+                    <span>Submit</span>
+                  </Button>
+                ) : (
+                  <Button onClick={goHome} disabled={!success}>
+                    <span>Back to Kurku</span>
+                  </Button>
+                )}
               </ButtonContainer>
             </StyledForm>
           </FormContainer>
