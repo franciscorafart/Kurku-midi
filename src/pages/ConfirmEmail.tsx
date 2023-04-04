@@ -6,6 +6,7 @@ import HowToUse from "components/HowToUse";
 import WhatIsKurku from "components/WhatIsKurku";
 import Header from "components/Header";
 import { apiUrl } from "../constants";
+import { goHome } from "utils/utils";
 
 const Container = styled.div`
   display: flex;
@@ -36,6 +37,7 @@ function ConfirmEmail() {
   const [showKurkuModal, setShowKurkuModal] = useState(false);
   const [token, setToken] = useState("");
   const [email, setEmail] = useState("");
+  const [success, setSuccess] = useState(false);
 
   useEffect(() => {
     const validateToken = () => {
@@ -103,6 +105,7 @@ function ConfirmEmail() {
               variant: "success",
               message: `Email ${data.email} confirmed. Please log in.`,
             });
+            setSuccess(true);
           } else {
             throw data.msg;
           }
@@ -137,9 +140,15 @@ function ConfirmEmail() {
                 <span>{email}</span>
               </VStack>
               <VStack>
-                <Button type="submit" disabled={!Boolean(token)}>
-                  <span>Confirm Email</span>
-                </Button>
+                {success ? (
+                  <Button onClick={goHome}>
+                    <span>Back to Kurku</span>
+                  </Button>
+                ) : (
+                  <Button type="submit" disabled={!Boolean(token)}>
+                    <span>Confirm Email</span>
+                  </Button>
+                )}
               </VStack>
             </StyledForm>
           </FormContainer>
