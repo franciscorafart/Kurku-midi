@@ -1,4 +1,4 @@
-import { BodyPartKey, ScreenRange, ValueRange } from "./shared";
+import { BodyPartKey, HandPartKey, ScreenRange, ValueRange } from "./shared";
 import { ChannelType } from "utils/types";
 // @ts-ignore
 import { v4 } from "uuid";
@@ -26,6 +26,7 @@ export interface MidiEffectType {
   valueRange: ValueRange;
   scaleFactor: number;
   bodyPart: BodyPartKey;
+  // bodyPart: BodyPartKey | HandPartKey;
   previousValue: number;
   targetValue: number;
   channel: ChannelType;
