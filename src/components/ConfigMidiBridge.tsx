@@ -50,6 +50,8 @@ function ConfigMidiBridge({
         bodyPartPositions,
         ccSender
       );
+      // TODO: Add get Hand parts
+      // Add mapHandConfigToMidi
       setValueMap(valueObjectMap);
       // TODO: make object that stores input and outut values keyed on effect identifier and assign it to the recoil state
     }

@@ -1,4 +1,5 @@
 import * as posenet from "@tensorflow-models/posenet";
+import * as handpose from "@tensorflow-models/hand-pose-detection";
 
 export interface ScreenRange {
   a: number;
@@ -65,6 +66,52 @@ export enum BodyPartEnum {
   rightKnee = "Right Knee",
 }
 
+export type HandPartKey =
+  | "wrist"
+  | "thumb_cmc"
+  | "thumb_mcp"
+  | "thumb_ip"
+  | "thumb_tip"
+  | "index_finger_mcp"
+  | "index_finger_pip"
+  | "index_finger_dip"
+  | "index_finger_tip"
+  | "middle_finger_mcp"
+  | "middle_finger_pip"
+  | "middle_finger_dip"
+  | "middle_finger_tip"
+  | "ring_finger_mcp"
+  | "ring_finger_pip"
+  | "ring_finger_dip"
+  | "ring_finger_tip"
+  | "pinky_finger_mcp"
+  | "pinky_finger_pip"
+  | "pinky_finger_dip"
+  | "pinky_finger_tip";
+
+export enum HandPartEnum {
+  wrist = "Wrist",
+  thumb_cmc = "Thumb cmc",
+  thumb_mcp = "Thumb mcp",
+  thumb_ip = "Thumb ip",
+  thumb_tip = "Thumb tip",
+  index_finger_mcp = "Index mcp",
+  index_finger_pip = "Index pip",
+  index_finger_dip = "Index dip",
+  index_finger_tip = "Index tip",
+  middle_finger_mcp = "Middle finger mcp",
+  middle_finger_pip = "Middle finger pip",
+  middle_finger_dip = "Middle finger dip",
+  middle_finger_tip = "Middle finger tip",
+  ring_finger_mcp = "Ring finger mcp",
+  ring_finger_pip = "Ring finger pip",
+  ring_finger_dip = "Ring finger dip",
+  ring_finger_tip = "Ring finger tip",
+  pinky_finger_mcp = "Ring finger mcp",
+  pinky_finger_pip = "Ring finger pip",
+  pinky_finger_dip = "Ring finger dip",
+  pinky_finger_tip = "Ring finger tip",
+}
 export type BodyPartPositionType = {
   [index in BodyPartKey]: BodyPartValueRange;
 };
@@ -80,3 +127,5 @@ export const defaultSessionConfig: SessionConfigType = {
 };
 
 export type Keypoints = posenet.Keypoint[];
+export type HandKeypoints = handpose.Keypoint[];
+// console.log("handpose", handpose, "posenet", posenet);
