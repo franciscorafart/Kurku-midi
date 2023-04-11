@@ -29,3 +29,9 @@ BodyPosition |R SessionConfig => AudioFXs
 
 https://github.com/tensorflow/tfjs-models/tree/master/pose-detection
 Apache 2 license: https://fossa.com/blog/open-source-licenses-101-apache-license-2-0/ => Open source commercial use
+
+## TODO hand tracking
+
+1. Create getHandParts function => Insert in ConfigMidiBridge
+2. Draw hands on canvas
+3. Create mapHandConfigToMidi => Insert into ConfigMidiBridge
