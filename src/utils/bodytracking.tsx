@@ -1,4 +1,5 @@
 import * as posenet from "@tensorflow-models/posenet";
+import * as handpose from "@tensorflow-models/hand-pose-detection";
 import "@tensorflow/tfjs";
 import { Keypoints, MachineType } from "config/shared";
 import { PoseNetQuantBytes } from "@tensorflow-models/posenet/dist/types";
@@ -8,12 +9,18 @@ import { PoseNetQuantBytes } from "@tensorflow-models/posenet/dist/types";
 navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
 
 let frame = 0;
+let handFrame = 0;
 
 export type PosenetConfigType = {
   arch: "MobileNetV1" | "ResNet50";
   skipSize: number;
   confidence: number;
   quantBytes?: PoseNetQuantBytes;
+};
+
+export type HandposeConfigType = {
+  modelType: "full" | "lite";
+  skipSize: number;
 };
 
 export const machineConfig: { [index: string]: PosenetConfigType } = {
@@ -38,6 +45,25 @@ export const machineConfig: { [index: string]: PosenetConfigType } = {
     skipSize: 2,
     confidence: 0.9,
     quantBytes: 2,
+  },
+};
+
+export const machineConfigHands: { [index: string]: HandposeConfigType } = {
+  slow: {
+    modelType: "lite",
+    skipSize: 5,
+  },
+  decent: {
+    modelType: "lite",
+    skipSize: 2,
+  },
+  fast: {
+    modelType: "full",
+    skipSize: 5,
+  },
+  beast: {
+    modelType: "full",
+    skipSize: 2,
   },
 };
 
@@ -69,6 +95,23 @@ export async function initBodyTracking(
   }
 
   detectPoseInRealTime(video, net, config, setKeypoints);
+}
+
+export async function initHandTracking(
+  machineType: MachineType,
+  video: HTMLVideoElement
+) {
+  const config = machineConfigHands[machineType];
+
+  const model = handpose.SupportedModels.MediaPipeHands;
+  const detectorConfig: handpose.MediaPipeHandsMediaPipeModelConfig = {
+    runtime: "mediapipe",
+    solutionPath: "https://cdn.jsdelivr.net/npm/@mediapipe/hands", // NOTE: What is this for? Will it break offline?
+    modelType: config.modelType,
+  };
+
+  const detector = await handpose.createDetector(model, detectorConfig);
+  handDetectionFrame(video, detector, config);
 }
 
 export async function setupCamera(
@@ -128,4 +171,22 @@ function detectPoseInRealTime(
 
   // Draw video pixels on canvas, draw keypoints, and set audio state
   poseDetectionFrame(video, net, flipPoseHorizontal, config, setKeypoints);
+}
+
+async function handDetectionFrame(
+  video: HTMLVideoElement,
+  detector: handpose.HandDetector,
+  config: HandposeConfigType
+  // setKeypoints
+) {
+  // % executes the calculation every `skipSize` number of frames
+  if (handFrame % config.skipSize === 0) {
+    const hands = await detector.estimateHands(video);
+    console.log(hands);
+    // setKeypoints(pose.keypoints);
+  }
+
+  handFrame++;
+
+  requestAnimationFrame(() => handDetectionFrame(video, detector, config));
 }

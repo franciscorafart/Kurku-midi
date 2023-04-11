@@ -1,7 +1,11 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import styled from "styled-components";
 import MidiFXPanel from "./MidiFXPanel";
-import { initBodyTracking, setupCamera } from "utils/bodytracking";
+import {
+  initBodyTracking,
+  initHandTracking,
+  setupCamera,
+} from "utils/bodytracking";
 import { useRecoilValue, useSetRecoilState } from "recoil";
 import keypoints from "atoms/keypoints";
 import accountInState from "atoms/account";
@@ -94,6 +98,7 @@ function SomaUI() {
 
       setVideoDim({ height: video.height, width: video.width });
       initBodyTracking(sessionCfg.machineType, video, setKeypoints, ratio);
+      initHandTracking(sessionCfg.machineType, video);
     }
   }, [sessionCfg.machineType, setKeypoints]);
 

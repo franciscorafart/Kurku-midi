@@ -128,4 +128,3 @@ export const defaultSessionConfig: SessionConfigType = {
 
 export type Keypoints = posenet.Keypoint[];
 export type HandKeypoints = handpose.Keypoint[];
-// console.log("handpose", handpose, "posenet", posenet);
