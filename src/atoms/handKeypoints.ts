@@ -1,12 +1,18 @@
 import { atom } from "recoil";
-import { HandKeypoints } from "config/shared";
+import { HandKeypointsType } from "config/shared";
 
 const handKeypoints = atom({
   key: "handKeypoints",
   default: {
-    Right: [] as HandKeypoints,
-    Left: [] as HandKeypoints,
-  },
+    Right: {
+      "2d": [],
+      "3d": [],
+    },
+    Left: {
+      "2d": [],
+      "3d": [],
+    },
+  } as HandKeypointsType,
 });
 
 export default handKeypoints;

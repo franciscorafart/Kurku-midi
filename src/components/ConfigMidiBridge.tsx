@@ -1,17 +1,21 @@
-import midiSession from "atoms/midiEffects";
-import { getBodyParts } from "utils/utils";
-import { mapGlobalConfigsToMidi } from "utils/midiUtils";
-import { useRecoilValue, useSetRecoilState } from "recoil";
-import { machineConfig } from "utils/bodytracking";
-import keypoints from "atoms/keypoints";
 import { useEffect, useMemo } from "react";
+import { useRecoilValue, useSetRecoilState } from "recoil";
 import { isEmpty } from "lodash";
-import { makeCCSender } from "utils/midiCtx";
+
+import keypoints from "atoms/keypoints";
+import handKeypoints from "atoms/handKeypoints";
 import sessionConfig from "atoms/sessionConfig";
 import midiOutput from "atoms/selectedMidiOutput";
 import valueMap from "atoms/valueMap";
+import midiSession from "atoms/midiEffects";
 import muteMidi from "atoms/muteMidi";
+
 import MidiSessionControls from "./MidiSessionControls";
+
+import { machineConfig } from "utils/bodytracking";
+import { makeCCSender } from "utils/midiCtx";
+import { mapGlobalConfigsToMidi } from "utils/midiUtils";
+import { getBodyParts } from "utils/utils";
 
 function ConfigMidiBridge({
   videoHeight,
@@ -23,6 +27,7 @@ function ConfigMidiBridge({
   onInit: () => Promise<void>;
 }) {
   const kpValues = useRecoilValue(keypoints);
+  const handKpValues = useRecoilValue(handKeypoints);
   const midiSessionControls = useRecoilValue(midiSession);
   const setValueMap = useSetRecoilState(valueMap);
   const sessionCfg = useRecoilValue(sessionConfig);

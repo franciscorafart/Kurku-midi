@@ -1,7 +1,3 @@
-import { WrappedEffect } from "./audioCtx";
-
-export type KeyedEffectType = { [index: string]: AudioNode | WrappedEffect };
-
 export type ChannelType =
   | 1
   | 2

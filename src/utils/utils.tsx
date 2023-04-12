@@ -87,8 +87,8 @@ export function drawHandKeypoints(
   for (let i = 0; i < keypoints.length; i++) {
     const keypoint = keypoints[i];
     const { x, y } = keypoint;
-    // console.log("keypoint", keypoint);
-    drawPoint(ctx, y * scale, x * scale, 3, handColor);
+    // TODO: Figure out what the shifted position issue is
+    drawPoint(ctx, y * scale, x * scale, 2, handColor);
   }
 }
 

@@ -43,16 +43,20 @@ function VideoCanvas({
   const config = machineConfig[sessionCfg.machineType];
 
   useEffect(() => {
-    if (ctx && video && !isEmpty(kpValues)) {
+    if (ctx && video) {
       resetCanvas(ctx, video);
 
-      drawHandKeypoints(handKpValues.Left, config.confidence, ctx);
-      drawHandKeypoints(handKpValues.Right, config.confidence, ctx);
-
-      drawKeypoints(kpValues, config.confidence, ctx);
-      drawSkeleton(kpValues, config.confidence, ctx);
+      if (!isEmpty(kpValues)) {
+        drawKeypoints(kpValues, config.confidence, ctx);
+        drawSkeleton(kpValues, config.confidence, ctx);
+      }
+      if (!isEmpty(handKpValues)) {
+        drawHandKeypoints(handKpValues.Left["2d"], config.confidence, ctx);
+        drawHandKeypoints(handKpValues.Right["2d"], config.confidence, ctx);
+      }
     }
   }, [handKpValues, kpValues, ctx, video, config.confidence]);
+
   return (
     <VideoCanvasContainer>
       <Video ref={videoRef} />

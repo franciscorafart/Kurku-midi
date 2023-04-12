@@ -1,10 +1,4 @@
-import {
-  BodyPartKey,
-  HandPartEnum,
-  HandPartKey,
-  ScreenRange,
-  ValueRange,
-} from "./shared";
+import { BodyPartKey, HandPartKey, ScreenRange, ValueRange } from "./shared";
 import { ChannelType } from "utils/types";
 // @ts-ignore
 import { v4 } from "uuid";
