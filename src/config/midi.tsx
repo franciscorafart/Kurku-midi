@@ -1,4 +1,10 @@
-import { BodyPartKey, HandPartKey, ScreenRange, ValueRange } from "./shared";
+import {
+  BodyPartKey,
+  HandPartEnum,
+  HandPartKey,
+  ScreenRange,
+  ValueRange,
+} from "./shared";
 import { ChannelType } from "utils/types";
 // @ts-ignore
 import { v4 } from "uuid";
@@ -12,6 +18,7 @@ export const defaultMidiEffects: MidiEffectType[] = [
     valueRange: { x: 0, y: 127 },
     scaleFactor: 1,
     bodyPart: "rightWrist",
+    handPart: "thumb_ip",
     previousValue: 0,
     targetValue: 0,
     channel: 1,
@@ -26,7 +33,7 @@ export interface MidiEffectType {
   valueRange: ValueRange;
   scaleFactor: number;
   bodyPart: BodyPartKey;
-  // bodyPart: BodyPartKey | HandPartKey;
+  handPart?: HandPartKey; // NOTE: Is this the best place?
   previousValue: number;
   targetValue: number;
   channel: ChannelType;

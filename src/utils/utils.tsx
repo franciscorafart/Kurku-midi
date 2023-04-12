@@ -1,8 +1,9 @@
 import * as posenet from "@tensorflow-models/posenet";
-import { Keypoints } from "config/shared";
+import { Keypoints, HandKeypoints } from "config/shared";
 import { BodyPartPositionType } from "config/shared";
 
 const color = "green";
+const handColor = "red";
 const lineWidth = 2;
 
 type Tuple = [number, number];
@@ -74,6 +75,20 @@ export function drawKeypoints(
 
     const { x, y } = keypoint.position;
     drawPoint(ctx, y * scale, x * scale, 3, color);
+  }
+}
+
+export function drawHandKeypoints(
+  keypoints: HandKeypoints,
+  minConfidence: number,
+  ctx: CanvasRenderingContext2D,
+  scale: number = 1
+) {
+  for (let i = 0; i < keypoints.length; i++) {
+    const keypoint = keypoints[i];
+    const { x, y } = keypoint;
+    // console.log("keypoint", keypoint);
+    drawPoint(ctx, y * scale, x * scale, 3, handColor);
   }
 }
 

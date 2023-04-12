@@ -22,6 +22,7 @@ import ADI, { initEffects, initSessions } from "localDB";
 import storedSessions from "atoms/storedSessions";
 import storedEffects from "atoms/storedEffects";
 import sessionConfig from "atoms/sessionConfig";
+import handKeypoints from "atoms/handKeypoints";
 
 const Container = styled.div`
   display: flex;
@@ -45,6 +46,7 @@ const StyledText = styled(Text)`
 
 function SomaUI() {
   const setKeypoints = useSetRecoilState(keypoints);
+  const setHandKeypoints = useSetRecoilState(handKeypoints);
   const setSessions = useSetRecoilState(storedSessions);
   const setEffects = useSetRecoilState(storedEffects);
   const sessionCfg = useRecoilValue(sessionConfig);
@@ -98,9 +100,9 @@ function SomaUI() {
 
       setVideoDim({ height: video.height, width: video.width });
       initBodyTracking(sessionCfg.machineType, video, setKeypoints, ratio);
-      initHandTracking(sessionCfg.machineType, video);
+      initHandTracking(sessionCfg.machineType, video, setHandKeypoints);
     }
-  }, [sessionCfg.machineType, setKeypoints]);
+  }, [sessionCfg.machineType, setKeypoints, setHandKeypoints]);
 
   return (
     <>
