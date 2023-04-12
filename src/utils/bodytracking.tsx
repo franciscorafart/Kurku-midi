@@ -1,8 +1,9 @@
 import * as posenet from "@tensorflow-models/posenet";
 import * as handpose from "@tensorflow-models/hand-pose-detection";
 import "@tensorflow/tfjs";
-import { Keypoints, MachineType } from "config/shared";
+import { HandKeypoints, Keypoints, MachineType } from "config/shared";
 import { PoseNetQuantBytes } from "@tensorflow-models/posenet/dist/types";
+import { SetterOrUpdater } from "recoil";
 
 // @ts-ignore
 // prettier-ignore
@@ -99,19 +100,25 @@ export async function initBodyTracking(
 
 export async function initHandTracking(
   machineType: MachineType,
-  video: HTMLVideoElement
+  video: HTMLVideoElement,
+  setHandKeypoints: SetterOrUpdater<{
+    Right: HandKeypoints;
+    Left: HandKeypoints;
+  }>
 ) {
   const config = machineConfigHands[machineType];
 
   const model = handpose.SupportedModels.MediaPipeHands;
+
   const detectorConfig: handpose.MediaPipeHandsMediaPipeModelConfig = {
     runtime: "mediapipe",
     solutionPath: "https://cdn.jsdelivr.net/npm/@mediapipe/hands", // NOTE: What is this for? Will it break offline?
     modelType: config.modelType,
+    maxHands: 2,
   };
 
   const detector = await handpose.createDetector(model, detectorConfig);
-  handDetectionFrame(video, detector, config);
+  handDetectionFrame(video, detector, config, setHandKeypoints);
 }
 
 export async function setupCamera(
@@ -169,24 +176,40 @@ function detectPoseInRealTime(
 ) {
   const flipPoseHorizontal = true;
 
-  // Draw video pixels on canvas, draw keypoints, and set audio state
+  // Draw video pixels on canvas, draw keypoints, and set midi state
   poseDetectionFrame(video, net, flipPoseHorizontal, config, setKeypoints);
 }
 
 async function handDetectionFrame(
   video: HTMLVideoElement,
   detector: handpose.HandDetector,
-  config: HandposeConfigType
-  // setKeypoints
+  config: HandposeConfigType,
+  setHandKeypoints: SetterOrUpdater<{
+    Right: HandKeypoints;
+    Left: HandKeypoints;
+  }>
 ) {
   // % executes the calculation every `skipSize` number of frames
   if (handFrame % config.skipSize === 0) {
-    const hands = await detector.estimateHands(video);
-    console.log(hands);
-    // setKeypoints(pose.keypoints);
+    const hands = await detector.estimateHands(video, { flipHorizontal: true });
+
+    if (hands.length) {
+      const left = hands.find((h) => h.handedness === "Left");
+      const right = hands.find((h) => h.handedness === "Right");
+
+      // NOTE: What if there's more than two hands?
+      // NOTE: Keypoints3D seems to be more suitable for hands, at it doesn't take into consideration the position of the hand
+      // TODO: Separate hand position for drawing from hand position for controls.
+      setHandKeypoints({
+        Left: left?.keypoints || [],
+        Right: right?.keypoints || [],
+      });
+    }
   }
 
   handFrame++;
 
-  requestAnimationFrame(() => handDetectionFrame(video, detector, config));
+  requestAnimationFrame(() =>
+    handDetectionFrame(video, detector, config, setHandKeypoints)
+  );
 }

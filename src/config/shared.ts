@@ -89,6 +89,8 @@ export type HandPartKey =
   | "pinky_finger_dip"
   | "pinky_finger_tip";
 
+export type HandType = "Left" | "Right";
+
 export enum HandPartEnum {
   wrist = "Wrist",
   thumb_cmc = "Thumb cmc",
@@ -113,6 +115,10 @@ export enum HandPartEnum {
   pinky_finger_tip = "Ring finger tip",
 }
 export type BodyPartPositionType = {
+  [index in BodyPartKey]: BodyPartValueRange;
+};
+
+export type HandPartPositionType = {
   [index in BodyPartKey]: BodyPartValueRange;
 };
 

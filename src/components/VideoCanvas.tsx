@@ -1,10 +1,16 @@
 import { useEffect } from "react";
 import { useRecoilValue } from "recoil";
 import styled from "styled-components";
-import { drawKeypoints, drawSkeleton, resetCanvas } from "utils/utils";
+import {
+  drawKeypoints,
+  drawHandKeypoints,
+  drawSkeleton,
+  resetCanvas,
+} from "utils/utils";
 import { isEmpty } from "lodash";
 import { machineConfig } from "utils/bodytracking";
 import keypoints from "atoms/keypoints";
+import handKeypoints from "atoms/handKeypoints";
 import sessionConfig from "atoms/sessionConfig";
 
 const VideoCanvasContainer = styled.div`
@@ -29,6 +35,7 @@ function VideoCanvas({
   videoRef: React.MutableRefObject<HTMLVideoElement | null>;
 }) {
   const kpValues = useRecoilValue(keypoints);
+  const handKpValues = useRecoilValue(handKeypoints);
   const sessionCfg = useRecoilValue(sessionConfig);
   const video = videoRef.current;
   const canvas = canvasRef.current;
@@ -38,10 +45,14 @@ function VideoCanvas({
   useEffect(() => {
     if (ctx && video && !isEmpty(kpValues)) {
       resetCanvas(ctx, video);
+
+      drawHandKeypoints(handKpValues.Left, config.confidence, ctx);
+      drawHandKeypoints(handKpValues.Right, config.confidence, ctx);
+
       drawKeypoints(kpValues, config.confidence, ctx);
       drawSkeleton(kpValues, config.confidence, ctx);
     }
-  }, [kpValues, ctx, video, config.confidence]);
+  }, [handKpValues, kpValues, ctx, video, config.confidence]);
   return (
     <VideoCanvasContainer>
       <Video ref={videoRef} />
