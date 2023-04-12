@@ -1,7 +1,7 @@
 import * as posenet from "@tensorflow-models/posenet";
 import * as handpose from "@tensorflow-models/hand-pose-detection";
 import "@tensorflow/tfjs";
-import { HandKeypoints, Keypoints, MachineType } from "config/shared";
+import { HandKeypointsType, Keypoints, MachineType } from "config/shared";
 import { PoseNetQuantBytes } from "@tensorflow-models/posenet/dist/types";
 import { SetterOrUpdater } from "recoil";
 
@@ -101,10 +101,7 @@ export async function initBodyTracking(
 export async function initHandTracking(
   machineType: MachineType,
   video: HTMLVideoElement,
-  setHandKeypoints: SetterOrUpdater<{
-    Right: HandKeypoints;
-    Left: HandKeypoints;
-  }>
+  setHandKeypoints: SetterOrUpdater<HandKeypointsType>
 ) {
   const config = machineConfigHands[machineType];
 
@@ -112,7 +109,7 @@ export async function initHandTracking(
 
   const detectorConfig: handpose.MediaPipeHandsMediaPipeModelConfig = {
     runtime: "mediapipe",
-    solutionPath: "https://cdn.jsdelivr.net/npm/@mediapipe/hands", // NOTE: What is this for? Will it break offline?
+    solutionPath: "https://cdn.jsdelivr.net/npm/@mediapipe/hands", // TODO: Fix this
     modelType: config.modelType,
     maxHands: 2,
   };
@@ -184,10 +181,7 @@ async function handDetectionFrame(
   video: HTMLVideoElement,
   detector: handpose.HandDetector,
   config: HandposeConfigType,
-  setHandKeypoints: SetterOrUpdater<{
-    Right: HandKeypoints;
-    Left: HandKeypoints;
-  }>
+  setHandKeypoints: SetterOrUpdater<HandKeypointsType>
 ) {
   // % executes the calculation every `skipSize` number of frames
   if (handFrame % config.skipSize === 0) {
@@ -197,12 +191,16 @@ async function handDetectionFrame(
       const left = hands.find((h) => h.handedness === "Left");
       const right = hands.find((h) => h.handedness === "Right");
 
-      // NOTE: What if there's more than two hands?
-      // NOTE: Keypoints3D seems to be more suitable for hands, at it doesn't take into consideration the position of the hand
-      // TODO: Separate hand position for drawing from hand position for controls.
+      // TODO: Control for overall score with a constant
       setHandKeypoints({
-        Left: left?.keypoints || [],
-        Right: right?.keypoints || [],
+        Left:
+          left?.score && left.score > 0.8
+            ? { "2d": left?.keypoints || [], "3d": left?.keypoints3D || [] }
+            : { "2d": [], "3d": [] },
+        Right:
+          right?.score && right.score > 0.8
+            ? { "2d": right?.keypoints || [], "3d": right?.keypoints3D || [] }
+            : { "2d": [], "3d": [] },
       });
     }
   }

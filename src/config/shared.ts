@@ -122,6 +122,17 @@ export type HandPartPositionType = {
   [index in BodyPartKey]: BodyPartValueRange;
 };
 
+export type HandKeypointsType = {
+  Right: {
+    "2d": HandKeypoints;
+    "3d": HandKeypoints;
+  };
+  Left: {
+    "2d": HandKeypoints;
+    "3d": HandKeypoints;
+  };
+};
+
 export type MachineType = "slow" | "decent" | "fast" | "beast";
 
 export interface SessionConfigType {
