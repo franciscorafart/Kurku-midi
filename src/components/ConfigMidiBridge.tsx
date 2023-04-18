@@ -15,7 +15,7 @@ import MidiSessionControls from "./MidiSessionControls";
 import { machineConfig } from "utils/bodytracking";
 import { makeCCSender } from "utils/midiCtx";
 import { mapGlobalConfigsToMidi } from "utils/midiUtils";
-import { getBodyParts } from "utils/utils";
+import { getBodyParts, getHandsPart } from "utils/utils";
 
 function ConfigMidiBridge({
   videoHeight,
@@ -42,27 +42,34 @@ function ConfigMidiBridge({
   );
 
   useEffect(() => {
-    if (!isEmpty(kpValues) && ccSender && !muted) {
-      const bodyPartPositions = getBodyParts(
-        kpValues,
-        config.confidence,
-        videoHeight,
-        videoWidth
-      );
+    if (ccSender && !muted) {
+      if (!isEmpty(kpValues)) {
+        const bodyPartPositions = getBodyParts(
+          kpValues,
+          config.confidence,
+          videoHeight,
+          videoWidth
+        );
 
-      const valueObjectMap = mapGlobalConfigsToMidi(
-        midiSessionControls,
-        bodyPartPositions,
-        ccSender
-      );
-      // TODO: Add get Hand parts
-      // Add mapHandConfigToMidi
-      setValueMap(valueObjectMap);
-      // TODO: make object that stores input and outut values keyed on effect identifier and assign it to the recoil state
+        const valueObjectMap = mapGlobalConfigsToMidi(
+          midiSessionControls,
+          bodyPartPositions,
+          ccSender
+        );
+        // TODO: Add get Hand parts
+        // Add mapHandConfigToMidi
+        setValueMap(valueObjectMap);
+        // TODO: make object that stores input and outut values keyed on effect identifier and assign it to the recoil state
+      }
+
+      if (!isEmpty(handKpValues)) {
+        const handParts = getHandsPart(handKpValues.Left["3d"]);
+      }
     }
   }, [
     ccSender,
     config.confidence,
+    handKpValues,
     kpValues,
     midiSessionControls,
     muted,

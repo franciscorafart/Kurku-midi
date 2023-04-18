@@ -88,6 +88,9 @@ export function drawHandKeypoints(
     const keypoint = keypoints[i];
     const { x, y } = keypoint;
     // TODO: Figure out what the shifted position issue is
+    if (keypoint.name === "index_finger_tip") {
+      console.log({ x, y });
+    }
     drawPoint(ctx, y * scale, x * scale, 2, handColor);
   }
 }
@@ -137,6 +140,32 @@ const translatePosition = (
   }
 
   return [undefined, undefined];
+};
+
+export const getHandsPart = (handKeypoints: HandKeypoints) => {
+  // metric scale, with the origin in auxiliary keypoint formed as an average between the first knuckles of index, middle, ring and pinky fingers.
+  const fingerTip = handKeypoints.filter(
+    (p) => p.name === "index_finger_tip"
+  )[0];
+
+  const ringFingerTip = handKeypoints.filter(
+    (p) => p.name === "ring_finger_pip"
+  )[0];
+  // * 100 for centimeters from origin.
+  if (fingerTip && ringFingerTip) {
+    const { x, y } = fingerTip;
+    console.log(
+      "index: x",
+      x * 100,
+      "y",
+      y * 100,
+      "ring x",
+      ringFingerTip.x * 100,
+      "y",
+      ringFingerTip.y * 100
+    );
+  }
+  return;
 };
 
 // TODO: Unit Test

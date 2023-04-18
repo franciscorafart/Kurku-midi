@@ -89,7 +89,7 @@ function SomaUI() {
 
       // NOTE: Set video and Canvas size from ratio of video src
       const ratio = video.videoWidth / video.videoHeight;
-      const width = 720;
+      const width = 640;
       const height = Math.floor(width / ratio);
 
       video.setAttribute("height", String(height));
