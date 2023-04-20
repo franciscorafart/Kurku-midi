@@ -14,6 +14,7 @@ import { apiUrl } from "./constants";
 import MobileWarning from "./components/MobileWarning";
 import ResetPassword from "./pages/ResetPassword";
 import ConfirmEmail from "./pages/ConfirmEmail";
+import TrainUI from "./components/TrainUI";
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<UIInitializer />}></Route>
+          <Route path="/train" element={<TrainUI />}></Route>
           <Route path="/reset-password" element={<ResetPassword />}></Route>
           <Route path="/confirm-user" element={<ConfirmEmail />}></Route>
         </Routes>
