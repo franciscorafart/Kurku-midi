@@ -48,7 +48,7 @@ function WhatIsKurku({
               performance.
             </li>
             <li>
-              <h5>Mute</h5>Mute MIDI output when you don't need it in your
+              <h5>Lock</h5>Lock MIDI output when you don't need it in your
               performance
             </li>
             {/* <li>

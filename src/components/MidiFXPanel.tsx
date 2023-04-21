@@ -499,7 +499,7 @@ function MidiFXPanel() {
               value={1}
               active={muted}
             >
-              Mute
+              Lock
             </ToggleButton>
           </OverlayTrigger>
         </ButtonContainer>
