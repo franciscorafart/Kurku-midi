@@ -29,26 +29,22 @@ export function register(config?: Config) {
   if (process.env.NODE_ENV === "production" && "serviceWorker" in navigator) {
     // The URL constructor is available in all browsers that support SW.
     const publicUrl = new URL(process.env.PUBLIC_URL, window.location.href);
-    console.log("in register", publicUrl, window.location.origin);
 
     if (publicUrl.origin !== window.location.origin) {
-      console.log("returning");
       // Our service worker won't work if PUBLIC_URL is on a different origin
       // from what our page is served on. This might happen if a CDN is used to
       // serve assets; see https://github.com/facebook/create-react-app/issues/2374
       return;
     }
 
-    // NOTE: Since we're not registering the worker immediately, because we check for a paid user,
-    // we don't register on load, but we check wether the load event already happened
+    // NOTE: Since we're not registering the worker immediately when loading app, because we check for a paid user,
+    // we don't register on load, but we check wether the load event already happened with navData
     let navData = window.performance.getEntriesByType("navigation");
-    console.log("nav data", navData);
     // window.addEventListener("load", () => {
 
     // @ts-ignore
     if (navData.length > 0 && navData[0].loadEventEnd > 0) {
       const swUrl = `${process.env.PUBLIC_URL}/service-worker.js`;
-      console.log("isLocal", isLocalhost);
       if (isLocalhost) {
         // This is running on localhost. Let's check if a service worker still exists or not.
         checkValidServiceWorker(swUrl, config);
@@ -76,10 +72,6 @@ function registerValidSW(swUrl: string, config?: Config) {
     .then((registration) => {
       registration.onupdatefound = () => {
         const installingWorker = registration.installing;
-        console.log(
-          "in regsiregisterValidSWterValidSW. installingWorker",
-          installingWorker
-        );
         if (installingWorker == null) {
           return;
         }
