@@ -39,7 +39,14 @@ export function register(config?: Config) {
       return;
     }
 
-    window.addEventListener("load", () => {
+    // NOTE: Since we're not registering the worker immediately, because we check for a paid user,
+    // we don't register on load, but we check wether the load event already happened
+    let navData = window.performance.getEntriesByType("navigation");
+    console.log("nav data", navData);
+    // window.addEventListener("load", () => {
+
+    // @ts-ignore
+    if (navData.length > 0 && navData[0].loadEventEnd > 0) {
       const swUrl = `${process.env.PUBLIC_URL}/service-worker.js`;
       console.log("isLocal", isLocalhost);
       if (isLocalhost) {
@@ -58,7 +65,8 @@ export function register(config?: Config) {
         // Is not localhost. Just register service worker
         registerValidSW(swUrl, config);
       }
-    });
+      // });
+    }
   }
 }
 
