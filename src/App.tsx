@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useCallback, useMemo, useState } from "react";
 import { isMobile } from "react-device-detect";
 import SomaUI from "./components/SomaUI";
 import { RecoilRoot, useRecoilState } from "recoil";
@@ -46,16 +46,17 @@ const UIInitializer = () => {
     userAccount.userId && userAccount.dateExpiry ? expiry > now : false;
 
   const onServiceWorkerUpdate = (registration: ServiceWorkerRegistration) => {
+    console.log("Service worker update", registration);
     setWaitingWorker(registration && registration.waiting);
     setNewVersion(true);
   };
 
-  const updateServiceWorker = () => {
+  const updateServiceWorker = useCallback(() => {
     // eslint-disable-next-line no-unused-expressions
     waitingWorker && waitingWorker.postMessage({ type: "SKIP_WAITING" });
     setNewVersion(false);
     window.location.reload();
-  };
+  }, [waitingWorker]);
 
   useEffect(() => {
     const fetchUserData = async () => {
