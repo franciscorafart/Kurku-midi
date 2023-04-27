@@ -1,9 +1,12 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useContext, useEffect, useRef, useState } from "react";
 import Header from "./Header";
 import styled from "styled-components";
 import theme from "config/theme";
+import { User } from "context";
 import { setupCamera } from "utils/bodytracking";
 import { Button } from "react-bootstrap";
+import { goHome } from "utils/utils";
+import { useRecoilValue } from "recoil";
 
 const Container = styled.div`
   display: flex;
@@ -36,10 +39,12 @@ function TrainUI() {
   const [showModal, setShowModal] = useState(false);
   const [showKurkuModal, setShowKurkuModal] = useState(false);
 
+  const isPaidUser = useContext(User);
   const [thumbnails, setThumbnails] = useState<string[]>([]);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
+  console.log("isPaidUser", isPaidUser);
   useEffect(() => {
     const startVideo = async () => {
       const video = videoRef.current;
@@ -86,9 +91,10 @@ function TrainUI() {
           <Canvas ref={canvasRef} />
         </VideoContentContainer>
         <ControlContainer>
-          <Button onClick={capture}>Capture</Button>
-
-          <Button>Train</Button>
+          <Button disabled={!isPaidUser} onClick={capture}>
+            Capture
+          </Button>
+          <Button disabled={!isPaidUser}>Train</Button>
         </ControlContainer>
       </Container>
     </>

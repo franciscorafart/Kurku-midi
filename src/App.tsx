@@ -1,7 +1,7 @@
 import { useEffect, useCallback, useMemo, useState } from "react";
 import { isMobile } from "react-device-detect";
 import SomaUI from "./components/SomaUI";
-import { RecoilRoot, useRecoilState } from "recoil";
+import { useRecoilState } from "recoil";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 import * as serviceWorkerRegistration from "./serviceWorkerRegistration";
@@ -17,23 +17,6 @@ import ConfirmEmail from "./pages/ConfirmEmail";
 import TrainUI from "./components/TrainUI";
 
 function App() {
-  return (
-    <RecoilRoot>
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<UIInitializer />}></Route>
-          <Route path="/train" element={<TrainUI />}></Route>
-          <Route path="/reset-password" element={<ResetPassword />}></Route>
-          <Route path="/confirm-user" element={<ConfirmEmail />}></Route>
-        </Routes>
-      </BrowserRouter>
-    </RecoilRoot>
-  );
-}
-
-export default App;
-
-const UIInitializer = () => {
   const [initialized, setInitialized] = useState(false);
   const [waitingWorker, setWaitingWorker] = useState<any>(null);
   const [newVersion, setNewVersion] = useState(false);
@@ -140,10 +123,24 @@ const UIInitializer = () => {
   }, [setInitialized, paidCustomer, connected]);
 
   return (
-    <User.Provider value={paidCustomer}>
-      {isMobile && <MobileWarning />}
-      {!isMobile && initialized && <SomaUI />}
-      <NewVersionModal open={newVersion} onClose={updateServiceWorker} />
-    </User.Provider>
+    <>
+      <User.Provider value={paidCustomer}>
+        <NewVersionModal open={newVersion} onClose={updateServiceWorker} />
+        {isMobile && <MobileWarning />}
+        <BrowserRouter>
+          <Routes>
+            <Route
+              path="/"
+              element={initialized ? <SomaUI /> : <span>...Initializing</span>}
+            ></Route>
+            <Route path="/train" element={<TrainUI />}></Route>
+            <Route path="/reset-password" element={<ResetPassword />}></Route>
+            <Route path="/confirm-user" element={<ConfirmEmail />}></Route>
+          </Routes>
+        </BrowserRouter>
+      </User.Provider>
+    </>
   );
-};
+}
+
+export default App;
