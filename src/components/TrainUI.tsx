@@ -5,32 +5,70 @@ import theme from "config/theme";
 import { User } from "context";
 import { setupCamera } from "utils/bodytracking";
 import { Button } from "react-bootstrap";
-import { goHome } from "utils/utils";
-import { useRecoilValue } from "recoil";
 
 const Container = styled.div`
-  display: flex;
   height: 100vh;
+`;
+
+const TrainContainer = styled.div`
+  display: flex;
   background-color: ${theme.background};
 `;
 
 const ThumbnailContainer = styled.div`
+  display: flex;
   background-color: ${theme.background2};
+  padding: 10px;
+  gap: 2%;
   width: 25%;
+  align-content: flex-start;
+  flex-wrap: wrap;
+  overflow-y: scroll;
+  height: calc(100vh - 56px);
 `;
+
 const VideoContentContainer = styled.div`
   width: 50%;
+  display: flex;
+  justify-content: center;
 `;
 
 const ControlContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
   width: 25%;
+  background-color: ${theme.background2};
+`;
+
+const TrainControls = styled.div`
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+  padding: 10px;
+  height: 62px;
+  gap: 10px;
+`;
+
+const ImgContainer = styled.div`
+  max-width: 48%;
+  height: 190px;
+  padding: 10px;
+  border: 1px solid ${theme.border};
+  border-radius: 8px;
 `;
 
 const Img = styled.img`
-  width: 100px;
+  width: 100%;
 `;
 
-const Video = styled.video``;
+const Span = styled.span`
+  color: ${theme.text};
+`;
+
+const Video = styled.video`
+  width: 80%;
+`;
 const Canvas = styled.canvas`
   display: none;
 `;
@@ -44,7 +82,6 @@ function TrainUI() {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
-  console.log("isPaidUser", isPaidUser);
   useEffect(() => {
     const startVideo = async () => {
       const video = videoRef.current;
@@ -75,15 +112,18 @@ function TrainUI() {
   }, [thumbnails]);
 
   return (
-    <>
+    <Container>
       <Header
         kurkuModal={() => setShowKurkuModal(true)}
         howToUseModal={() => setShowModal(true)}
       />
-      <Container>
+      <TrainContainer>
         <ThumbnailContainer>
           {thumbnails.map((th, idx) => (
-            <Img key={`image-${idx}`} src={th} alt="thumbnail" />
+            <ImgContainer>
+              <Span>Image {idx}</Span>
+              <Img key={`image-${idx}`} src={th} alt="thumbnail" />
+            </ImgContainer>
           ))}
         </ThumbnailContainer>
         <VideoContentContainer>
@@ -91,13 +131,16 @@ function TrainUI() {
           <Canvas ref={canvasRef} />
         </VideoContentContainer>
         <ControlContainer>
-          <Button disabled={!isPaidUser} onClick={capture}>
-            Capture
-          </Button>
-          <Button disabled={!isPaidUser}>Train</Button>
+          <div></div>
+          <TrainControls>
+            <Button disabled={!isPaidUser} onClick={capture}>
+              Capture
+            </Button>
+            <Button disabled={!isPaidUser}>Train</Button>
+          </TrainControls>
         </ControlContainer>
-      </Container>
-    </>
+      </TrainContainer>
+    </Container>
   );
 }
 
