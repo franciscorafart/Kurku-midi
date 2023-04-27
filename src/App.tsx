@@ -91,6 +91,7 @@ const UIInitializer = () => {
             setUserAccount({
               userId: latest.userId,
               dateExpiry: latest.expiry,
+              email: userAccount.email,
             });
 
             localStorage.setItem("expiry", latest.expiry); // Reset date
@@ -112,6 +113,7 @@ const UIInitializer = () => {
             setUserAccount({
               userId: userId,
               dateExpiry: exp,
+              email: userAccount.email,
             });
           }
         }

@@ -29,10 +29,19 @@ const Span = styled.span`
   color: ${theme.text2};
 `;
 
-const SubscriptionInfo = styled.div`
+const StyledAlert = styled(Alert)`
+  margin: 0;
+`;
+
+const CircleContainer = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
+`;
+
+const SubscriptionInfo = styled(CircleContainer)`
+  font-size: 12px;
+  gap: 6px;
 `;
 
 export type StatusType = "notConnected" | "connected";
@@ -41,6 +50,13 @@ enum StatusToButtonText {
   notConnected = "Log In",
   connected = "Log Out",
 }
+
+const LoginStateCircle = styled.div<{ color: string }>`
+  background-color: ${({ color }) => color};
+  height: 16px;
+  width: 16px;
+  border-radius: 8px;
+`;
 
 const renewSoon = (d: string) => {
   const oneMonthToExpiry = new Date(d);
@@ -69,10 +85,14 @@ function Header({
     variant: "",
     message: "",
   });
+
   const connected = useMemo(
     () => Boolean(userAccount.userId),
     [userAccount.userId]
   );
+
+  const userEmail = userAccount.email;
+
   const buttonText = connected
     ? StatusToButtonText.connected
     : StatusToButtonText.notConnected;
@@ -96,6 +116,7 @@ function Header({
           setUserAccount({
             dateExpiry: userAccount.dateExpiry,
             userId: data.id,
+            email: data.email,
           });
           setRenew(renewSoon(userAccount.dateExpiry));
         }
@@ -116,6 +137,7 @@ function Header({
           setUserAccount({
             dateExpiry: userAccount.dateExpiry,
             userId: decoded.id,
+            email: decoded.email,
           });
           setRenew(renewSoon(userAccount.dateExpiry));
         }
@@ -159,8 +181,16 @@ function Header({
     setUserAccount({
       userId: "",
       dateExpiry: "",
+      email: "",
     });
   };
+
+  const color = connected
+    ? isPaidUser
+      ? theme.paid
+      : theme.loggedIn
+    : theme.loggedOut;
+
   return (
     <>
       <Navbar expand="lg" bg="light" variant="dark">
@@ -176,9 +206,9 @@ function Header({
             <Span>Kurku - Body tracking web MIDI controller</Span>
           </Navbar.Brand>
           {alert.display && (
-            <Alert key={alert.variant} variant={alert.variant}>
+            <StyledAlert key={alert.variant} variant={alert.variant}>
               {alert.message}
-            </Alert>
+            </StyledAlert>
           )}
           {!hideOptions && (
             <StyledNav>
@@ -188,6 +218,7 @@ function Header({
               <Button onClick={howToUseModal} variant="outline-dark">
                 How to use
               </Button>
+
               <Button
                 variant="outline-dark"
                 onClick={
@@ -205,6 +236,7 @@ function Header({
                   Subscribe
                 </Button>
               )}
+
               {renew && connected && (
                 <Button
                   variant="outline-dark"
@@ -213,12 +245,24 @@ function Header({
                   Renew subscription now!
                 </Button>
               )}
-              {isPaidUser && (
+              {
                 <SubscriptionInfo>
-                  Subscribed until{" "}
-                  {new Date(userAccount.dateExpiry).toLocaleDateString()}
+                  <CircleContainer>
+                    <LoginStateCircle color={color} />
+                  </CircleContainer>
+                  {!connected ? (
+                    "Disconnected"
+                  ) : isPaidUser ? (
+                    <>
+                      {userEmail} <br />
+                      Expires{" "}
+                      {new Date(userAccount.dateExpiry).toLocaleDateString()}
+                    </>
+                  ) : (
+                    <>{userEmail}</>
+                  )}
                 </SubscriptionInfo>
-              )}
+              }
             </StyledNav>
           )}
         </StyledContainer>

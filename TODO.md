@@ -1,36 +1,8 @@
 # Deploy paid features
 
-[x] Make AWS API
-[x] Roll back Heroku backend
-[x] Hook up front end to API
-[] Whitelist Heroku ip on load balancer.
-[x] Figure out why App not available offline => It was being unregistered on load
-[x] Find good spot to unregister service worker => If backend response gives old date, disconnect
-
 ## Fixes
 
-[x] Write wallet Id to local storage on wallet connect, not only on payment sucessful
 [] Filter last date from transactions (on the backend) => Copy addTransaction code for resubscription
-[] Add warning pop-up on mobile
-
-### Auth
-
-- [] Login with email
-
-### Payment
-
-[x] Stripe service + server - [] Stripe keys in production
-
-[x] Server code
-
-- [x] Modal code
-- [x] Mongo db payment storage (walletAddress | amount | currency | pay day | expiry date)
-- [] Integrate to UI flow
-  - [] On load fetch user from api
-    fetch from local storage if not
-  - [x] Disable functionality unpaid
-  - [x] Tooltips when unpaid
-- [] Test and find bugs
 
 ### Expiry date storage
 
@@ -42,14 +14,7 @@
 
 ### Paid customers
 
-- [x] Enable / disable features
-- [x] Tooltips for disabled features
-- [x] How to use => Metamask connection and Stripe payment
-- [] Look into crypto payments with metamask https://docs.metamask.io/guide/sending-transactions.html#example
-
 # UI
-
-[x] Try Kurku website color sections
 
 ## Testing
 
@@ -63,8 +28,6 @@ A. Server error
 
 B. Offline (same)
 
-C. Test you can log in metamask different browsers
-
 ## Bugs
 
 [x] When metamask disconnected and expiry in localStorage, app works as paying customer. => Remove expiry when disconnected.
@@ -75,3 +38,9 @@ C. Test you can log in metamask different browsers
 - Manually change encryted date of another user into local storage
 - Login offline
 - It should throw an error in the UI
+
+# Tech debt
+
+- Remove localhost logic in ServiceWorker
+- Make tests
+-

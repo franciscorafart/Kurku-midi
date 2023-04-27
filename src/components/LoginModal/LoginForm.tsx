@@ -112,8 +112,9 @@ const LoginForm = ({
             });
 
             setUserAccount({
-              dateExpiry: userAccount.dateExpiry,
               userId: data.id,
+              email: data.email,
+              dateExpiry: userAccount.dateExpiry,
             });
             handleClose();
           }

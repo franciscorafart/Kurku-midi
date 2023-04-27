@@ -3,6 +3,7 @@ import { atom } from "recoil";
 const defaultAccount = {
   userId: "",
   dateExpiry: "",
+  email: "",
 };
 
 const account = atom({
