@@ -143,7 +143,7 @@ function TrainUI() {
       <TrainContainer>
         <ThumbnailContainer>
           {thumbnails.map((th, idx) => (
-            <ImgContainer>
+            <ImgContainer key={`train-image-${th.slice(0, 5)}-${idx}}`}>
               <Span>Image {idx}</Span>
               <Img key={`image-${idx}`} src={th} alt="thumbnail" />
             </ImgContainer>
