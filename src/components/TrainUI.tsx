@@ -5,6 +5,7 @@ import theme from "config/theme";
 import { User } from "context";
 import { setupCamera } from "utils/bodytracking";
 import { Button } from "react-bootstrap";
+import { image, div, browser } from "@tensorflow/tfjs";
 
 const Container = styled.div`
   height: 100vh;
@@ -111,6 +112,28 @@ function TrainUI() {
     }
   }, [thumbnails]);
 
+  const train = () => {
+    const cv = canvasRef.current;
+    if (cv) {
+      const ratio = cv.width / cv.height;
+      const trainingWidth = 110;
+      const trainingHeigh = trainingWidth / ratio;
+
+      for (const th of thumbnails) {
+        const img = new Image();
+        img.src = th;
+        const tensor = browser.fromPixels(img);
+
+        const resized = image.resizeBilinear(tensor, [
+          trainingHeigh,
+          trainingWidth,
+        ]);
+        const normalized = div(resized, 255);
+        console.log("normalized", normalized);
+      }
+    }
+  };
+
   return (
     <Container>
       <Header
@@ -136,7 +159,9 @@ function TrainUI() {
             <Button disabled={!isPaidUser} onClick={capture}>
               Capture
             </Button>
-            <Button disabled={!isPaidUser}>Train</Button>
+            <Button onClick={train} disabled={!isPaidUser}>
+              Train
+            </Button>
           </TrainControls>
         </ControlContainer>
       </TrainContainer>
