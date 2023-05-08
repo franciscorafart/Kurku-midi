@@ -119,6 +119,10 @@ function TrainUI() {
       const trainingWidth = 110;
       const trainingHeigh = trainingWidth / ratio;
 
+      // TODO: Don't train directly from the image.
+      // 1. Extract hand position data from image
+      // 2. Add numbers into the tensor
+
       for (const th of thumbnails) {
         const img = new Image();
         img.src = th;
