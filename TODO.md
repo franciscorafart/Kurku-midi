@@ -1,5 +1,9 @@
 # Deploy paid features
 
+## Hand tracking
+
+- Fix isPaidUs
+
 ## Fixes
 
 [] Filter last date from transactions (on the backend) => Copy addTransaction code for resubscription
@@ -29,9 +33,6 @@ A. Server error
 B. Offline (same)
 
 ## Bugs
-
-[x] When metamask disconnected and expiry in localStorage, app works as paying customer. => Remove expiry when disconnected.
-[x] A user could not pay again before subscription expired.
 
 ## Encryption
 

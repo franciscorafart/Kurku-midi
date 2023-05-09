@@ -24,6 +24,8 @@ export type HandposeConfigType = {
   skipSize: number;
 };
 
+export type DetectorType = handpose.HandDetector;
+
 export const machineConfig: { [index: string]: PosenetConfigType } = {
   slow: {
     arch: "MobileNetV1",
@@ -98,6 +100,20 @@ export async function initBodyTracking(
   detectPoseInRealTime(video, net, config, setKeypoints);
 }
 
+export const makeTrainingHandDetector = async (modelType: "lite" | "full") => {
+  const model = handpose.SupportedModels.MediaPipeHands;
+
+  const detectorConfig: handpose.MediaPipeHandsMediaPipeModelConfig = {
+    runtime: "mediapipe",
+    solutionPath: "https://cdn.jsdelivr.net/npm/@mediapipe/hands", // TODO: Fix this
+    modelType,
+    maxHands: 2,
+  };
+
+  const detector = await handpose.createDetector(model, detectorConfig);
+  return detector;
+};
+
 export async function initHandTracking(
   machineType: MachineType,
   video: HTMLVideoElement,
@@ -105,17 +121,8 @@ export async function initHandTracking(
 ) {
   const config = machineConfigHands[machineType];
 
-  const model = handpose.SupportedModels.MediaPipeHands;
-
-  const detectorConfig: handpose.MediaPipeHandsMediaPipeModelConfig = {
-    runtime: "mediapipe",
-    solutionPath: "https://cdn.jsdelivr.net/npm/@mediapipe/hands", // TODO: Fix this
-    modelType: config.modelType,
-    maxHands: 2,
-  };
-
-  const detector = await handpose.createDetector(model, detectorConfig);
-  handDetectionFrame(video, detector, config, setHandKeypoints);
+  const detector = await makeTrainingHandDetector(config.modelType);
+  handDetectionFrame(video, detector, config.skipSize, setHandKeypoints);
 }
 
 export async function setupCamera(
@@ -177,14 +184,26 @@ function detectPoseInRealTime(
   poseDetectionFrame(video, net, flipPoseHorizontal, config, setKeypoints);
 }
 
+export const detectHandsSinglePose = async (
+  detector: DetectorType,
+  video: HTMLVideoElement
+) => {
+  const hands = await detector.estimateHands(video, { flipHorizontal: true });
+  return [
+    hands.find((h) => h.handedness === "Left"),
+    hands.find((h) => h.handedness === "Right"),
+  ];
+};
+
 async function handDetectionFrame(
   video: HTMLVideoElement,
-  detector: handpose.HandDetector,
-  config: HandposeConfigType,
+  detector: DetectorType,
+  skipSize: number,
   setHandKeypoints: SetterOrUpdater<HandKeypointsType>
 ) {
   // % executes the calculation every `skipSize` number of frames
-  if (handFrame % config.skipSize === 0) {
+  if (handFrame % skipSize === 0) {
+    // TODO: Re-use detectHandsSinglePose
     const hands = await detector.estimateHands(video, { flipHorizontal: true });
 
     if (hands.length) {
@@ -208,6 +227,6 @@ async function handDetectionFrame(
   handFrame++;
 
   requestAnimationFrame(() =>
-    handDetectionFrame(video, detector, config, setHandKeypoints)
+    handDetectionFrame(video, detector, skipSize, setHandKeypoints)
   );
 }

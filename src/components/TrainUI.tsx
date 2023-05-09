@@ -3,7 +3,12 @@ import Header from "./Header";
 import styled from "styled-components";
 import theme from "config/theme";
 import { User } from "context";
-import { setupCamera } from "utils/bodytracking";
+import {
+  setupCamera,
+  detectHandsSinglePose,
+  makeTrainingHandDetector,
+  DetectorType,
+} from "utils/bodytracking";
 import { Button } from "react-bootstrap";
 import { image, div, browser } from "@tensorflow/tfjs";
 
@@ -80,6 +85,7 @@ function TrainUI() {
 
   const isPaidUser = useContext(User);
   const [thumbnails, setThumbnails] = useState<string[]>([]);
+  const [detector, setDetector] = useState<DetectorType | null>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
@@ -90,12 +96,15 @@ function TrainUI() {
         await setupCamera(video);
         video.play();
       }
+      // NOTE: Use machine type for training portion?
+      const dtktor = await makeTrainingHandDetector("full");
+      setDetector(dtktor);
     };
 
     startVideo();
   }, []);
 
-  const capture = useCallback(() => {
+  const capture = useCallback(async () => {
     const video = videoRef.current;
     const canvas = canvasRef.current;
 
@@ -104,13 +113,22 @@ function TrainUI() {
     if (video && canvas && ctx) {
       canvas.width = video.videoWidth;
       canvas.height = video.videoHeight;
+
       ctx.drawImage(video, 0, 0, video.videoWidth, video.videoHeight);
 
+      // TODO: Do not store as thumbnails
       const data = canvas.toDataURL("image/png");
-
       setThumbnails([...thumbnails, data]);
+
+      if (detector) {
+        // Extract hand positions data from image
+        const hands = await detectHandsSinglePose(detector, video);
+        console.log("hands", hands);
+
+        // TODO: Store keypoints instead of thumbails
+      }
     }
-  }, [thumbnails]);
+  }, [detector, thumbnails]);
 
   const train = () => {
     const cv = canvasRef.current;
@@ -120,9 +138,6 @@ function TrainUI() {
       const trainingHeigh = trainingWidth / ratio;
 
       // TODO: Don't train directly from the image.
-      // 1. Extract hand position data from image
-      // 2. Add numbers into the tensor
-
       for (const th of thumbnails) {
         const img = new Image();
         img.src = th;
@@ -135,6 +150,8 @@ function TrainUI() {
         const normalized = div(resized, 255);
         console.log("normalized", normalized);
       }
+
+      // TODO: Make tensor out of parsed keypoints
     }
   };
 
