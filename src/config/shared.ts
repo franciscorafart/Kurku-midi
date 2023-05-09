@@ -16,6 +16,8 @@ interface BodyPartValueRange {
   y: number | undefined;
 }
 
+interface HandPartValueRange extends BodyPartValueRange {}
+
 export type effectKeyType =
   | "gain"
   | "pan"
@@ -119,7 +121,7 @@ export type BodyPartPositionType = {
 };
 
 export type HandPartPositionType = {
-  [index in BodyPartKey]: BodyPartValueRange;
+  [index in HandPartKey]: HandPartValueRange;
 };
 
 export type HandKeypointsType = {

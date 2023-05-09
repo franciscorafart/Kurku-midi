@@ -32,6 +32,10 @@ A. Server error
 
 B. Offline (same)
 
+## Index DB
+
+- Implement delete saved sessions
+
 ## Bugs
 
 ## Encryption

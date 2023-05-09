@@ -79,6 +79,21 @@ const Canvas = styled.canvas`
   display: none;
 `;
 
+const TopImageContainer = styled.div`
+  display: flex;
+  justify-content: space-between;
+`;
+
+const XContainer = styled.div`
+  height: 16px;
+  width: 16px;
+  background-color: ${theme.background};
+  border-radius: 8px;
+  text-align: center;
+  cursor: pointer;
+  font-size: 0.7em;
+`;
+
 function TrainUI() {
   const [showModal, setShowModal] = useState(false);
   const [showKurkuModal, setShowKurkuModal] = useState(false);
@@ -103,6 +118,16 @@ function TrainUI() {
 
     startVideo();
   }, []);
+
+  const removeImage = useCallback(
+    (idx: number) => {
+      const newThumbnails = [...thumbnails];
+      newThumbnails.splice(idx, 1);
+
+      setThumbnails(newThumbnails);
+    },
+    [thumbnails]
+  );
 
   const capture = useCallback(async () => {
     const video = videoRef.current;
@@ -165,7 +190,10 @@ function TrainUI() {
         <ThumbnailContainer>
           {thumbnails.map((th, idx) => (
             <ImgContainer key={`train-image-${th.slice(0, 5)}-${idx}}`}>
-              <Span>Image {idx}</Span>
+              <TopImageContainer>
+                <Span>Image {idx}</Span>
+                <XContainer onClick={() => removeImage(idx)}>X</XContainer>
+              </TopImageContainer>
               <Img key={`image-${idx}`} src={th} alt="thumbnail" />
             </ImgContainer>
           ))}

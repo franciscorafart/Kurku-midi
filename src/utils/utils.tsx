@@ -165,6 +165,7 @@ export const getHandsPart = (handKeypoints: HandKeypoints) => {
       ringFingerTip.y * 100
     );
   }
+  // TODO: Return all keypoints as an object like in getBodyParts
   return;
 };
 
