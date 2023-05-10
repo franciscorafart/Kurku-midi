@@ -93,6 +93,9 @@ export type HandPartKey =
 
 export type HandType = "Left" | "Right";
 
+export type ArrayOfNumArrayType = number[][];
+export type HandPositionObject = { [key in HandType]: ArrayOfNumArrayType };
+
 export enum HandPartEnum {
   wrist = "Wrist",
   thumb_cmc = "Thumb cmc",

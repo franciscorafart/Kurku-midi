@@ -15,7 +15,7 @@ import MidiSessionControls from "./MidiSessionControls";
 import { machineConfig } from "utils/bodytracking";
 import { makeCCSender } from "utils/midiCtx";
 import { mapGlobalConfigsToMidi } from "utils/midiUtils";
-import { getBodyParts, getHandsPart } from "utils/utils";
+import { getBodyParts, getHandParts } from "utils/utils";
 
 function ConfigMidiBridge({
   videoHeight,
@@ -63,7 +63,10 @@ function ConfigMidiBridge({
       }
 
       if (!isEmpty(handKpValues)) {
-        const handParts = getHandsPart(handKpValues.Left["3d"]);
+        const handParts = getHandParts(handKpValues.Left["3d"]);
+
+        // TODO: Compare handKpValues 3D with the trained models
+        // Trigger corresponding midi message if one of the gestures recognized
       }
     }
   }, [

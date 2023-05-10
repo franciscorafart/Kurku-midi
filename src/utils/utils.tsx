@@ -142,7 +142,8 @@ const translatePosition = (
   return [undefined, undefined];
 };
 
-export const getHandsPart = (handKeypoints: HandKeypoints) => {
+// TODO: Remove this function, not being used for anything
+export const getHandParts = (handKeypoints: HandKeypoints) => {
   // metric scale, with the origin in auxiliary keypoint formed as an average between the first knuckles of index, middle, ring and pinky fingers.
   const fingerTip = handKeypoints.filter(
     (p) => p.name === "index_finger_tip"
@@ -233,3 +234,26 @@ export const validateEmail = (email: string) => {
 export const goHome = () => {
   window.location.href = "/";
 };
+
+// Hand position data structure
+// [{x: -0.048322901129722595, y: 0.07273854315280914, z: 0.01486968994140625, name: 'wrist'},
+// {x: -0.01267671212553978, y: 0.07119046151638031, z: 0.0032558441162109375, name: 'thumb_cmc'},
+// {x: 0.018702559173107147, y: 0.06250479817390442, z: -0.007114410400390625, name: 'thumb_mcp'},
+// {x: 0.046741388738155365, y: 0.047045137733221054, z: -0.01568603515625, name: 'thumb_ip'},
+// {x: 0.06838750839233398, y: 0.031775377690792084, z: -0.0172882080078125, name: 'thumb_tip'},
+// {x: 0.024450086057186127, y: 0.012492155656218529, z: 0.0032711029052734375, name: 'index_finger_mcp'},
+// {x: 0.04752703011035919, y: -0.0052698757499456406, z: -0.00615692138671875, name: 'index_finger_pip'},
+// {x: 0.0622435063123703, y: -0.018781479448080063, z: -0.01522064208984375, name: 'index_finger_dip'},
+// {x: 0.07123430073261261, y: -0.03018733486533165, z: -0.0423583984375, name: 'index_finger_tip'},
+// {x: 0.0039240531623363495, y: -0.0033406794536858797, z: 0.005870819091796875, name: 'middle_finger_mcp'},
+// {x: 0.028399135917425156, y: -0.035430632531642914, z: -0.006359100341796875, name: 'middle_finger_pip'},
+// {x: 0.04041396826505661, y: -0.0516623891890049, z: -0.0220184326171875, name: 'middle_finger_dip'},
+// {x: 0.056379035115242004, y: -0.06966200470924377, z: -0.042755126953125, name: 'middle_finger_tip'},
+// {x: -0.016108648851513863, y: -0.01143411174416542, z: -0.00276947021484375, name: 'ring_finger_mcp'},
+// {x: -0.000886840745806694, y: -0.03763489052653313, z: -0.01416015625, name: 'ring_finger_pip'},
+// {x: 0.01084420457482338, y: -0.055163294076919556, z: -0.0289306640625, name: 'ring_finger_dip'},
+// {x: 0.021640939638018608, y: -0.06796975433826447, z: -0.0496826171875, name: 'ring_finger_tip'},
+// {x: -0.040806546807289124, y: -0.007021280005574226, z: -0.00814056396484375, name: 'pinky_finger_mcp'},
+// {x: -0.03502532094717026, y: -0.029139254242181778, z: -0.01103973388671875, name: 'pinky_finger_pip'},
+// {x: -0.03257390484213829, y: -0.05039885640144348, z: -0.01995849609375, name: 'pinky_finger_dip'},
+// {x: -0.026762252673506737, y: -0.06428325921297073, z: -0.03021240234375, name: 'pinky_finger_tip'}]

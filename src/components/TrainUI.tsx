@@ -1,4 +1,8 @@
 import { useCallback, useContext, useEffect, useRef, useState } from "react";
+import {
+  handKeypointsToDataArrayForTensor,
+  handPositionToTensor,
+} from "utils/tf";
 import Header from "./Header";
 import styled from "styled-components";
 import theme from "config/theme";
@@ -11,6 +15,7 @@ import {
 } from "utils/bodytracking";
 import { Button } from "react-bootstrap";
 import { image, div, browser } from "@tensorflow/tfjs";
+import { HandPositionObject, HandType } from "config/shared";
 
 const Container = styled.div`
   height: 100vh;
@@ -100,6 +105,10 @@ function TrainUI() {
 
   const isPaidUser = useContext(User);
   const [thumbnails, setThumbnails] = useState<string[]>([]);
+  const [parsedKeypoints, setParsedKeypoints] = useState<HandPositionObject[]>(
+    []
+  );
+
   const [detector, setDetector] = useState<DetectorType | null>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -124,9 +133,13 @@ function TrainUI() {
       const newThumbnails = [...thumbnails];
       newThumbnails.splice(idx, 1);
 
+      const newKeypoints = [...parsedKeypoints];
+      newKeypoints.splice(idx, 1);
+
       setThumbnails(newThumbnails);
+      setParsedKeypoints(newKeypoints);
     },
-    [thumbnails]
+    [parsedKeypoints, thumbnails]
   );
 
   const capture = useCallback(async () => {
@@ -135,48 +148,45 @@ function TrainUI() {
 
     const ctx: CanvasRenderingContext2D | null =
       canvas?.getContext("2d") || null;
-    if (video && canvas && ctx) {
+    if (video && canvas && ctx && detector) {
       canvas.width = video.videoWidth;
       canvas.height = video.videoHeight;
 
+      // 1. Thumbnail visualization
       ctx.drawImage(video, 0, 0, video.videoWidth, video.videoHeight);
-
-      // TODO: Do not store as thumbnails
       const data = canvas.toDataURL("image/png");
       setThumbnails([...thumbnails, data]);
 
-      if (detector) {
-        // Extract hand positions data from image
-        const hands = await detectHandsSinglePose(detector, video);
-        console.log("hands", hands);
+      // 2. Hands keypoint data
+      const hands = await detectHandsSinglePose(detector, video);
+      const left = hands.find((h) => h?.handedness === "Left");
+      const right = hands.find((h) => h?.handedness === "Right");
 
-        // TODO: Store keypoints instead of thumbails
+      const handsObject: HandPositionObject = {
+        Left: [],
+        Right: [],
+      }; // left and right
+      if (left?.keypoints3D) {
+        handsObject["Left"] = handKeypointsToDataArrayForTensor(
+          left.keypoints3D
+        );
       }
+      if (right?.keypoints3D) {
+        handsObject["Right"] = handKeypointsToDataArrayForTensor(
+          right.keypoints3D
+        );
+      }
+
+      setParsedKeypoints([...parsedKeypoints, handsObject]);
     }
-  }, [detector, thumbnails]);
+  }, [detector, parsedKeypoints, thumbnails]);
 
   const train = () => {
-    const cv = canvasRef.current;
-    if (cv) {
-      const ratio = cv.width / cv.height;
-      const trainingWidth = 110;
-      const trainingHeigh = trainingWidth / ratio;
-
-      // TODO: Don't train directly from the image.
-      for (const th of thumbnails) {
-        const img = new Image();
-        img.src = th;
-        const tensor = browser.fromPixels(img);
-
-        const resized = image.resizeBilinear(tensor, [
-          trainingHeigh,
-          trainingWidth,
-        ]);
-        const normalized = div(resized, 255);
-        console.log("normalized", normalized);
-      }
-
-      // TODO: Make tensor out of parsed keypoints
+    for (const k of parsedKeypoints) {
+      const kpTensor = handPositionToTensor([k.Left, k.Right]);
+      kpTensor.print();
+      // NOTE: NaN values in tensor if one of the hands is not present. Will this be a problem
+      // when creating the model?
     }
   };
 
