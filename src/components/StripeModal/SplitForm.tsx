@@ -165,11 +165,6 @@ const SplitForm = ({
               })
                 .then((response) => response.json())
                 .then((data) => {
-                  // TODO:
-                  // 1. Get encrypted date back
-                  // 2. Write encrypted date to local storage
-                  // 3. Update User account with unencrypted date
-
                   const dateString = new Date(data.expiry).toLocaleDateString();
                   setUserAccount({
                     ...userAccount,
@@ -177,7 +172,6 @@ const SplitForm = ({
                   });
 
                   // Storing locally for offline use
-                  // localStorage.setItem("userId", userAccount.userId);
                   localStorage.setItem("expiry", dateString);
 
                   handleClose();

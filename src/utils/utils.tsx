@@ -87,10 +87,6 @@ export function drawHandKeypoints(
   for (let i = 0; i < keypoints.length; i++) {
     const keypoint = keypoints[i];
     const { x, y } = keypoint;
-    // TODO: Figure out what the shifted position issue is
-    if (keypoint.name === "index_finger_tip") {
-      console.log({ x, y });
-    }
     drawPoint(ctx, y * scale, x * scale, 2, handColor);
   }
 }
@@ -166,7 +162,6 @@ export const getHandParts = (handKeypoints: HandKeypoints) => {
       ringFingerTip.y * 100
     );
   }
-  // TODO: Return all keypoints as an object like in getBodyParts
   return;
 };
 

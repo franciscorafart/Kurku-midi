@@ -24,7 +24,6 @@ function App() {
 
   const now = new Date();
   const expiry = useMemo(() => new Date(userAccount.dateExpiry), [userAccount]);
-  // TODO: Decrypt
 
   const connected = Boolean(userAccount.userId);
   const paidCustomer =
@@ -94,7 +93,6 @@ function App() {
           console.error("Couldn't fetch user account, trying local storage", e);
           const exp = localStorage.getItem("expiry");
           if (exp) {
-            // TODO: Decrypt
             setUserAccount({
               userId: userId,
               dateExpiry: exp,
