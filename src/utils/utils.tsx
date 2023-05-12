@@ -180,16 +180,16 @@ export const signUpPasswordValid = (pw: string) => {
   const lengthRegex = /.{8,}/;
   const letterRegex = /[a-zA-Z]/;
   const numberRegex = /\d/;
-  const symbolRegex = /[!@#$%^&*(),.?":{}|<>]/;
+  // const symbolRegex = /[!@#$%^&*(),.?":{}|<>]/;
 
   // Check each condition
   const hasLength = lengthRegex.test(pw);
   const hasLetter = letterRegex.test(pw);
   const hasNumber = numberRegex.test(pw);
-  const hasSymbol = symbolRegex.test(pw);
+  // const hasSymbol = symbolRegex.test(pw);
 
   // Return true if all conditions are met, otherwise false
-  return hasLength && hasLetter && hasNumber && hasSymbol;
+  return hasLength && hasLetter && hasNumber;
 };
 export const passwordValid = (pw1: string) => pw1.length >= 8;
 

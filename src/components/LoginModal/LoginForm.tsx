@@ -211,7 +211,7 @@ const LoginForm = ({
             </FormGroup>
             <Form.Label className="text-muted">
               Your password must contain at least 8 characters, including at
-              least one letter, one number, and one symbol.
+              least one letter and one number.
             </Form.Label>
           </>
         )}
