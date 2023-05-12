@@ -4,7 +4,12 @@ import { Form, FormGroup, FormLabel, Button, Alert } from "react-bootstrap";
 import account from "atoms/account";
 import { useRecoilState } from "recoil";
 import { apiUrl } from "../../constants";
-import { isRepeatValid, passwordValid, validateEmail } from "utils/utils";
+import {
+  isRepeatValid,
+  passwordValid,
+  signUpPasswordValid,
+  validateEmail,
+} from "utils/utils";
 
 const FormContainer = styled.div`
   padding: 20px;
@@ -152,7 +157,7 @@ const LoginForm = ({
           </Alert>
         )}
 
-        <FormGroup>
+        <FormGroup className="mb-3">
           <FormLabel>Email</FormLabel>
           <Form.Control
             onFocus={clearMessage}
@@ -164,8 +169,8 @@ const LoginForm = ({
             required
           />
         </FormGroup>
-        {(mode === "login" || mode === "signup") && (
-          <FormGroup>
+        {mode === "login" && (
+          <FormGroup className="mb-3">
             <FormLabel>Password</FormLabel>
             <Form.Control
               onFocus={clearMessage}
@@ -179,18 +184,36 @@ const LoginForm = ({
           </FormGroup>
         )}
         {mode === "signup" && (
-          <FormGroup>
-            <FormLabel>Repeat Password</FormLabel>
-            <Form.Control
-              onFocus={clearMessage}
-              value={formRepeatPassword}
-              onChange={handleFormRepeatPassword}
-              type="password"
-              placeholder="Password"
-              isValid={isRepeatValid(formPassword, formRepeatPassword)}
-              required
-            />
-          </FormGroup>
+          <>
+            <FormGroup className="mb-3">
+              <FormLabel>Password</FormLabel>
+              <Form.Control
+                onFocus={clearMessage}
+                value={formPassword}
+                onChange={handleFormPassword}
+                type="password"
+                placeholder="Password"
+                isValid={signUpPasswordValid(formPassword)}
+                required
+              />
+            </FormGroup>
+            <FormGroup className="mb-3">
+              <FormLabel>Repeat Password</FormLabel>
+              <Form.Control
+                onFocus={clearMessage}
+                value={formRepeatPassword}
+                onChange={handleFormRepeatPassword}
+                type="password"
+                placeholder="Password"
+                isValid={isRepeatValid(formPassword, formRepeatPassword)}
+                required
+              />
+            </FormGroup>
+            <Form.Label className="text-muted">
+              Your password must contain at least 8 characters, including at
+              least one letter, one number, and one symbol.
+            </Form.Label>
+          </>
         )}
         <ButtonContainer>
           <Button type="submit" disabled={!formValid}>
