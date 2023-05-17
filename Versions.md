@@ -11,3 +11,7 @@ First official version change for users to get most recent updates. Amongst thes
 ### 1.0.2
 
 Added a light circle and email information so that a user knows clearly if they're logged in, logged out, or are a paid user.
+
+### 0.1.3
+
+Fix session saving and retreival issues for paid users.
