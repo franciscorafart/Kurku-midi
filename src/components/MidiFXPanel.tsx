@@ -175,6 +175,7 @@ function SessionsDropdown({
           selectedOption ? `Session: ${selectedOption.name}` : "Select Session"
         }
         onSelect={(e) => onSelect(e as keyof DBSession)}
+        disabled={!options.length}
         size="lg"
       >
         {options.map((o) => (
@@ -197,7 +198,7 @@ function MidiFXPanel() {
     undefined
   );
 
-  const [fx, setFx] = useRecoilState(midiEffects);
+  const [tempFx, setTempFx] = useRecoilState(midiEffects); // FX Panel temporary state
   const inputOutputMap = useRecoilValue(valueMap);
   const isPaidUser = useContext(User);
   const [sessionName, setSessionName] = useState("");
@@ -211,6 +212,7 @@ function MidiFXPanel() {
     () => Boolean(userAccount.userId),
     [userAccount.userId]
   );
+
   useEffect(() => {
     if (selectedSessionUid) {
       const displayStored = storedFx
@@ -220,9 +222,9 @@ function MidiFXPanel() {
       const sess = storedSess.find((ss) => ss.id === selectedSessionUid);
 
       setSessionName(sess?.name || "");
-      setFx(displayStored);
+      setTempFx(displayStored);
     }
-  }, [selectedSessionUid, setFx, storedFx, storedSess]);
+  }, [selectedSessionUid, setTempFx, storedFx, storedSess]);
 
   const handleUserKeyPress = (event: KeyboardEvent) => {
     const { code } = event;
@@ -241,24 +243,24 @@ function MidiFXPanel() {
 
   const handleDisconnect = useCallback(
     (uid: string) => {
-      const idxOfRemove = fx.findIndex((msc) => msc.uid === uid);
-      const elementToRemove = fx.find((msc) => msc.uid === uid);
-      const newMidiFx = [...fx];
+      const idxOfRemove = tempFx.findIndex((msc) => msc.uid === uid);
+      const elementToRemove = tempFx.find((msc) => msc.uid === uid);
+      const newMidiFx = [...tempFx];
 
       if (idxOfRemove !== undefined && elementToRemove !== undefined) {
         newMidiFx.splice(idxOfRemove, 1);
-        setFx(newMidiFx);
+        setTempFx(newMidiFx);
         setEffectsToRemove([...effectsToRemove, elementToRemove.uid]);
         setDirty(true);
       }
     },
-    [effectsToRemove, fx, setFx]
+    [effectsToRemove, tempFx, setTempFx]
   );
   const maxFx = connected ? (isPaidUser ? 8 : 3) : 1;
-  const emptyFxCount = maxFx - fx.length;
+  const emptyFxCount = maxFx - tempFx.length;
 
   const onAddEffect = useCallback(() => {
-    const newMidiFx = [...fx];
+    const newMidiFx = [...tempFx];
     const ccList = newMidiFx.map((m) => m.controller);
     const cc = findCC(ccList);
 
@@ -275,14 +277,15 @@ function MidiFXPanel() {
       controller: cc,
     });
 
-    setFx(newMidiFx);
+    setTempFx(newMidiFx);
     setDirty(true);
-  }, [fx, setFx]);
+  }, [tempFx, setTempFx]);
 
   const ccSender = useMemo(
     () => (selectedOutput ? makeCCSender(selectedOutput) : undefined),
     [selectedOutput]
   );
+  console.log("effectsToRemove", effectsToRemove);
 
   const onSaveSession = useCallback(async () => {
     if (!sessionName) {
@@ -295,7 +298,7 @@ function MidiFXPanel() {
       return;
     }
 
-    // NOTE: MAke sure logged users can only create 1 session, even if they
+    // NOTE: Make sure logged users can only create 1 session, even if they
     // are downgraded from paid to logged. They just keep the ones they had.
     if (!isPaidUser && storedSess.length >= 1 && !selectedSessionUid) {
       setModal({
@@ -310,39 +313,43 @@ function MidiFXPanel() {
 
     const sessionId = selectedSessionUid || v4();
 
-    ADI.cacheItem(
-      sessionId,
-      sessionToDBSessions(sessionId, sessionName),
-      "sessions"
-    );
-
-    for (const f of fx) {
-      ADI.cacheItem(
-        f.uid.toString(),
-        effectToDBEffect(f, sessionId),
-        "effects"
-      );
-    }
-
     // Update local state
     if (selectedSessionUid) {
       // Overwrite effects
-      const existingFXIds = fx.map((f) => f.uid).concat(effectsToRemove);
-      setStoredFx(
-        storedFx
-          .filter((sEff) => !existingFXIds.includes(sEff.id))
-          .concat(fx.map((f) => effectToDBEffect(f, sessionId)))
-      );
+      console.log("effectsToRemove", effectsToRemove, "tempFx", tempFx);
+      const existingFXIds = tempFx.map((f) => f.uid).concat(effectsToRemove); // Original sessions state
+
+      // concat tempFx to the ones not in the session (original)
+      const a = storedFx
+        .filter((sEff) => !existingFXIds.includes(sEff.id))
+        .concat(tempFx.map((f) => effectToDBEffect(f, sessionId)));
+      console.log("a", a);
+      setStoredFx(a);
 
       setStoredSess(
         storedSess
           .filter((s) => s.id !== sessionId)
           .concat(sessionToDBSessions(sessionId, sessionName))
       );
+
+      // IndexedDB storage
+      ADI.cacheItem(
+        sessionId,
+        sessionToDBSessions(sessionId, sessionName),
+        "sessions"
+      );
+
+      for (const f of a) {
+        ADI.cacheItem(f.id, f, "effects");
+      }
+
+      for (const uid of effectsToRemove) {
+        ADI.removeItem(uid, "effects");
+      }
     } else {
-      // new effect
+      // new session
       setStoredFx(
-        storedFx.concat(fx.map((f) => effectToDBEffect(f, sessionId)))
+        storedFx.concat(tempFx.map((f) => effectToDBEffect(f, sessionId)))
       );
 
       setStoredSess([
@@ -357,7 +364,7 @@ function MidiFXPanel() {
     isPaidUser,
     storedSess,
     selectedSessionUid,
-    fx,
+    tempFx,
     effectsToRemove,
     setStoredFx,
     storedFx,
@@ -365,13 +372,13 @@ function MidiFXPanel() {
   ]);
 
   const makeNewSession = useCallback(() => {
-    setFx(defaultMidiEffects);
+    setTempFx(defaultMidiEffects);
     setSelectedSessionUid("");
     setSessionName("");
     setDirty(false);
     setModal(undefined);
     setEffectsToRemove([]);
-  }, [setFx, setSelectedSessionUid]);
+  }, [setTempFx, setSelectedSessionUid]);
 
   const newSession = useCallback(() => {
     if (dirty) {
@@ -505,7 +512,7 @@ function MidiFXPanel() {
         </ButtonContainer>
       </UpperBar>
       <StlFXContainer>
-        {fx.map((mEff) => (
+        {tempFx.map((mEff) => (
           <EffectContainer
             key={`midi-effect-${mEff.controller}`}
             selectable
