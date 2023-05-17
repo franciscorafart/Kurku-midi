@@ -315,21 +315,22 @@ function MidiFXPanel() {
 
     let allEffects: DBEffect[] = [];
     let allSessions: DBSession[] = [];
-    // Update local state
-    if (selectedSessionUid) {
-      // Overwrite effects
-      const existingFXIds = tempFx.map((f) => f.uid).concat(effectsToRemove); // Original sessions state
 
-      // concat tempFx to the ones not in the session (original)
+    if (selectedSessionUid) {
+      const initialSessionEffects = tempFx
+        .map((f) => f.uid)
+        .concat(effectsToRemove);
+
+      // concat tempFx (dirty state) to the ones not in the session (original)
       allEffects = storedFx
-        .filter((sEff) => !existingFXIds.includes(sEff.id))
+        .filter((sEff) => !initialSessionEffects.includes(sEff.id))
         .concat(tempFx.map((f) => effectToDBEffect(f, sessionId)));
 
       allSessions = storedSess
-        .filter((s) => s.id !== sessionId)
+        .filter((s) => s.id !== sessionId) // all sessions minus selected one
         .concat(sessionToDBSessions(sessionId, sessionName)); // Rename
     } else {
-      // new session
+      // New session
       allEffects = storedFx.concat(
         tempFx.map((f) => effectToDBEffect(f, sessionId))
       );
@@ -341,14 +342,14 @@ function MidiFXPanel() {
     setStoredFx(allEffects);
     setStoredSess(allSessions);
 
-    // IndexedDB storage
+    // IndexedDB update sessions
     ADI.cacheItem(
       sessionId,
       sessionToDBSessions(sessionId, sessionName),
       "sessions"
     );
 
-    // Save and remove effects from IndexDB
+    // IndexedDb update effects
     for (const f of allEffects) {
       ADI.cacheItem(f.id, f, "effects");
     }
