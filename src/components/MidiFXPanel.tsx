@@ -227,8 +227,9 @@ function MidiFXPanel() {
   }, [selectedSessionUid, setTempFx, storedFx, storedSess]);
 
   const handleUserKeyPress = (event: KeyboardEvent) => {
-    const { code } = event;
-    if (code === "Space") {
+    const { code, target } = event;
+    // @ts-ignore
+    if (code === "Space" && target?.localName !== "input") {
       setMuted(!muted);
     }
   };
@@ -285,7 +286,6 @@ function MidiFXPanel() {
     () => (selectedOutput ? makeCCSender(selectedOutput) : undefined),
     [selectedOutput]
   );
-  console.log("effectsToRemove", effectsToRemove);
 
   const onSaveSession = useCallback(async () => {
     if (!sessionName) {
@@ -328,13 +328,6 @@ function MidiFXPanel() {
       allSessions = storedSess
         .filter((s) => s.id !== sessionId)
         .concat(sessionToDBSessions(sessionId, sessionName)); // Rename
-
-      // IndexedDB storage
-      ADI.cacheItem(
-        sessionId,
-        sessionToDBSessions(sessionId, sessionName),
-        "sessions"
-      );
     } else {
       // new session
       allEffects = storedFx.concat(
@@ -348,6 +341,13 @@ function MidiFXPanel() {
     setStoredFx(allEffects);
     setStoredSess(allSessions);
 
+    // IndexedDB storage
+    ADI.cacheItem(
+      sessionId,
+      sessionToDBSessions(sessionId, sessionName),
+      "sessions"
+    );
+
     // Save and remove effects from IndexDB
     for (const f of allEffects) {
       ADI.cacheItem(f.id, f, "effects");
@@ -356,17 +356,19 @@ function MidiFXPanel() {
       ADI.removeItem(uid, "effects");
     }
 
+    setSelectedSessionUid(sessionId);
     setDirty(false);
   }, [
     sessionName,
     isPaidUser,
     storedSess,
     selectedSessionUid,
+    setStoredFx,
+    setStoredSess,
+    setSelectedSessionUid,
     tempFx,
     effectsToRemove,
-    setStoredFx,
     storedFx,
-    setStoredSess,
   ]);
 
   const makeNewSession = useCallback(() => {
