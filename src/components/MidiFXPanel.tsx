@@ -313,24 +313,21 @@ function MidiFXPanel() {
 
     const sessionId = selectedSessionUid || v4();
 
+    let allEffects: DBEffect[] = [];
+    let allSessions: DBSession[] = [];
     // Update local state
     if (selectedSessionUid) {
       // Overwrite effects
-      console.log("effectsToRemove", effectsToRemove, "tempFx", tempFx);
       const existingFXIds = tempFx.map((f) => f.uid).concat(effectsToRemove); // Original sessions state
 
       // concat tempFx to the ones not in the session (original)
-      const a = storedFx
+      allEffects = storedFx
         .filter((sEff) => !existingFXIds.includes(sEff.id))
         .concat(tempFx.map((f) => effectToDBEffect(f, sessionId)));
-      console.log("a", a);
-      setStoredFx(a);
 
-      setStoredSess(
-        storedSess
-          .filter((s) => s.id !== sessionId)
-          .concat(sessionToDBSessions(sessionId, sessionName))
-      );
+      allSessions = storedSess
+        .filter((s) => s.id !== sessionId)
+        .concat(sessionToDBSessions(sessionId, sessionName)); // Rename
 
       // IndexedDB storage
       ADI.cacheItem(
@@ -338,24 +335,25 @@ function MidiFXPanel() {
         sessionToDBSessions(sessionId, sessionName),
         "sessions"
       );
-
-      for (const f of a) {
-        ADI.cacheItem(f.id, f, "effects");
-      }
-
-      for (const uid of effectsToRemove) {
-        ADI.removeItem(uid, "effects");
-      }
     } else {
       // new session
-      setStoredFx(
-        storedFx.concat(tempFx.map((f) => effectToDBEffect(f, sessionId)))
+      allEffects = storedFx.concat(
+        tempFx.map((f) => effectToDBEffect(f, sessionId))
       );
-
-      setStoredSess([
+      allSessions = [
         ...storedSess,
         sessionToDBSessions(sessionId, sessionName),
-      ]);
+      ];
+    }
+    setStoredFx(allEffects);
+    setStoredSess(allSessions);
+
+    // Save and remove effects from IndexDB
+    for (const f of allEffects) {
+      ADI.cacheItem(f.id, f, "effects");
+    }
+    for (const uid of effectsToRemove) {
+      ADI.removeItem(uid, "effects");
     }
 
     setDirty(false);
