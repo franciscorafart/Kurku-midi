@@ -401,6 +401,49 @@ function MidiFXPanel() {
     setDirty(true);
   };
 
+  const deleteSession = useCallback(() => {
+    if (selectedSessionUid) {
+      const effectsAfterDelete = storedFx.filter(
+        (sEff) => selectedSessionUid !== sEff.sessionId
+      );
+
+      const effectsToDelete = storedFx.filter(
+        (sEff) => selectedSessionUid === sEff.sessionId
+      );
+
+      const sessionsAfterDelete = storedSess.filter(
+        (s) => s.id !== selectedSessionUid
+      );
+
+      // Delete sessions and effects from indexedDB
+      ADI.removeItem(selectedSessionUid, "sessions");
+      for (const eff of effectsToDelete) {
+        ADI.removeItem(eff.id, "effects");
+      }
+
+      setStoredFx(effectsAfterDelete);
+      setStoredSess(sessionsAfterDelete);
+      makeNewSession();
+    }
+  }, [
+    makeNewSession,
+    selectedSessionUid,
+    setStoredFx,
+    setStoredSess,
+    storedFx,
+    storedSess,
+  ]);
+
+  const handleDelete = () => {
+    setModal({
+      type: "deleteSession",
+      title: "Confirm delete session",
+      text: `Are you sure you want to delete ${sessionName}?`,
+      onConfirm: deleteSession,
+      onCancel: () => setModal(undefined),
+    });
+  };
+
   return (
     <Container>
       <UpperBar>
@@ -456,7 +499,6 @@ function MidiFXPanel() {
             <Button
               variant={dirty ? "outline-warning" : "outline-light"}
               onClick={connected ? onSaveSession : undefined}
-              // disabled={!isPaidUser}
               size="lg"
             >
               Save
@@ -482,6 +524,14 @@ function MidiFXPanel() {
           </OverlayTrigger>
           <Button variant="outline-light" onClick={newSession} size="lg">
             New Session
+          </Button>
+          <Button
+            variant="outline-danger"
+            disabled={!Boolean(selectedSessionUid)}
+            onClick={handleDelete}
+            size="lg"
+          >
+            Delete
           </Button>
           <OverlayTrigger
             overlay={

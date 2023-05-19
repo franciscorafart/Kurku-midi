@@ -15,3 +15,7 @@ Added a light circle and email information so that a user knows clearly if they'
 ### 0.1.3
 
 Fix session saving and retreival issues for paid users.
+
+### 0.1.4
+
+Delete sessions
