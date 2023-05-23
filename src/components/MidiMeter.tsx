@@ -7,15 +7,15 @@ const Container = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 24px;
+  width: 20px;
 `;
 
 const MeterContainer = styled.div<{ muted: boolean }>`
   height: 100%;
   display: flex;
   align-items: flex-end;
-  heigth: 20px;
-  width: 8px;
+  heigth: 16px;
+  width: 6px;
   border: 1px solid ${theme.border};
 `;
 type Variant = "input" | "output";

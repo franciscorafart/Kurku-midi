@@ -9,6 +9,7 @@ import { MidiOutputType } from "utils/types";
 import { initMidi } from "utils/midiCtx";
 import theme from "config/theme";
 import MidiSessionConfigPanel from "./MidiSessionConfigPanel";
+import SessionSaving from "./SessionSaving";
 import { Text, SubTitle } from "./shared";
 
 const Container = styled.div`
@@ -35,7 +36,7 @@ const OptionsContainer = styled.div`
 
 const TextContainer = styled.div`
   display: flex;
-  justify-content: flex-start;
+  justify-content: center;
 `;
 
 const CpuButton = styled(Cpu)`
@@ -119,7 +120,7 @@ const MidiSessionControl = ({ onInit }: { onInit: () => Promise<void> }) => {
           )}
         </OptionsContainer>
       </ButtonSection>
-      <div>Add Session Saving</div>
+      <SessionSaving />
       <MidiSessionConfigPanel
         show={sessionPanel}
         onClose={() => setSessionPanel(false)}

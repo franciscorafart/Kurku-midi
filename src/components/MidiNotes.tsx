@@ -6,14 +6,7 @@ import React, {
   useState,
 } from "react";
 import styled from "styled-components";
-import {
-  Container as FXContainer,
-  EffectContainer,
-  EffectBox,
-  CloseContainer,
-  EmptyEffectContainer,
-  EffectData,
-} from "./shared";
+import { Container as FXContainer } from "./shared";
 import midiEffects from "atoms/midiEffects";
 import {
   Dropdown,
@@ -261,6 +254,7 @@ function MidiNotes() {
   const maxFx = connected ? (isPaidUser ? 8 : 3) : 1;
   const emptyFxCount = maxFx - tempFx.length;
 
+  // TODO; Replace OnAddNote
   const onAddEffect = useCallback(() => {
     const newMidiFx = [...tempFx];
     const ccList = newMidiFx.map((m) => m.controller);
@@ -283,167 +277,11 @@ function MidiNotes() {
     setDirty(true);
   }, [tempFx, setTempFx]);
 
+  // TODO: Replace for NoteSender
   const ccSender = useMemo(
     () => (selectedOutput ? makeCCSender(selectedOutput) : undefined),
     [selectedOutput]
   );
-
-  const onSaveSession = useCallback(async () => {
-    if (!sessionName) {
-      setModal({
-        type: "sessionName",
-        title: "Set session name",
-        text: "Your session needs a name!",
-        onCancel: () => setModal(undefined),
-      });
-      return;
-    }
-
-    // NOTE: Make sure logged users can only create 1 session, even if they
-    // are downgraded from paid to logged. They just keep the ones they had.
-    if (!isPaidUser && storedSess.length >= 1 && !selectedSessionUid) {
-      setModal({
-        type: "sessionName",
-        title: "Get paid tier",
-        text: "You need a paid tier to save more than one session",
-        onCancel: () => setModal(undefined),
-      });
-
-      return;
-    }
-
-    const sessionId = selectedSessionUid || v4();
-
-    let allEffects: DBEffect[] = [];
-    let allSessions: DBSession[] = [];
-
-    if (selectedSessionUid) {
-      const initialSessionEffects = tempFx
-        .map((f) => f.uid)
-        .concat(effectsToRemove);
-
-      // concat tempFx (dirty state) to the ones not in the session (original)
-      allEffects = storedFx
-        .filter((sEff) => !initialSessionEffects.includes(sEff.id))
-        .concat(tempFx.map((f) => effectToDBEffect(f, sessionId)));
-
-      allSessions = storedSess
-        .filter((s) => s.id !== sessionId) // all sessions minus selected one
-        .concat(sessionToDBSessions(sessionId, sessionName)); // Rename
-    } else {
-      // New session
-      allEffects = storedFx.concat(
-        tempFx.map((f) => effectToDBEffect(f, sessionId))
-      );
-      allSessions = [
-        ...storedSess,
-        sessionToDBSessions(sessionId, sessionName),
-      ];
-    }
-    setStoredFx(allEffects);
-    setStoredSess(allSessions);
-
-    // IndexedDB update sessions
-    ADI.cacheItem(
-      sessionId,
-      sessionToDBSessions(sessionId, sessionName),
-      "sessions"
-    );
-
-    // IndexedDb update effects
-    for (const f of allEffects) {
-      ADI.cacheItem(f.id, f, "effects");
-    }
-    for (const uid of effectsToRemove) {
-      ADI.removeItem(uid, "effects");
-    }
-
-    setSelectedSessionUid(sessionId);
-    setDirty(false);
-  }, [
-    sessionName,
-    isPaidUser,
-    storedSess,
-    selectedSessionUid,
-    setStoredFx,
-    setStoredSess,
-    setSelectedSessionUid,
-    tempFx,
-    effectsToRemove,
-    storedFx,
-  ]);
-
-  const makeNewSession = useCallback(() => {
-    setTempFx(defaultMidiEffects);
-    setSelectedSessionUid("");
-    setSessionName("");
-    setDirty(false);
-    setModal(undefined);
-    setEffectsToRemove([]);
-  }, [setTempFx, setSelectedSessionUid]);
-
-  const newSession = useCallback(() => {
-    if (dirty) {
-      setModal({
-        type: "newSession",
-        title: "Confirm new session",
-        text: `Make new session without saving ${sessionName}?`,
-        onConfirm: makeNewSession,
-        onCancel: () => setModal(undefined),
-      });
-    } else {
-      makeNewSession();
-    }
-  }, [dirty, makeNewSession, sessionName]);
-
-  const onNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const v = e.target.value;
-    setSessionName(v);
-    setDirty(true);
-  };
-
-  const deleteSession = useCallback(() => {
-    if (selectedSessionUid) {
-      const effectsAfterDelete = storedFx.filter(
-        (sEff) => selectedSessionUid !== sEff.sessionId
-      );
-
-      const effectsToDelete = storedFx.filter(
-        (sEff) => selectedSessionUid === sEff.sessionId
-      );
-
-      const sessionsAfterDelete = storedSess.filter(
-        (s) => s.id !== selectedSessionUid
-      );
-
-      // Delete sessions and effects from indexedDB
-      ADI.removeItem(selectedSessionUid, "sessions");
-      for (const eff of effectsToDelete) {
-        ADI.removeItem(eff.id, "effects");
-      }
-
-      setStoredFx(effectsAfterDelete);
-      setStoredSess(sessionsAfterDelete);
-      makeNewSession();
-    }
-  }, [
-    makeNewSession,
-    selectedSessionUid,
-    setStoredFx,
-    setStoredSess,
-    storedFx,
-    storedSess,
-  ]);
-
-  const handleDelete = () => {
-    setModal({
-      type: "deleteSession",
-      title: "Confirm delete session",
-      text: `Are you sure you want to delete ${sessionName}?`,
-      onConfirm: deleteSession,
-      onCancel: () => setModal(undefined),
-    });
-  };
 
   return (
     <Container>
@@ -452,62 +290,6 @@ function MidiNotes() {
           <Text>MIDI Notes</Text>
         </SubTitle>
         <ButtonContainer>
-          <Form>
-            <Form.Group>
-              <Form.Control
-                type="text"
-                value={sessionName}
-                onChange={onNameChange}
-                placeholder="Session name"
-                size="sm"
-              />
-            </Form.Group>
-          </Form>
-          {connected && (
-            <SessionsDropdown
-              dirty={dirty}
-              selectedSes={selectedSessionUid}
-              setSelectedSes={setSelectedSessionUid}
-              onDirtyCallback={(id: string) => {
-                setModal({
-                  type: "selectSession",
-                  text: `Select session without saving ${sessionName}`,
-                  title: "Select session",
-                  onConfirm: () => {
-                    setSelectedSessionUid(id);
-                    setEffectsToRemove([]);
-                    setDirty(false);
-                    setModal(undefined);
-                  },
-                  onCancel: () => setModal(undefined),
-                });
-              }}
-              onSelectCallback={() => {
-                setEffectsToRemove([]);
-                setDirty(false);
-                setModal(undefined);
-              }}
-            />
-          )}
-          <div>
-            <OverlayTrigger
-              overlay={
-                !isPaidUser ? (
-                  <Tooltip>Save more sessions on paid tier</Tooltip>
-                ) : (
-                  <div />
-                )
-              }
-            >
-              <Button
-                variant={dirty ? "outline-warning" : "outline-light"}
-                onClick={connected ? onSaveSession : undefined}
-                size="sm"
-              >
-                Save
-              </Button>
-            </OverlayTrigger>
-          </div>
           <div>
             <OverlayTrigger
               overlay={
@@ -527,16 +309,6 @@ function MidiNotes() {
                 Add Note
               </Button>
             </OverlayTrigger>
-          </div>
-          <div>
-            <Button
-              variant="outline-danger"
-              disabled={!Boolean(selectedSessionUid)}
-              onClick={handleDelete}
-              size="sm"
-            >
-              Delete
-            </Button>
           </div>
         </ButtonContainer>
       </UpperBar>

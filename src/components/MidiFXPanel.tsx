@@ -15,12 +15,7 @@ import {
   EffectData,
 } from "./shared";
 import midiEffects from "atoms/midiEffects";
-import {
-  Dropdown,
-  DropdownButton,
-  Button,
-  ToggleButton,
-} from "react-bootstrap";
+import { Dropdown, DropdownButton, Button } from "react-bootstrap";
 import { useRecoilState, useRecoilValue } from "recoil";
 import selectedMidiEffect from "atoms/selectedMidiEffect";
 import CloseButton from "react-bootstrap/CloseButton";
@@ -48,6 +43,7 @@ import Tooltip from "react-bootstrap/Tooltip";
 import storedEffects from "atoms/storedEffects";
 import accountInState from "atoms/account";
 import muteMidi from "atoms/muteMidi";
+import dirtyAtom from "atoms/dirty";
 
 const Container = styled.div`
   flex: 1;
@@ -75,7 +71,7 @@ const LastRowContainer = styled.div`
 
 const ColumnContainer = styled.div`
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
 `;
 
 const ColumnItem = styled.div`
@@ -201,10 +197,11 @@ function MidiFXPanel() {
 
   const [tempFx, setTempFx] = useRecoilState(midiEffects); // FX Panel temporary state
   const inputOutputMap = useRecoilValue(valueMap);
+  const [dirty, setDirty] = useRecoilState(dirtyAtom);
   const isPaidUser = useContext(User);
   const [sessionName, setSessionName] = useState("");
   const [effectsToRemove, setEffectsToRemove] = useState<string[]>([]);
-  const [dirty, setDirty] = useState(false);
+
   const selectedOutput = useRecoilValue(midiOutput);
   const [muted, setMuted] = useRecoilState(muteMidi);
   const userAccount = useRecoilValue(accountInState);
@@ -288,163 +285,6 @@ function MidiFXPanel() {
     [selectedOutput]
   );
 
-  const onSaveSession = useCallback(async () => {
-    if (!sessionName) {
-      setModal({
-        type: "sessionName",
-        title: "Set session name",
-        text: "Your session needs a name!",
-        onCancel: () => setModal(undefined),
-      });
-      return;
-    }
-
-    // NOTE: Make sure logged users can only create 1 session, even if they
-    // are downgraded from paid to logged. They just keep the ones they had.
-    if (!isPaidUser && storedSess.length >= 1 && !selectedSessionUid) {
-      setModal({
-        type: "sessionName",
-        title: "Get paid tier",
-        text: "You need a paid tier to save more than one session",
-        onCancel: () => setModal(undefined),
-      });
-
-      return;
-    }
-
-    const sessionId = selectedSessionUid || v4();
-
-    let allEffects: DBEffect[] = [];
-    let allSessions: DBSession[] = [];
-
-    if (selectedSessionUid) {
-      const initialSessionEffects = tempFx
-        .map((f) => f.uid)
-        .concat(effectsToRemove);
-
-      // concat tempFx (dirty state) to the ones not in the session (original)
-      allEffects = storedFx
-        .filter((sEff) => !initialSessionEffects.includes(sEff.id))
-        .concat(tempFx.map((f) => effectToDBEffect(f, sessionId)));
-
-      allSessions = storedSess
-        .filter((s) => s.id !== sessionId) // all sessions minus selected one
-        .concat(sessionToDBSessions(sessionId, sessionName)); // Rename
-    } else {
-      // New session
-      allEffects = storedFx.concat(
-        tempFx.map((f) => effectToDBEffect(f, sessionId))
-      );
-      allSessions = [
-        ...storedSess,
-        sessionToDBSessions(sessionId, sessionName),
-      ];
-    }
-    setStoredFx(allEffects);
-    setStoredSess(allSessions);
-
-    // IndexedDB update sessions
-    ADI.cacheItem(
-      sessionId,
-      sessionToDBSessions(sessionId, sessionName),
-      "sessions"
-    );
-
-    // IndexedDb update effects
-    for (const f of allEffects) {
-      ADI.cacheItem(f.id, f, "effects");
-    }
-    for (const uid of effectsToRemove) {
-      ADI.removeItem(uid, "effects");
-    }
-
-    setSelectedSessionUid(sessionId);
-    setDirty(false);
-  }, [
-    sessionName,
-    isPaidUser,
-    storedSess,
-    selectedSessionUid,
-    setStoredFx,
-    setStoredSess,
-    setSelectedSessionUid,
-    tempFx,
-    effectsToRemove,
-    storedFx,
-  ]);
-
-  const makeNewSession = useCallback(() => {
-    setTempFx(defaultMidiEffects);
-    setSelectedSessionUid("");
-    setSessionName("");
-    setDirty(false);
-    setModal(undefined);
-    setEffectsToRemove([]);
-  }, [setTempFx, setSelectedSessionUid]);
-
-  const newSession = useCallback(() => {
-    if (dirty) {
-      setModal({
-        type: "newSession",
-        title: "Confirm new session",
-        text: `Make new session without saving ${sessionName}?`,
-        onConfirm: makeNewSession,
-        onCancel: () => setModal(undefined),
-      });
-    } else {
-      makeNewSession();
-    }
-  }, [dirty, makeNewSession, sessionName]);
-
-  const onNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const v = e.target.value;
-    setSessionName(v);
-    setDirty(true);
-  };
-
-  const deleteSession = useCallback(() => {
-    if (selectedSessionUid) {
-      const effectsAfterDelete = storedFx.filter(
-        (sEff) => selectedSessionUid !== sEff.sessionId
-      );
-
-      const effectsToDelete = storedFx.filter(
-        (sEff) => selectedSessionUid === sEff.sessionId
-      );
-
-      const sessionsAfterDelete = storedSess.filter(
-        (s) => s.id !== selectedSessionUid
-      );
-
-      // Delete sessions and effects from indexedDB
-      ADI.removeItem(selectedSessionUid, "sessions");
-      for (const eff of effectsToDelete) {
-        ADI.removeItem(eff.id, "effects");
-      }
-
-      setStoredFx(effectsAfterDelete);
-      setStoredSess(sessionsAfterDelete);
-      makeNewSession();
-    }
-  }, [
-    makeNewSession,
-    selectedSessionUid,
-    setStoredFx,
-    setStoredSess,
-    storedFx,
-    storedSess,
-  ]);
-
-  const handleDelete = () => {
-    setModal({
-      type: "deleteSession",
-      title: "Confirm delete session",
-      text: `Are you sure you want to delete ${sessionName}?`,
-      onConfirm: deleteSession,
-      onCancel: () => setModal(undefined),
-    });
-  };
-
   return (
     <Container>
       <UpperBar>
@@ -452,67 +292,11 @@ function MidiFXPanel() {
           <Text>MIDI CC</Text>
         </SubTitle>
         <ButtonContainer>
-          <Form>
-            <Form.Group>
-              <Form.Control
-                type="text"
-                value={sessionName}
-                onChange={onNameChange}
-                placeholder="Session name"
-                size="sm"
-              />
-            </Form.Group>
-          </Form>
-          {connected && (
-            <SessionsDropdown
-              dirty={dirty}
-              selectedSes={selectedSessionUid}
-              setSelectedSes={setSelectedSessionUid}
-              onDirtyCallback={(id: string) => {
-                setModal({
-                  type: "selectSession",
-                  text: `Select session without saving ${sessionName}`,
-                  title: "Select session",
-                  onConfirm: () => {
-                    setSelectedSessionUid(id);
-                    setEffectsToRemove([]);
-                    setDirty(false);
-                    setModal(undefined);
-                  },
-                  onCancel: () => setModal(undefined),
-                });
-              }}
-              onSelectCallback={() => {
-                setEffectsToRemove([]);
-                setDirty(false);
-                setModal(undefined);
-              }}
-            />
-          )}
           <div>
             <OverlayTrigger
               overlay={
                 !isPaidUser ? (
-                  <Tooltip>Save more sessions on paid tier</Tooltip>
-                ) : (
-                  <div />
-                )
-              }
-            >
-              <Button
-                variant={dirty ? "outline-warning" : "outline-light"}
-                onClick={connected ? onSaveSession : undefined}
-                size="sm"
-              >
-                Save
-              </Button>
-            </OverlayTrigger>
-          </div>
-          <div>
-            <OverlayTrigger
-              overlay={
-                !isPaidUser ? (
-                  <Tooltip>Add up to 8 effects with paid tier</Tooltip>
+                  <Tooltip>Add up to 8 CCs with paid tier</Tooltip>
                 ) : (
                   <div />
                 )
@@ -521,55 +305,10 @@ function MidiFXPanel() {
               <Button
                 variant="outline-light"
                 onClick={emptyFxCount > 0 ? onAddEffect : undefined}
-                // disabled={emptyFxCount <= 0}
                 size="sm"
               >
-                Add Effect
+                Add CC
               </Button>
-            </OverlayTrigger>
-          </div>
-          <div>
-            <Button variant="outline-light" onClick={newSession} size="sm">
-              New Session
-            </Button>
-          </div>
-          <div>
-            <Button
-              variant="outline-danger"
-              disabled={!Boolean(selectedSessionUid)}
-              onClick={handleDelete}
-              size="sm"
-            >
-              Delete
-            </Button>
-          </div>
-          <div>
-            <OverlayTrigger
-              overlay={
-                !isPaidUser ? (
-                  <Tooltip>Mute MIDI with paid tier</Tooltip>
-                ) : (
-                  <div />
-                )
-              }
-            >
-              <ToggleButton
-                size="sm"
-                variant="outline-light"
-                disabled={!ccSender}
-                onClick={
-                  isPaidUser
-                    ? (e) => {
-                        e.stopPropagation();
-                        setMuted(!muted);
-                      }
-                    : undefined
-                }
-                value={1}
-                active={muted}
-              >
-                Lock
-              </ToggleButton>
             </OverlayTrigger>
           </div>
         </ButtonContainer>
@@ -599,35 +338,35 @@ function MidiFXPanel() {
                     <br></br>
                   </EffectData>
                 </ColumnItem>
-                <ColumnItem2>
-                  <MidiMeter
-                    variant="input"
-                    value={inputOutputMap[mEff.uid]?.input || 0}
-                  />
-                  <MidiMeter
-                    base={127}
-                    value={inputOutputMap[mEff.uid]?.output || 0}
-                    variant="output"
-                    cap
-                  />
-                </ColumnItem2>
+                <LastRowContainer>
+                  <Button
+                    size="sm"
+                    variant="outline-light"
+                    disabled={!ccSender}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (ccSender) {
+                        ccSender(mEff.channel, mEff.controller, 127);
+                      }
+                    }}
+                    active={false}
+                  >
+                    Map
+                  </Button>
+                </LastRowContainer>
               </ColumnContainer>
-              <LastRowContainer>
-                <Button
-                  size="sm"
-                  variant="outline-light"
-                  disabled={!ccSender}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    if (ccSender) {
-                      ccSender(mEff.channel, mEff.controller, 127);
-                    }
-                  }}
-                  active={false}
-                >
-                  Map
-                </Button>
-              </LastRowContainer>
+              <ColumnItem2>
+                <MidiMeter
+                  variant="input"
+                  value={inputOutputMap[mEff.uid]?.input || 0}
+                />
+                <MidiMeter
+                  base={127}
+                  value={inputOutputMap[mEff.uid]?.output || 0}
+                  variant="output"
+                  cap
+                />
+              </ColumnItem2>
             </EffectBox>
           </EffectContainer>
         ))}
