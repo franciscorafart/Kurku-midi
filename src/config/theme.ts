@@ -1,18 +1,20 @@
 const colors = {
-  midGray: "#7a7d78",
-  black: "#222",
+  midGray: "#3B3B3B",
+  black: "#1F1F1F",
   white: "#f5f5f5",
   orange: "#ffc107",
   brightGreen: "#06F985",
   red: "#ff2e2e",
+  purple: "#8C52FF",
 };
 
 const theme = {
   text: colors.white,
   text2: colors.black,
-  background: colors.white,
-  background2: colors.black,
-  background3: colors.midGray,
+  background: colors.black,
+  background2: colors.midGray,
+  background3: colors.white,
+  background4: colors.purple,
   selected: colors.white,
   selectable: colors.orange,
   notSelecteble: colors.white,

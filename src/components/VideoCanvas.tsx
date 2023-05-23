@@ -6,8 +6,10 @@ import { isEmpty } from "lodash";
 import { machineConfig } from "utils/bodytracking";
 import keypoints from "atoms/keypoints";
 import sessionConfig from "atoms/sessionConfig";
+import theme from "config/theme";
 
 const VideoCanvasContainer = styled.div`
+  flex: 1;
   display: flex;
   justify-content: center;
   padding: 8px;
@@ -17,8 +19,8 @@ const Video = styled.video`
   display: none;
 `;
 const Canvas = styled.canvas`
-  min-height: 380px;
-  border: 1px dashed black;
+  min-height: 300px;
+  border: 1px dashed ${theme.text};
 `;
 
 function VideoCanvas({

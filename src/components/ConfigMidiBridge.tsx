@@ -64,11 +64,7 @@ function ConfigMidiBridge({
     videoWidth,
   ]);
 
-  return (
-    <div>
-      <MidiSessionControls onInit={onInit} />
-    </div>
-  );
+  return <MidiSessionControls onInit={onInit} />;
 }
 
 export default ConfigMidiBridge;

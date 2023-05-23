@@ -17,7 +17,7 @@ import jwtDecode from "jwt-decode";
 
 const StyledContainer = styled(Container)`
   max-width: 2000px;
-  background-color: ${theme.background};
+  background-color: ${theme.background3};
   color: ${theme.text2};
 `;
 

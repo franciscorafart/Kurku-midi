@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import styled from "styled-components";
 import MidiFXPanel from "./MidiFXPanel";
+import MidiNotes from "./MidiNotes";
 import { initBodyTracking, setupCamera } from "utils/bodytracking";
 import { useRecoilValue, useSetRecoilState } from "recoil";
 import keypoints from "atoms/keypoints";
@@ -23,20 +24,27 @@ const Container = styled.div`
   display: flex;
   flex-direction: column;
   min-height: 600px;
+  padding: 20px;
+  gap: 20px;
   background-color: ${theme.background};
 `;
 
 const TextContainer = styled.div`
   display: flex;
-  justify-items: flex-start;
+  justify-content: center;
 `;
 
 const VideoContentContainer = styled.div`
-  padding: 20px;
+  flex: 1;
 `;
 
 const StyledText = styled(Text)`
-  color: ${theme.text2};
+  color: ${theme.text};
+`;
+
+const HContainer = styled.div`
+  display: flex;
+  gap: 20px;
 `;
 
 function SomaUI() {
@@ -104,20 +112,25 @@ function SomaUI() {
         howToUseModal={() => setShowModal(true)}
       />
       <Container>
-        <ConfigMidiBridge
-          onInit={initTracking}
-          videoHeight={videoDim.height || 0}
-          videoWidth={videoDim.width || 0}
-        />
-        <VideoContentContainer>
-          <TextContainer>
-            <SubTitle>
-              <StyledText>Webcam view</StyledText>
-            </SubTitle>
-          </TextContainer>
-          <VideoCanvas canvasRef={canvasRef} videoRef={videoRef} />
-        </VideoContentContainer>
-        <MidiFXPanel />
+        <HContainer>
+          <ConfigMidiBridge
+            onInit={initTracking}
+            videoHeight={videoDim.height || 0}
+            videoWidth={videoDim.width || 0}
+          />
+          <VideoContentContainer>
+            <TextContainer>
+              <SubTitle>
+                <StyledText>Webcam view</StyledText>
+              </SubTitle>
+            </TextContainer>
+            <VideoCanvas canvasRef={canvasRef} videoRef={videoRef} />
+          </VideoContentContainer>
+        </HContainer>
+        <HContainer>
+          <MidiFXPanel />
+          <MidiNotes />
+        </HContainer>
         <BodyTrackingMidiPanel />
         <HowToUse open={showModal} onClose={() => setShowModal(false)} />
         <WhatIsKurku

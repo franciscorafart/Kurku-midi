@@ -189,7 +189,7 @@ function SessionsDropdown({
   );
 }
 
-function MidiFXPanel() {
+function MidiNotes() {
   const [selectedUid, setSelectedUid] = useRecoilState(selectedMidiEffect);
   const [selectedSessionUid, setSelectedSessionUid] =
     useRecoilState(selectedSession);
@@ -449,7 +449,7 @@ function MidiFXPanel() {
     <Container>
       <UpperBar>
         <SubTitle>
-          <Text>MIDI CC</Text>
+          <Text>MIDI Notes</Text>
         </SubTitle>
         <ButtonContainer>
           <Form>
@@ -524,14 +524,9 @@ function MidiFXPanel() {
                 // disabled={emptyFxCount <= 0}
                 size="sm"
               >
-                Add Effect
+                Add Note
               </Button>
             </OverlayTrigger>
-          </div>
-          <div>
-            <Button variant="outline-light" onClick={newSession} size="sm">
-              New Session
-            </Button>
           </div>
           <div>
             <Button
@@ -543,114 +538,10 @@ function MidiFXPanel() {
               Delete
             </Button>
           </div>
-          <div>
-            <OverlayTrigger
-              overlay={
-                !isPaidUser ? (
-                  <Tooltip>Mute MIDI with paid tier</Tooltip>
-                ) : (
-                  <div />
-                )
-              }
-            >
-              <ToggleButton
-                size="sm"
-                variant="outline-light"
-                disabled={!ccSender}
-                onClick={
-                  isPaidUser
-                    ? (e) => {
-                        e.stopPropagation();
-                        setMuted(!muted);
-                      }
-                    : undefined
-                }
-                value={1}
-                active={muted}
-              >
-                Lock
-              </ToggleButton>
-            </OverlayTrigger>
-          </div>
         </ButtonContainer>
       </UpperBar>
-      <StlFXContainer>
-        {tempFx.map((mEff) => (
-          <EffectContainer
-            key={`midi-effect-${mEff.controller}`}
-            selectable
-            selected={mEff.uid === selectedUid}
-          >
-            <CloseContainer>
-              <CloseButton onClick={() => handleDisconnect(mEff.uid)} />
-            </CloseContainer>
-            <EffectBox
-              onClick={() => setSelectedUid(mEff.uid)}
-              key={`${mEff.controller}-${mEff.bodyPart}`}
-              selectable
-            >
-              {" "}
-              <ColumnContainer>
-                <ColumnItem>
-                  <EffectData>{firstUpperCase(mEff.bodyPart)}</EffectData>
-                  <EffectData>CC: {mEff.controller}</EffectData>
-                  <EffectData>
-                    {mEff.direction === "x" ? "Horizontal" : "Vertical"}
-                    <br></br>
-                  </EffectData>
-                </ColumnItem>
-                <ColumnItem2>
-                  <MidiMeter
-                    variant="input"
-                    value={inputOutputMap[mEff.uid]?.input || 0}
-                  />
-                  <MidiMeter
-                    base={127}
-                    value={inputOutputMap[mEff.uid]?.output || 0}
-                    variant="output"
-                    cap
-                  />
-                </ColumnItem2>
-              </ColumnContainer>
-              <LastRowContainer>
-                <Button
-                  size="sm"
-                  variant="outline-light"
-                  disabled={!ccSender}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    if (ccSender) {
-                      ccSender(mEff.channel, mEff.controller, 127);
-                    }
-                  }}
-                  active={false}
-                >
-                  Map
-                </Button>
-              </LastRowContainer>
-            </EffectBox>
-          </EffectContainer>
-        ))}
-        {Array(emptyFxCount)
-          .fill(null)
-          .map((_, idx) => (
-            <EmptyEffectContainer key={`empty-${idx}`}>
-              Empty
-            </EmptyEffectContainer>
-          ))}
-      </StlFXContainer>
-      {modal && (
-        <ConfirmationModal
-          show={!!modal}
-          type={modal.type}
-          text={modal.text}
-          title={modal.title}
-          onConfirm={modal.onConfirm}
-          onCancel={modal.onCancel}
-        />
-      )}
     </Container>
   );
 }
 
-export default MidiFXPanel;
+export default MidiNotes;

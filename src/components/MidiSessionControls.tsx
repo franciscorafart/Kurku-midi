@@ -12,12 +12,13 @@ import MidiSessionConfigPanel from "./MidiSessionConfigPanel";
 import { Text, SubTitle } from "./shared";
 
 const Container = styled.div`
+  flex: 1;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  min-height: 140px;
-  padding: 60px 20px 20px 20px;
-  background-color: ${theme.background2};
+  padding: 20px;
+  border-radius: 8px;
+  background-color: ${theme.background4};
 `;
 
 const ButtonSection = styled.div`
@@ -118,6 +119,7 @@ const MidiSessionControl = ({ onInit }: { onInit: () => Promise<void> }) => {
           )}
         </OptionsContainer>
       </ButtonSection>
+      <div>Add Session Saving</div>
       <MidiSessionConfigPanel
         show={sessionPanel}
         onClose={() => setSessionPanel(false)}
