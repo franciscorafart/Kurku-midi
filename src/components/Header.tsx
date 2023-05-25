@@ -17,16 +17,22 @@ import jwtDecode from "jwt-decode";
 
 const StyledContainer = styled(Container)`
   max-width: 2000px;
-  background-color: ${theme.background3};
-  color: ${theme.text2};
+  background-color: ${theme.background};
+  color: ${theme.text};
+  padding: 20px 20px 0 20px;
+`;
+
+const StyledNavbar = styled(Navbar)`
+  padding: 0;
 `;
 
 const StyledNav = styled(Nav)`
   gap: 20px;
+  // padding: 20px;
 `;
 
 const Span = styled.span`
-  color: ${theme.text2};
+  color: ${theme.text};
 `;
 
 const StyledAlert = styled(Alert)`
@@ -193,7 +199,7 @@ function Header({
 
   return (
     <>
-      <Navbar expand="lg" bg="light" variant="dark">
+      <StyledNavbar>
         <StyledContainer>
           <Navbar.Brand href="https://kurku.tech">
             <img
@@ -212,15 +218,15 @@ function Header({
           )}
           {!hideOptions && (
             <StyledNav>
-              <Button onClick={kurkuModal} variant="outline-dark">
+              <Button onClick={kurkuModal} variant="outline-light">
                 What is Kurku?
               </Button>
-              <Button onClick={howToUseModal} variant="outline-dark">
+              <Button onClick={howToUseModal} variant="outline-light">
                 How to use
               </Button>
 
               <Button
-                variant="outline-dark"
+                variant="outline-light"
                 onClick={
                   !connected ? () => setLoginForm(true) : () => handleLogout()
                 }
@@ -229,7 +235,7 @@ function Header({
               </Button>
               {!isPaidUser && connected && (
                 <Button
-                  variant="outline-dark"
+                  variant="outline-light"
                   onClick={() => setDisplayForm(true)}
                   disabled
                 >
@@ -239,7 +245,7 @@ function Header({
 
               {renew && connected && (
                 <Button
-                  variant="outline-dark"
+                  variant="outline-light"
                   onClick={() => setDisplayForm(true)}
                 >
                   Renew subscription now!
@@ -271,7 +277,7 @@ function Header({
           handleClose={() => setDisplayForm(false)}
         />
         <LoginModal open={loginForm} handleClose={() => setLoginForm(false)} />
-      </Navbar>
+      </StyledNavbar>
     </>
   );
 }
