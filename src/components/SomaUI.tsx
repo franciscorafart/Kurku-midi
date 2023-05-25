@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import styled from "styled-components";
-import MidiFXPanel from "./MidiFXPanel";
+import MidiCC from "./MidiCC";
 import MidiNotes from "./MidiNotes";
 import { initBodyTracking, setupCamera } from "utils/bodytracking";
 import { useRecoilValue, useSetRecoilState } from "recoil";
@@ -13,12 +13,12 @@ import VideoCanvas from "./VideoCanvas";
 import HowToUse from "./HowToUse";
 import WhatIsKurku from "./WhatIsKurku";
 import Header from "components/Header";
-import { Text, SubTitle } from "./shared";
 import ADI, { initEffects, initSessions } from "localDB";
 
 import storedSessions from "atoms/storedSessions";
 import storedEffects from "atoms/storedEffects";
 import sessionConfig from "atoms/sessionConfig";
+import GlobalMidi from "./GobalMIDI";
 
 const Container = styled.div`
   display: flex;
@@ -29,17 +29,8 @@ const Container = styled.div`
   background-color: ${theme.background};
 `;
 
-const TextContainer = styled.div`
-  display: flex;
-  justify-content: center;
-`;
-
 const VideoContentContainer = styled.div`
-  flex: 1;
-`;
-
-const StyledText = styled(Text)`
-  color: ${theme.text};
+  flex: 6;
 `;
 
 const HContainer = styled.div`
@@ -119,16 +110,12 @@ function SomaUI() {
             videoWidth={videoDim.width || 0}
           />
           <VideoContentContainer>
-            <TextContainer>
-              <SubTitle>
-                <StyledText>Webcam view</StyledText>
-              </SubTitle>
-            </TextContainer>
             <VideoCanvas canvasRef={canvasRef} videoRef={videoRef} />
           </VideoContentContainer>
+          <GlobalMidi />
         </HContainer>
         <HContainer>
-          <MidiFXPanel />
+          <MidiCC />
           <MidiNotes />
         </HContainer>
         <BodyTrackingMidiPanel />

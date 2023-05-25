@@ -41,9 +41,10 @@ import Tooltip from "react-bootstrap/Tooltip";
 import storedEffects from "atoms/storedEffects";
 import accountInState from "atoms/account";
 import muteMidi from "atoms/muteMidi";
+import { Plus } from "react-bootstrap-icons";
 
 const Container = styled.div`
-  flex: 1;
+  flex: 6;
   display: flex;
   flex-direction: column;
   background-color: ${theme.background2};
@@ -55,6 +56,10 @@ const Container = styled.div`
 const UpperBar = styled.div`
   display: flex;
   flex-direction: column;
+`;
+
+const PlusButton = styled(Plus)`
+  cursor: pointer;
 `;
 
 const StlFXContainer = styled(FXContainer)`
@@ -300,14 +305,11 @@ function MidiNotes() {
                 )
               }
             >
-              <Button
-                variant="outline-light"
+              <PlusButton
+                color="white"
+                size={32}
                 onClick={emptyFxCount > 0 ? onAddEffect : undefined}
-                // disabled={emptyFxCount <= 0}
-                size="sm"
-              >
-                Add Note
-              </Button>
+              />
             </OverlayTrigger>
           </div>
         </ButtonContainer>

@@ -10,7 +10,7 @@ import {
   Container as FXContainer,
   EffectContainer,
   EffectBox,
-  CloseContainer,
+  OptionsContainer,
   EmptyEffectContainer,
   EffectData,
 } from "./shared";
@@ -18,7 +18,6 @@ import midiEffects from "atoms/midiEffects";
 import { Dropdown, DropdownButton, Button } from "react-bootstrap";
 import { useRecoilState, useRecoilValue } from "recoil";
 import selectedMidiEffect from "atoms/selectedMidiEffect";
-import CloseButton from "react-bootstrap/CloseButton";
 import theme from "config/theme";
 import { Text, SubTitle } from "./shared";
 import { v4 } from "uuid";
@@ -44,9 +43,10 @@ import storedEffects from "atoms/storedEffects";
 import accountInState from "atoms/account";
 import muteMidi from "atoms/muteMidi";
 import dirtyAtom from "atoms/dirty";
+import { Plus, XLg, Gear } from "react-bootstrap-icons";
 
 const Container = styled.div`
-  flex: 1;
+  flex: 6;
   display: flex;
   flex-direction: column;
   background-color: ${theme.background2};
@@ -64,9 +64,9 @@ const StlFXContainer = styled(FXContainer)`
   gap: 10px;
 `;
 
-const LastRowContainer = styled.div`
+const Icons = styled.div`
   display: flex;
-  justify-content: flex-end;
+  gap: 4px;
 `;
 
 const ColumnContainer = styled.div`
@@ -84,6 +84,18 @@ const ColumnItem2 = styled(ColumnItem)`
 
 const ButtonContainer = styled(ColumnItem2)`
   gap: 10px;
+`;
+
+const PlusButton = styled(Plus)`
+  cursor: pointer;
+`;
+
+const CloseButton = styled(XLg)`
+  cursor: pointer;
+`;
+
+const GearButton = styled(Gear)`
+  cursor: pointer;
 `;
 
 const firstUpperCase = (t: string) =>
@@ -185,7 +197,7 @@ function SessionsDropdown({
   );
 }
 
-function MidiFXPanel() {
+function MidiCC() {
   const [selectedUid, setSelectedUid] = useRecoilState(selectedMidiEffect);
   const [selectedSessionUid, setSelectedSessionUid] =
     useRecoilState(selectedSession);
@@ -302,13 +314,11 @@ function MidiFXPanel() {
                 )
               }
             >
-              <Button
-                variant="outline-light"
+              <PlusButton
+                color="white"
+                size={32}
                 onClick={emptyFxCount > 0 ? onAddEffect : undefined}
-                size="sm"
-              >
-                Add CC
-              </Button>
+              />
             </OverlayTrigger>
           </div>
         </ButtonContainer>
@@ -320,14 +330,35 @@ function MidiFXPanel() {
             selectable
             selected={mEff.uid === selectedUid}
           >
-            <CloseContainer>
-              <CloseButton onClick={() => handleDisconnect(mEff.uid)} />
-            </CloseContainer>
-            <EffectBox
-              onClick={() => setSelectedUid(mEff.uid)}
-              key={`${mEff.controller}-${mEff.bodyPart}`}
-              selectable
-            >
+            <OptionsContainer>
+              <Button
+                size="sm"
+                variant="outline-light"
+                disabled={!ccSender}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (ccSender) {
+                    ccSender(mEff.channel, mEff.controller, 127);
+                  }
+                }}
+                active={false}
+              >
+                Map
+              </Button>
+              <Icons>
+                <GearButton
+                  color="white"
+                  size={16}
+                  onClick={() => setSelectedUid(mEff.uid)}
+                />
+                <CloseButton
+                  color="white"
+                  size={16}
+                  onClick={() => handleDisconnect(mEff.uid)}
+                />
+              </Icons>
+            </OptionsContainer>
+            <EffectBox key={`${mEff.controller}-${mEff.bodyPart}`}>
               {" "}
               <ColumnContainer>
                 <ColumnItem>
@@ -338,22 +369,6 @@ function MidiFXPanel() {
                     <br></br>
                   </EffectData>
                 </ColumnItem>
-                <LastRowContainer>
-                  <Button
-                    size="sm"
-                    variant="outline-light"
-                    disabled={!ccSender}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      if (ccSender) {
-                        ccSender(mEff.channel, mEff.controller, 127);
-                      }
-                    }}
-                    active={false}
-                  >
-                    Map
-                  </Button>
-                </LastRowContainer>
               </ColumnContainer>
               <ColumnItem2>
                 <MidiMeter
@@ -392,4 +407,4 @@ function MidiFXPanel() {
   );
 }
 
-export default MidiFXPanel;
+export default MidiCC;

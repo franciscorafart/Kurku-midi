@@ -7,12 +7,15 @@ import { machineConfig } from "utils/bodytracking";
 import keypoints from "atoms/keypoints";
 import sessionConfig from "atoms/sessionConfig";
 import theme from "config/theme";
+import { Text, SubTitle } from "./shared";
 
 const VideoCanvasContainer = styled.div`
-  flex: 1;
   display: flex;
+  flex-direction: column;
   justify-content: center;
-  padding: 8px;
+  padding: 20px;
+  background-color: ${theme.background2};
+  border-radius: 8px;
 `;
 
 const Video = styled.video`
@@ -21,6 +24,15 @@ const Video = styled.video`
 const Canvas = styled.canvas`
   min-height: 300px;
   border: 1px dashed ${theme.text};
+`;
+
+const TextContainer = styled.div`
+  display: flex;
+  justify-content: center;
+`;
+
+const StyledText = styled(Text)`
+  color: ${theme.text};
 `;
 
 function VideoCanvas({
@@ -46,6 +58,11 @@ function VideoCanvas({
   }, [kpValues, ctx, video, config.confidence]);
   return (
     <VideoCanvasContainer>
+      <TextContainer>
+        <SubTitle>
+          <StyledText>Webcam view</StyledText>
+        </SubTitle>
+      </TextContainer>
       <Video ref={videoRef} />
       <Canvas ref={canvasRef} />
     </VideoCanvasContainer>

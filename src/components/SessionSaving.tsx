@@ -7,16 +7,11 @@ import React, {
 } from "react";
 import styled from "styled-components";
 import midiEffects from "atoms/midiEffects";
-import {
-  Dropdown,
-  DropdownButton,
-  Button,
-  ToggleButton,
-} from "react-bootstrap";
+import { Dropdown, DropdownButton, Button } from "react-bootstrap";
 import { useRecoilState, useRecoilValue } from "recoil";
 
 import theme from "config/theme";
-import { Text, SubTitle } from "./shared";
+import { Text, SubTitle, SubTitle2 } from "./shared";
 import { v4 } from "uuid";
 import { makeCCSender } from "utils/midiCtx";
 import midiOutput from "atoms/selectedMidiOutput";
@@ -43,8 +38,6 @@ const Container = styled.div`
   flex: 1;
   display: flex;
   flex-direction: column;
-  background-color: ${theme.background2};
-  padding: 20px;
   border-radius: 10px;
   gap: 20px;
 `;
@@ -52,6 +45,7 @@ const Container = styled.div`
 const UpperBar = styled.div`
   display: flex;
   flex-direction: column;
+  gap: 10px;
 `;
 
 const ColumnItem = styled.div`
@@ -151,7 +145,7 @@ function SessionsDropdown({
   );
 }
 
-function MidiFXPanel() {
+function SessionSaving() {
   const [selectedSessionUid, setSelectedSessionUid] =
     useRecoilState(selectedSession);
   const [storedFx, setStoredFx] = useRecoilState(storedEffects); // TODO: Store this a key value pair instead of array
@@ -369,9 +363,9 @@ function MidiFXPanel() {
   return (
     <Container>
       <UpperBar>
-        <SubTitle>
-          <Text>Retrieval</Text>
-        </SubTitle>
+        <SubTitle2>
+          <Text>Session Saving</Text>
+        </SubTitle2>
         <ButtonContainer>
           <Form>
             <Form.Group>
@@ -410,6 +404,8 @@ function MidiFXPanel() {
               }}
             />
           )}
+        </ButtonContainer>
+        <ButtonContainer>
           <div>
             <OverlayTrigger
               overlay={
@@ -444,35 +440,6 @@ function MidiFXPanel() {
               Delete
             </Button>
           </div>
-          <div>
-            <OverlayTrigger
-              overlay={
-                !isPaidUser ? (
-                  <Tooltip>Mute MIDI with paid tier</Tooltip>
-                ) : (
-                  <div />
-                )
-              }
-            >
-              <ToggleButton
-                size="sm"
-                variant="outline-light"
-                disabled={!ccSender}
-                onClick={
-                  isPaidUser
-                    ? (e) => {
-                        e.stopPropagation();
-                        setMuted(!muted);
-                      }
-                    : undefined
-                }
-                value={1}
-                active={muted}
-              >
-                Lock
-              </ToggleButton>
-            </OverlayTrigger>
-          </div>
         </ButtonContainer>
       </UpperBar>
       {modal && (
@@ -489,4 +456,4 @@ function MidiFXPanel() {
   );
 }
 
-export default MidiFXPanel;
+export default SessionSaving;
