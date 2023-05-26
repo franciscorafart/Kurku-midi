@@ -28,7 +28,6 @@ const StyledNavbar = styled(Navbar)`
 
 const StyledNav = styled(Nav)`
   gap: 20px;
-  // padding: 20px;
 `;
 
 const Span = styled.span`

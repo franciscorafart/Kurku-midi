@@ -1,4 +1,4 @@
-import { ChannelType } from "./types";
+import { ChannelType, MidiNoteMessageType } from "./types";
 
 const ccMessageCodeByChannel: { [index in ChannelType]: number } = {
   1: 0xb0,
@@ -19,16 +19,83 @@ const ccMessageCodeByChannel: { [index in ChannelType]: number } = {
   16: 0xbf,
 };
 
+const midiNotesByChannel: { [index in ChannelType]: MidiNoteMessageType } = {
+  1: {
+    on: 0x90,
+    off: 0x80,
+  },
+  2: {
+    on: 0x91,
+    off: 0x81,
+  },
+  3: {
+    on: 0x92,
+    off: 0x82,
+  },
+  4: {
+    on: 0x93,
+    off: 0x83,
+  },
+  5: {
+    on: 0x94,
+    off: 0x84,
+  },
+  6: {
+    on: 0x95,
+    off: 0x85,
+  },
+  7: {
+    on: 0x96,
+    off: 0x86,
+  },
+  8: {
+    on: 0x97,
+    off: 0x87,
+  },
+  9: {
+    on: 0x98,
+    off: 0x88,
+  },
+  10: {
+    on: 0x99,
+    off: 0x89,
+  },
+  11: {
+    on: 0x9a,
+    off: 0x8a,
+  },
+  12: {
+    on: 0x9b,
+    off: 0x8b,
+  },
+  13: {
+    on: 0x9c,
+    off: 0x8c,
+  },
+  14: {
+    on: 0x9d,
+    off: 0x8d,
+  },
+  15: {
+    on: 0x9e,
+    off: 0x8e,
+  },
+  16: {
+    on: 0x9f,
+    off: 0x8f,
+  },
+};
+
 // TODO: Fix types
 function getMIDIMessage(midiMessage: any) {
   const cmd = midiMessage.data[0] >> 4;
-  const pitch = midiMessage.data[1];
+  const note = midiMessage.data[1];
   const velocity = midiMessage.data.length > 2 ? midiMessage.data[2] : 1;
   // NOTE on: 9
   // Note off: 8
   // CC: 11
 
-  console.log({ cmd, pitch, velocity });
+  console.log({ cmd, note, velocity });
 }
 
 export const makeCCSender =
@@ -40,6 +107,17 @@ export const makeCCSender =
     if (CC && channel) {
       device.send(ccMessage);
     }
+  };
+
+export const makeNoteSender =
+  (device: any) =>
+  (channel: ChannelType, noteOn: boolean, note: number, velocity: number) => {
+    const messageType = midiNotesByChannel[channel];
+    const msg = noteOn
+      ? [messageType.on, note, velocity]
+      : [messageType.off, note, velocity];
+
+    device.send(msg);
   };
 
 // TODO: rewrite as return Promise to handle requestMIDIAccess failing

@@ -16,7 +16,7 @@ import { v4 } from "uuid";
 import { makeCCSender } from "utils/midiCtx";
 import midiOutput from "atoms/selectedMidiOutput";
 import ADI from "localDB";
-import { MidiEffectType } from "~/config/midi";
+import { CCEffectType } from "config/midi";
 import { DBEffect } from "localDB/effectConfig";
 import selectedSession from "atoms/selectedSession";
 import { DBSession } from "localDB/sessionConfig";
@@ -60,7 +60,7 @@ const ButtonContainer = styled(ColumnItem2)`
   gap: 10px;
 `;
 
-const effectToDBEffect = (effect: MidiEffectType, sessionId: string) => {
+const effectToDBEffect = (effect: CCEffectType, sessionId: string) => {
   return {
     id: effect.uid,
     sessionId: sessionId,
@@ -89,7 +89,7 @@ const dbEffectToEffect = (effect: DBEffect) => {
       x: effect.outputFrom,
       y: effect.outputTo,
     },
-  } as MidiEffectType;
+  } as CCEffectType;
 };
 const sessionToDBSessions = (id: string, name: string) => {
   return {

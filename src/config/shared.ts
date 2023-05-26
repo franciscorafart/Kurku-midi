@@ -10,7 +10,7 @@ export interface ValueRange {
   y: number;
 }
 
-interface BodyPartValueRange {
+export interface BodyPartValueRange {
   x: number | undefined;
   y: number | undefined;
 }
@@ -44,6 +44,26 @@ export type BodyPartKey =
   | "leftHip"
   | "leftWrist"
   | "leftShoulder";
+
+export const filteredBodyKey: { [index: string]: boolean } = {
+  nose: true,
+  rightAnkle: false,
+  rightEar: false,
+  rightElbow: false,
+  rightEye: false,
+  rightHip: false,
+  rightShoulder: true,
+  rightWrist: true,
+  rightKnee: false,
+  leftKnee: true,
+  leftAnkle: false,
+  leftEar: false,
+  leftElbow: false,
+  leftEye: false,
+  leftHip: true,
+  leftWrist: true,
+  leftShoulder: true,
+};
 
 export enum BodyPartEnum {
   nose = "Nose",
@@ -80,3 +100,10 @@ export const defaultSessionConfig: SessionConfigType = {
 };
 
 export type Keypoints = posenet.Keypoint[];
+
+export type Box = {
+  xMin: number;
+  xMax: number;
+  yMin: number;
+  yMax: number;
+};

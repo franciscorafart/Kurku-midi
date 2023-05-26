@@ -1,5 +1,5 @@
 import * as posenet from "@tensorflow-models/posenet";
-import { Keypoints } from "config/shared";
+import { Box, Keypoints, ValueRange } from "config/shared";
 import { BodyPartPositionType } from "config/shared";
 
 const color = "green";
@@ -147,6 +147,12 @@ export const scaleWindowToRange = (
   ];
 };
 
+export const isWithinBox = (box: Box, position: ValueRange) => {
+  if (position.x > box.xMax || position.x < box.xMin) return false;
+  if (position.y > box.yMax || position.y < box.yMin) return false;
+
+  return true;
+};
 // TODO: Problem with artifacts at limit of screen likely here
 const moveTowardsPoint = (
   origin: number,

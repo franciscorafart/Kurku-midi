@@ -3,7 +3,7 @@ import { ChannelType } from "utils/types";
 // @ts-ignore
 import { v4 } from "uuid";
 
-export const defaultMidiEffects: MidiEffectType[] = [
+export const defaultMidiEffects: CCEffectType[] = [
   {
     uid: v4(),
     sessionId: undefined,
@@ -19,7 +19,7 @@ export const defaultMidiEffects: MidiEffectType[] = [
   },
 ];
 
-export interface MidiEffectType {
+export interface CCEffectType {
   uid: string;
   direction: "x" | "y";
   screenRange: ScreenRange;
@@ -32,3 +32,5 @@ export interface MidiEffectType {
   controller: number;
   sessionId?: string;
 }
+
+// TODO: Add midiNoteType

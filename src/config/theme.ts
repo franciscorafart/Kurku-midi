@@ -5,7 +5,7 @@ const colors = {
   orange: "#ffc107",
   brightGreen: "#06F985",
   red: "#ff2e2e",
-  purple: "#8C52FF",
+  purple: "#5329A6",
 };
 
 const theme = {

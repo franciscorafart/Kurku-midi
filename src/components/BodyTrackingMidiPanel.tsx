@@ -14,7 +14,7 @@ import {
 } from "react-bootstrap";
 import { isEmpty } from "lodash";
 import { BodyPartEnum } from "config/shared";
-import { MidiEffectType } from "config/midi";
+import { CCEffectType } from "config/midi";
 import { useFormik } from "formik";
 
 const UpperBody = styled.div`
@@ -41,7 +41,7 @@ const MidiForm = ({
   initialEffect,
   idxEffect,
 }: {
-  initialEffect: MidiEffectType;
+  initialEffect: CCEffectType;
   idxEffect: number;
 }) => {
   const [fx, setFx] = useRecoilState(midiEffects);

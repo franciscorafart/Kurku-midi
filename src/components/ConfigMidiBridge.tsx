@@ -1,15 +1,18 @@
 import midiSession from "atoms/midiEffects";
 import { getBodyParts } from "utils/utils";
-import { mapGlobalConfigsToMidi } from "utils/midiUtils";
+import {
+  mapGlobalConfigsToMidi,
+  mapPositionsToMIDINotes,
+} from "utils/midiUtils";
 import { useRecoilValue, useSetRecoilState } from "recoil";
 import { machineConfig } from "utils/bodytracking";
 import keypoints from "atoms/keypoints";
 import { useEffect, useMemo } from "react";
 import { isEmpty } from "lodash";
-import { makeCCSender } from "utils/midiCtx";
+import { makeCCSender, makeNoteSender } from "utils/midiCtx";
 import sessionConfig from "atoms/sessionConfig";
 import midiOutput from "atoms/selectedMidiOutput";
-import valueMap from "atoms/valueMap";
+import ccMeterMap from "atoms/ccMeterMap";
 import muteMidi from "atoms/muteMidi";
 import MidiSessionControls from "./MidiSessionControls";
 
@@ -24,7 +27,7 @@ function ConfigMidiBridge({
 }) {
   const kpValues = useRecoilValue(keypoints);
   const midiSessionControls = useRecoilValue(midiSession);
-  const setValueMap = useSetRecoilState(valueMap);
+  const setCCMeterMap = useSetRecoilState(ccMeterMap);
   const sessionCfg = useRecoilValue(sessionConfig);
   const config = machineConfig[sessionCfg.machineType];
 
@@ -36,8 +39,13 @@ function ConfigMidiBridge({
     [selectedOutput]
   );
 
+  const noteSender = useMemo(
+    () => (selectedOutput ? makeNoteSender(selectedOutput) : undefined),
+    [selectedOutput]
+  );
+
   useEffect(() => {
-    if (!isEmpty(kpValues) && ccSender && !muted) {
+    if (!isEmpty(kpValues) && noteSender && ccSender && !muted) {
       const bodyPartPositions = getBodyParts(
         kpValues,
         config.confidence,
@@ -50,8 +58,10 @@ function ConfigMidiBridge({
         bodyPartPositions,
         ccSender
       );
-      setValueMap(valueObjectMap);
-      // TODO: make object that stores input and outut values keyed on effect identifier and assign it to the recoil state
+      setCCMeterMap(valueObjectMap);
+
+      // TODO: Add Note mapper here
+      mapPositionsToMIDINotes(bodyPartPositions, noteSender);
     }
   }, [
     ccSender,
@@ -59,7 +69,8 @@ function ConfigMidiBridge({
     kpValues,
     midiSessionControls,
     muted,
-    setValueMap,
+    noteSender,
+    setCCMeterMap,
     videoHeight,
     videoWidth,
   ]);

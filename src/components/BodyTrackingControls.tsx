@@ -41,7 +41,7 @@ function MidiDropdown() {
           : "Select Midi Output"
       }
       onSelect={(e) => onSelect(e as keyof MidiOutputType)}
-      size="lg"
+      size="sm"
     >
       {options.map((o) => (
         <Dropdown.Item key={o.id} eventKey={o.id}>
@@ -72,7 +72,7 @@ function BodyTrackingControls({ onInit }: { onInit: () => Promise<void> }) {
             <Button
               onClick={() => initMidiSession()}
               variant="outline-light"
-              size="lg"
+              size="sm"
             >
               Start MIDI
             </Button>

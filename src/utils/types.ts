@@ -1,7 +1,3 @@
-import { WrappedEffect } from "./audioCtx";
-
-export type KeyedEffectType = { [index: string]: AudioNode | WrappedEffect };
-
 export type ChannelType =
   | 1
   | 2
@@ -19,6 +15,11 @@ export type ChannelType =
   | 14
   | 15
   | 16;
+
+export type MidiNoteMessageType = {
+  on: number;
+  off: number;
+};
 
 export type MidiOutputType = {
   connection: string;

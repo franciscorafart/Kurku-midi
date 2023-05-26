@@ -1,6 +1,6 @@
 import * as posenet from "@tensorflow-models/posenet";
 import "@tensorflow/tfjs";
-import { Keypoints, MachineType } from "config/shared";
+import { Keypoints, MachineType, filteredBodyKey } from "config/shared";
 import { PoseNetQuantBytes } from "@tensorflow-models/posenet/dist/types";
 
 // @ts-ignore
@@ -108,6 +108,12 @@ async function poseDetectionFrame(
       flipHorizontal: flipPoseHorizontal,
       // scoreThreshold: 0.7
     });
+
+    // TODO: Filter out ones we don't need. Why does it break?
+    // const filteredKeypoints = pose.keypoints.filter(
+    //   (k) => filteredBodyKey[k.part]
+    // );
+
     setKeypoints(pose.keypoints);
   }
 

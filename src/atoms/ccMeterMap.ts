@@ -1,9 +1,9 @@
 import { atom } from "recoil";
 import { InputOutputMap } from "utils/types";
 
-const valueMap = atom({
-  key: "valueMap",
+const ccMeterMap = atom({
+  key: "ccMeterMap",
   default: {} as InputOutputMap,
 });
 
-export default valueMap;
+export default ccMeterMap;
