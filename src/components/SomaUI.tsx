@@ -19,6 +19,7 @@ import storedSessions from "atoms/storedSessions";
 import storedEffects from "atoms/storedEffects";
 import sessionConfig from "atoms/sessionConfig";
 import GlobalMidi from "./GobalMIDI";
+import MidiNotePanel from "./MidiNotePanel";
 
 const Container = styled.div`
   display: flex;
@@ -119,6 +120,7 @@ function SomaUI() {
           <MidiNotes />
         </HContainer>
         <BodyTrackingMidiPanel />
+        <MidiNotePanel />
         <HowToUse open={showModal} onClose={() => setShowModal(false)} />
         <WhatIsKurku
           open={showKurkuModal}

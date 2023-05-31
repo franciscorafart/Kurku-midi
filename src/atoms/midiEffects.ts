@@ -1,9 +1,9 @@
 import { atom } from "recoil";
-import { defaultMidiEffects } from "config/midi";
+import { defaultMidiCCs } from "config/midi";
 
 const midiEffects = atom({
   key: "midiEffects",
-  default: defaultMidiEffects,
+  default: defaultMidiCCs,
 });
 
 export default midiEffects;

@@ -22,7 +22,7 @@ import selectedSession from "atoms/selectedSession";
 import { DBSession } from "localDB/sessionConfig";
 import storedSessions from "atoms/storedSessions";
 import { User } from "context";
-import { defaultMidiEffects } from "config/midi";
+import { defaultMidiCCs } from "config/midi";
 import Form from "react-bootstrap/Form";
 import ConfirmationModal, {
   ConfirmationModalBaseProps,
@@ -154,7 +154,7 @@ function SessionSaving() {
     undefined
   );
 
-  const [tempFx, setTempFx] = useRecoilState(midiEffects); // FX Panel temporary state
+  const [tempCCs, setTempCCs] = useRecoilState(midiEffects); // FX Panel temporary state
   const isPaidUser = useContext(User);
   const [sessionName, setSessionName] = useState("");
   const [effectsToRemove, setEffectsToRemove] = useState<string[]>([]);
@@ -178,9 +178,9 @@ function SessionSaving() {
       const sess = storedSess.find((ss) => ss.id === selectedSessionUid);
 
       setSessionName(sess?.name || "");
-      setTempFx(displayStored);
+      setTempCCs(displayStored);
     }
-  }, [selectedSessionUid, setTempFx, storedFx, storedSess]);
+  }, [selectedSessionUid, setTempCCs, storedFx, storedSess]);
 
   const handleUserKeyPress = (event: KeyboardEvent) => {
     const { code, target } = event;
@@ -233,14 +233,14 @@ function SessionSaving() {
     let allSessions: DBSession[] = [];
 
     if (selectedSessionUid) {
-      const initialSessionEffects = tempFx
+      const initialSessionEffects = tempCCs
         .map((f) => f.uid)
         .concat(effectsToRemove);
 
-      // concat tempFx (dirty state) to the ones not in the session (original)
+      // concat tempCCs (dirty state) to the ones not in the session (original)
       allEffects = storedFx
         .filter((sEff) => !initialSessionEffects.includes(sEff.id))
-        .concat(tempFx.map((f) => effectToDBEffect(f, sessionId)));
+        .concat(tempCCs.map((f) => effectToDBEffect(f, sessionId)));
 
       allSessions = storedSess
         .filter((s) => s.id !== sessionId) // all sessions minus selected one
@@ -248,7 +248,7 @@ function SessionSaving() {
     } else {
       // New session
       allEffects = storedFx.concat(
-        tempFx.map((f) => effectToDBEffect(f, sessionId))
+        tempCCs.map((f) => effectToDBEffect(f, sessionId))
       );
       allSessions = [
         ...storedSess,
@@ -283,19 +283,19 @@ function SessionSaving() {
     setStoredFx,
     setStoredSess,
     setSelectedSessionUid,
-    tempFx,
+    tempCCs,
     effectsToRemove,
     storedFx,
   ]);
 
   const makeNewSession = useCallback(() => {
-    setTempFx(defaultMidiEffects);
+    setTempCCs(defaultMidiCCs);
     setSelectedSessionUid("");
     setSessionName("");
     setDirty(false);
     setModal(undefined);
     setEffectsToRemove([]);
-  }, [setTempFx, setSelectedSessionUid]);
+  }, [setTempCCs, setSelectedSessionUid]);
 
   const newSession = useCallback(() => {
     if (dirty) {

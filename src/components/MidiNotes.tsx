@@ -31,7 +31,6 @@ import selectedSession from "atoms/selectedSession";
 import { DBSession } from "localDB/sessionConfig";
 import storedSessions from "atoms/storedSessions";
 import { User } from "context";
-import { defaultMidiEffects } from "config/midi";
 import Form from "react-bootstrap/Form";
 import ConfirmationModal, {
   ConfirmationModalBaseProps,
@@ -42,6 +41,10 @@ import storedEffects from "atoms/storedEffects";
 import accountInState from "atoms/account";
 import muteMidi from "atoms/muteMidi";
 import { Plus } from "react-bootstrap-icons";
+// @ts-ignore
+import { Piano, KeyboardShortcuts, MidiNumbers } from "react-piano";
+import "react-piano/dist/styles.css";
+import selectedMidiNote from "atoms/selectedMidiNote";
 
 const Container = styled.div`
   flex: 6;
@@ -188,7 +191,7 @@ function SessionsDropdown({
 }
 
 function MidiNotes() {
-  const [selectedUid, setSelectedUid] = useRecoilState(selectedMidiEffect);
+  const [selectedNote, setSelectedNote] = useRecoilState(selectedMidiNote);
   const [selectedSessionUid, setSelectedSessionUid] =
     useRecoilState(selectedSession);
   const [storedFx, setStoredFx] = useRecoilState(storedEffects); // TODO: Store this a key value pair instead of array
@@ -225,68 +228,21 @@ function MidiNotes() {
     }
   }, [selectedSessionUid, setTempFx, storedFx, storedSess]);
 
-  const handleUserKeyPress = (event: KeyboardEvent) => {
-    const { code, target } = event;
-    // @ts-ignore
-    if (code === "Space" && target?.localName !== "input") {
-      setMuted(!muted);
-    }
-  };
-
-  useEffect(() => {
-    window.addEventListener("keydown", handleUserKeyPress);
-
-    return () => {
-      window.removeEventListener("keydown", handleUserKeyPress);
-    };
-  });
-
-  const handleDisconnect = useCallback(
-    (uid: string) => {
-      const idxOfRemove = tempFx.findIndex((msc) => msc.uid === uid);
-      const elementToRemove = tempFx.find((msc) => msc.uid === uid);
-      const newMidiFx = [...tempFx];
-
-      if (idxOfRemove !== undefined && elementToRemove !== undefined) {
-        newMidiFx.splice(idxOfRemove, 1);
-        setTempFx(newMidiFx);
-        setEffectsToRemove([...effectsToRemove, elementToRemove.uid]);
-        setDirty(true);
-      }
-    },
-    [effectsToRemove, tempFx, setTempFx]
-  );
-  const maxFx = connected ? (isPaidUser ? 8 : 3) : 1;
-  const emptyFxCount = maxFx - tempFx.length;
-
-  // TODO; Replace OnAddNote
-  const onAddEffect = useCallback(() => {
-    const newMidiFx = [...tempFx];
-    const ccList = newMidiFx.map((m) => m.controller);
-    const cc = findCC(ccList);
-
-    newMidiFx.push({
-      uid: v4(),
-      direction: "y",
-      screenRange: { a: 0, b: 1 },
-      valueRange: { x: 0, y: 127 },
-      scaleFactor: 1,
-      bodyPart: "rightWrist",
-      previousValue: 0,
-      targetValue: 0,
-      channel: 1,
-      controller: cc,
-    });
-
-    setTempFx(newMidiFx);
-    setDirty(true);
-  }, [tempFx, setTempFx]);
-
   // TODO: Replace for NoteSender
   const ccSender = useMemo(
     () => (selectedOutput ? makeCCSender(selectedOutput) : undefined),
     [selectedOutput]
   );
+
+  const firstNote = MidiNumbers.fromNote("c1");
+  const lastNote = MidiNumbers.fromNote("f6");
+  const keyboardShortcuts = KeyboardShortcuts.create({
+    firstNote: firstNote,
+    lastNote: lastNote,
+    keyboardConfig: KeyboardShortcuts.HOME_ROW,
+  });
+
+  console.log("Keyboard shortcuts", KeyboardShortcuts);
 
   return (
     <Container>
@@ -294,25 +250,20 @@ function MidiNotes() {
         <SubTitle>
           <Text>MIDI Notes</Text>
         </SubTitle>
-        <ButtonContainer>
-          <div>
-            <OverlayTrigger
-              overlay={
-                !isPaidUser ? (
-                  <Tooltip>Add up to 8 effects with paid tier</Tooltip>
-                ) : (
-                  <div />
-                )
-              }
-            >
-              <PlusButton
-                color="white"
-                size={32}
-                onClick={emptyFxCount > 0 ? onAddEffect : undefined}
-              />
-            </OverlayTrigger>
-          </div>
-        </ButtonContainer>
+        <ButtonContainer></ButtonContainer>
+        <Piano
+          noteRange={{ first: firstNote, last: lastNote }}
+          playNote={(midiNumber: number) => {
+            console.log("midiNumber", midiNumber);
+            // Play a given note - see notes below
+            setSelectedNote(midiNumber);
+          }}
+          stopNote={(midiNumber: number) => {
+            // Stop playing a given note - see notes below
+          }}
+          width={700}
+          keyboardShortcuts={keyboardShortcuts}
+        />
       </UpperBar>
     </Container>
   );

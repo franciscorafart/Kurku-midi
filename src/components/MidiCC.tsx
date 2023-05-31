@@ -32,8 +32,6 @@ import selectedSession from "atoms/selectedSession";
 import { DBSession } from "localDB/sessionConfig";
 import storedSessions from "atoms/storedSessions";
 import { User } from "context";
-import { defaultMidiEffects } from "config/midi";
-import Form from "react-bootstrap/Form";
 import ConfirmationModal, {
   ConfirmationModalBaseProps,
 } from "./ConfirmationModal";

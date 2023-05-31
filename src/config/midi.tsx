@@ -1,9 +1,9 @@
-import { BodyPartKey, ScreenRange, ValueRange } from "./shared";
+import { BodyPartKey, Box, ScreenRange, ValueRange } from "./shared";
 import { ChannelType } from "utils/types";
 // @ts-ignore
 import { v4 } from "uuid";
 
-export const defaultMidiEffects: CCEffectType[] = [
+export const defaultMidiCCs: CCEffectType[] = [
   {
     uid: v4(),
     sessionId: undefined,
@@ -33,4 +33,23 @@ export interface CCEffectType {
   sessionId?: string;
 }
 
+export const defaultMidiNote: MIDINoteType = {
+  box: {
+    xMin: 0.8,
+    xMax: 1,
+    yMin: 0.8,
+    yMax: 1,
+  },
+  note: 60,
+  channel: 1,
+};
+
+export const defaultMidiNotes: { [index: number]: MIDINoteType } = {};
+
+export interface MIDINoteType {
+  box: Box;
+  note: number;
+  channel: number;
+  // active: boolean,
+}
 // TODO: Add midiNoteType

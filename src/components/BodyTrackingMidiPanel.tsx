@@ -75,6 +75,7 @@ const MidiForm = ({
           y: values.scaleFactorY,
         },
       };
+      // TODO: set dirty or save session to DB
       setFx(newFx);
       setSelected("");
     },
