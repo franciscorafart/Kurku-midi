@@ -32,6 +32,7 @@ export interface CCEffectType {
   controller: number;
   sessionId?: string;
 }
+export type MidiNotesObjectType = { [index: number]: MIDINoteType };
 
 export const defaultMidiNote: MIDINoteType = {
   box: {
@@ -44,12 +45,10 @@ export const defaultMidiNote: MIDINoteType = {
   channel: 1,
 };
 
-export const defaultMidiNotes: { [index: number]: MIDINoteType } = {};
+export const defaultMidiNotes: MidiNotesObjectType = {};
 
 export interface MIDINoteType {
   box: Box;
   note: number;
-  channel: number;
-  // active: boolean,
+  channel: ChannelType;
 }
-// TODO: Add midiNoteType

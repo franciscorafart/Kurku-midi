@@ -179,6 +179,8 @@ function SessionSaving() {
 
       setSessionName(sess?.name || "");
       setTempCCs(displayStored);
+
+      // TODO: Set temp Midi notes
     }
   }, [selectedSessionUid, setTempCCs, storedFx, storedSess]);
 
@@ -272,6 +274,8 @@ function SessionSaving() {
     for (const uid of effectsToRemove) {
       ADI.removeItem(uid, "effects");
     }
+
+    // TODO: Save Midi notes
 
     setSelectedSessionUid(sessionId);
     setDirty(false);

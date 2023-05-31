@@ -12,7 +12,7 @@ import midiOutput from "atoms/selectedMidiOutput";
 import { User } from "context";
 
 const Container = styled.div`
-  flex: 2;
+  flex: 3;
   display: flex;
   flex-direction: column;
   background-color: ${theme.background2};

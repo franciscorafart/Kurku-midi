@@ -1,5 +1,5 @@
-import { CCEffectType } from "config/midi";
-import { BodyPartPositionType, Box, ValueRange } from "config/shared";
+import { CCEffectType, MidiNotesObjectType } from "config/midi";
+import { BodyPartPositionType, ValueRange } from "config/shared";
 import { ChannelType, InputOutputMap } from "./types";
 import { isWithinBox, scaleWindowToRange } from "./utils";
 
@@ -43,7 +43,8 @@ export const mapPositionsToMIDINotes = (
     noteOn: boolean,
     note: number,
     velocity: number
-  ) => void
+  ) => void,
+  notes: MidiNotesObjectType
 ) => {
   // 1. Extract absoulte position in x & y axis of body parts
   const positions = Object.entries(bodyPartPositions)
@@ -52,16 +53,14 @@ export const mapPositionsToMIDINotes = (
       (position) => position.x !== undefined && position.y !== undefined
     ) as ValueRange[]; // Casting safe because of filtering
 
-  // boxes come from state as parameter
-  const boxes: Box[] = [{ xMax: 1, xMin: 0.7, yMax: 1, yMin: 0.7 }];
-
   // TODO: Make this more efficient
-  for (const box of boxes) {
+  for (const [note, noteObj] of Object.entries(notes)) {
+    const box = noteObj.box;
+    // 3. If found, send midi and break iteration
     const inTheBox = positions.find((p) => isWithinBox(box, p));
     if (inTheBox) {
-      console.log("Midi trigger!");
+      console.log("Midi trigger note:", note);
+      noteSender(noteObj.channel, true, noteObj.note, 127);
     }
   }
-  // 2. Compare to all boxes (to an arbitrary box to test at the beggining),
-  // 3. If found, send midi and break iteration
 };

@@ -2,6 +2,7 @@ import { useMemo } from "react";
 import { useRecoilState, useSetRecoilState, useRecoilValue } from "recoil";
 import styled from "styled-components";
 import selectedMidiEffect from "atoms/selectedMidiEffect";
+import dirtyAtom from "atoms/dirty";
 import midiEffects from "atoms/midiEffects";
 import {
   Button,
@@ -46,6 +47,7 @@ const MidiForm = ({
 }) => {
   const [fx, setFx] = useRecoilState(midiEffects);
   const setSelected = useSetRecoilState(selectedMidiEffect);
+  const setDirty = useSetRecoilState(dirtyAtom);
 
   const formik = useFormik({
     initialValues: {
@@ -76,6 +78,7 @@ const MidiForm = ({
         },
       };
       // TODO: set dirty or save session to DB
+      setDirty(true);
       setFx(newFx);
       setSelected("");
     },
@@ -285,7 +288,7 @@ const MidiForm = ({
           type="submit"
           disabled={!isEmpty(formik.errors)}
         >
-          Save
+          Set
         </Button>
       </Footer>
     </Form>

@@ -1,20 +1,12 @@
-import { useCallback, useMemo } from "react";
-import { useRecoilState, useSetRecoilState, useRecoilValue } from "recoil";
+import { useCallback } from "react";
+import { useRecoilState, useSetRecoilState } from "recoil";
 import styled from "styled-components";
+import dirtyAtom from "atoms/dirty";
 import selectedMidiNote from "atoms/selectedMidiNote";
 import midiNotes from "atoms/midiNotes";
-import {
-  Button,
-  ButtonGroup,
-  Form,
-  Offcanvas,
-  ToggleButton,
-  InputGroup,
-  Col,
-} from "react-bootstrap";
+import { Button, Form, Offcanvas, InputGroup, Col } from "react-bootstrap";
 import { isEmpty } from "lodash";
-import { BodyPartEnum } from "config/shared";
-import { CCEffectType, defaultMidiNote, MIDINoteType } from "config/midi";
+import { defaultMidiNote } from "config/midi";
 import { useFormik } from "formik";
 
 const BodyContainer = styled.div`
@@ -37,6 +29,7 @@ const Footer = styled.div`
 const MidiNoteForm = ({ noteValue }: { noteValue: number }) => {
   const [notes, setNotes] = useRecoilState(midiNotes);
   const setSelectedNoteValue = useSetRecoilState(selectedMidiNote);
+  const setDirty = useSetRecoilState(dirtyAtom);
 
   const noteExists = Boolean(notes[noteValue]);
   const startingNote = notes[noteValue] || {
@@ -75,7 +68,7 @@ const MidiNoteForm = ({ noteValue }: { noteValue: number }) => {
         },
       };
 
-      // TODO: set dirty or save session to DB
+      setDirty(true);
       setNotes(newNotes);
       setSelectedNoteValue(null);
     },

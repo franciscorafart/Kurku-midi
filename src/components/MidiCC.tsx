@@ -1,10 +1,4 @@
-import React, {
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
+import React, { useCallback, useContext, useMemo, useState } from "react";
 import styled from "styled-components";
 import {
   Container as FXContainer,
@@ -15,7 +9,7 @@ import {
   EffectData,
 } from "./shared";
 import midiEffects from "atoms/midiEffects";
-import { Dropdown, DropdownButton, Button } from "react-bootstrap";
+import { Button } from "react-bootstrap";
 import { useRecoilState, useRecoilValue } from "recoil";
 import selectedMidiEffect from "atoms/selectedMidiEffect";
 import theme from "config/theme";
@@ -25,21 +19,10 @@ import { makeCCSender } from "utils/midiCtx";
 import midiOutput from "atoms/selectedMidiOutput";
 import MidiMeter from "./MidiMeter";
 import ccMeterMap from "atoms/ccMeterMap";
-import ADI from "localDB";
-import { CCEffectType } from "config/midi";
-import { DBEffect } from "localDB/effectConfig";
-import selectedSession from "atoms/selectedSession";
-import { DBSession } from "localDB/sessionConfig";
-import storedSessions from "atoms/storedSessions";
 import { User } from "context";
-import ConfirmationModal, {
-  ConfirmationModalBaseProps,
-} from "./ConfirmationModal";
 import OverlayTrigger from "react-bootstrap/OverlayTrigger";
 import Tooltip from "react-bootstrap/Tooltip";
-import storedEffects from "atoms/storedEffects";
 import accountInState from "atoms/account";
-import muteMidi from "atoms/muteMidi";
 import dirtyAtom from "atoms/dirty";
 import { Plus, XLg, Gear } from "react-bootstrap-icons";
 
@@ -110,110 +93,15 @@ const findCC = (ccList: number[]) => {
   return 1;
 };
 
-const effectToDBEffect = (effect: CCEffectType, sessionId: string) => {
-  return {
-    id: effect.uid,
-    sessionId: sessionId,
-    cc: effect.controller,
-    bodyPart: effect.bodyPart,
-    direction: effect.direction === "y" ? "vertical" : "horizontal",
-    inputFrom: effect.screenRange.a,
-    inputTo: effect.screenRange.b,
-    outputFrom: effect.valueRange.x,
-    outputTo: effect.valueRange.y,
-  } as DBEffect;
-};
-
-const dbEffectToEffect = (effect: DBEffect) => {
-  return {
-    uid: effect.id,
-    sessionId: effect.sessionId,
-    controller: effect.cc,
-    bodyPart: effect.bodyPart,
-    direction: effect.direction === "vertical" ? "y" : "x",
-    screenRange: {
-      a: effect.inputFrom,
-      b: effect.inputTo,
-    },
-    valueRange: {
-      x: effect.outputFrom,
-      y: effect.outputTo,
-    },
-  } as CCEffectType;
-};
-const sessionToDBSessions = (id: string, name: string) => {
-  return {
-    id,
-    name,
-  };
-};
-
-function SessionsDropdown({
-  onSelectCallback,
-  selectedSes,
-  setSelectedSes,
-  dirty,
-  onDirtyCallback,
-}: {
-  dirty: boolean;
-  onDirtyCallback: (id: string) => void;
-  onSelectCallback: () => void;
-  selectedSes: string;
-  setSelectedSes: (id: string) => void;
-}) {
-  const options = useRecoilValue(storedSessions);
-  const selectedOption = options?.find((o) => o.id === selectedSes);
-
-  const onSelect = (e: keyof DBSession) => {
-    const selected = options?.find((o) => o.id === e);
-    if (dirty) {
-      onDirtyCallback(selected?.id ?? "");
-    } else {
-      setSelectedSes(selected?.id ?? "");
-      onSelectCallback();
-    }
-  };
-  // TODO: Implement delete button and confirm modal for sessions
-  return (
-    <>
-      <DropdownButton
-        variant="outline-light"
-        title={
-          selectedOption ? `Session: ${selectedOption.name}` : "Select Session"
-        }
-        onSelect={(e) => onSelect(e as keyof DBSession)}
-        disabled={!options.length}
-        size="sm"
-      >
-        {options.map((o) => (
-          <Dropdown.Item key={o.id} eventKey={o.id}>
-            {o.name}
-          </Dropdown.Item>
-        ))}
-      </DropdownButton>
-    </>
-  );
-}
-
 function MidiCC() {
   const [selectedUid, setSelectedUid] = useRecoilState(selectedMidiEffect);
-  const [selectedSessionUid, setSelectedSessionUid] =
-    useRecoilState(selectedSession);
-  const [storedFx, setStoredFx] = useRecoilState(storedEffects); // TODO: Store this a key value pair instead of array
-  const [storedSess, setStoredSess] = useRecoilState(storedSessions);
-  const [modal, setModal] = useState<ConfirmationModalBaseProps | undefined>(
-    undefined
-  );
-
-  const [tempFx, setTempFx] = useRecoilState(midiEffects); // FX Panel temporary state
+  const [tempCCs, setTempCCs] = useRecoilState(midiEffects); // FX Panel temporary state
   const inputOutputMap = useRecoilValue(ccMeterMap);
   const [dirty, setDirty] = useRecoilState(dirtyAtom);
   const isPaidUser = useContext(User);
-  const [sessionName, setSessionName] = useState("");
   const [effectsToRemove, setEffectsToRemove] = useState<string[]>([]);
 
   const selectedOutput = useRecoilValue(midiOutput);
-  const [muted, setMuted] = useRecoilState(muteMidi);
   const userAccount = useRecoilValue(accountInState);
 
   const connected = useMemo(
@@ -221,55 +109,26 @@ function MidiCC() {
     [userAccount.userId]
   );
 
-  useEffect(() => {
-    if (selectedSessionUid) {
-      const displayStored = storedFx
-        .filter((sEff) => sEff.sessionId === selectedSessionUid)
-        .map((sEff) => dbEffectToEffect(sEff));
-
-      const sess = storedSess.find((ss) => ss.id === selectedSessionUid);
-
-      setSessionName(sess?.name || "");
-      setTempFx(displayStored);
-    }
-  }, [selectedSessionUid, setTempFx, storedFx, storedSess]);
-
-  const handleUserKeyPress = (event: KeyboardEvent) => {
-    const { code, target } = event;
-    // @ts-ignore
-    if (code === "Space" && target?.localName !== "input") {
-      setMuted(!muted);
-    }
-  };
-
-  useEffect(() => {
-    window.addEventListener("keydown", handleUserKeyPress);
-
-    return () => {
-      window.removeEventListener("keydown", handleUserKeyPress);
-    };
-  });
-
   const handleDisconnect = useCallback(
     (uid: string) => {
-      const idxOfRemove = tempFx.findIndex((msc) => msc.uid === uid);
-      const elementToRemove = tempFx.find((msc) => msc.uid === uid);
-      const newMidiFx = [...tempFx];
+      const idxOfRemove = tempCCs.findIndex((msc) => msc.uid === uid);
+      const elementToRemove = tempCCs.find((msc) => msc.uid === uid);
+      const newMidiFx = [...tempCCs];
 
       if (idxOfRemove !== undefined && elementToRemove !== undefined) {
         newMidiFx.splice(idxOfRemove, 1);
-        setTempFx(newMidiFx);
+        setTempCCs(newMidiFx);
         setEffectsToRemove([...effectsToRemove, elementToRemove.uid]);
         setDirty(true);
       }
     },
-    [effectsToRemove, tempFx, setTempFx]
+    [effectsToRemove, tempCCs, setTempCCs]
   );
   const maxFx = connected ? (isPaidUser ? 8 : 3) : 1;
-  const emptyFxCount = maxFx - tempFx.length;
+  const emptyFxCount = maxFx - tempCCs.length;
 
   const onAddEffect = useCallback(() => {
-    const newMidiFx = [...tempFx];
+    const newMidiFx = [...tempCCs];
     const ccList = newMidiFx.map((m) => m.controller);
     const cc = findCC(ccList);
 
@@ -286,9 +145,9 @@ function MidiCC() {
       controller: cc,
     });
 
-    setTempFx(newMidiFx);
+    setTempCCs(newMidiFx);
     setDirty(true);
-  }, [tempFx, setTempFx]);
+  }, [tempCCs, setTempCCs]);
 
   const ccSender = useMemo(
     () => (selectedOutput ? makeCCSender(selectedOutput) : undefined),
@@ -322,7 +181,7 @@ function MidiCC() {
         </ButtonContainer>
       </UpperBar>
       <StlFXContainer>
-        {tempFx.map((mEff) => (
+        {tempCCs.map((mEff) => (
           <EffectContainer
             key={`midi-effect-${mEff.controller}`}
             selectable
@@ -391,16 +250,6 @@ function MidiCC() {
             </EmptyEffectContainer>
           ))}
       </StlFXContainer>
-      {modal && (
-        <ConfirmationModal
-          show={!!modal}
-          type={modal.type}
-          text={modal.text}
-          title={modal.title}
-          onConfirm={modal.onConfirm}
-          onCancel={modal.onCancel}
-        />
-      )}
     </Container>
   );
 }

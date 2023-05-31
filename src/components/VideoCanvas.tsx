@@ -13,6 +13,7 @@ const VideoCanvasContainer = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: center;
+  align-items: center;
   padding: 20px;
   background-color: ${theme.background2};
   border-radius: 8px;
@@ -21,8 +22,11 @@ const VideoCanvasContainer = styled.div`
 const Video = styled.video`
   display: none;
 `;
+
+// NOTE: Fix webcam view here
 const Canvas = styled.canvas`
-  min-height: 300px;
+  min-height: 375px;
+  width: 500px;
   border: 1px dashed ${theme.text};
 `;
 

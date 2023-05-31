@@ -10,9 +10,10 @@ import keypoints from "atoms/keypoints";
 import { useEffect, useMemo } from "react";
 import { isEmpty } from "lodash";
 import { makeCCSender, makeNoteSender } from "utils/midiCtx";
-import sessionConfig from "atoms/sessionConfig";
-import midiOutput from "atoms/selectedMidiOutput";
 import ccMeterMap from "atoms/ccMeterMap";
+import midiOutput from "atoms/selectedMidiOutput";
+import sessionConfig from "atoms/sessionConfig";
+import midiNotes from "atoms/midiNotes";
 import muteMidi from "atoms/muteMidi";
 import MidiSessionControls from "./MidiSessionControls";
 
@@ -29,6 +30,7 @@ function ConfigMidiBridge({
   const midiSessionControls = useRecoilValue(midiSession);
   const setCCMeterMap = useSetRecoilState(ccMeterMap);
   const sessionCfg = useRecoilValue(sessionConfig);
+  const notes = useRecoilValue(midiNotes);
   const config = machineConfig[sessionCfg.machineType];
 
   const selectedOutput = useRecoilValue(midiOutput);
@@ -61,7 +63,7 @@ function ConfigMidiBridge({
       setCCMeterMap(valueObjectMap);
 
       // TODO: Add Note mapper here
-      mapPositionsToMIDINotes(bodyPartPositions, noteSender);
+      mapPositionsToMIDINotes(bodyPartPositions, noteSender, notes);
     }
   }, [
     ccSender,

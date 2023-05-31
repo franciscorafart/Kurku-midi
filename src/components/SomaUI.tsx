@@ -14,7 +14,6 @@ import HowToUse from "./HowToUse";
 import WhatIsKurku from "./WhatIsKurku";
 import Header from "components/Header";
 import ADI, { initEffects, initSessions } from "localDB";
-
 import storedSessions from "atoms/storedSessions";
 import storedEffects from "atoms/storedEffects";
 import sessionConfig from "atoms/sessionConfig";
@@ -24,14 +23,15 @@ import MidiNotePanel from "./MidiNotePanel";
 const Container = styled.div`
   display: flex;
   flex-direction: column;
-  min-height: 600px;
+  min-height: 800px;
+  height: calc(100vh - 80px);
   padding: 20px;
   gap: 20px;
   background-color: ${theme.background};
 `;
 
 const VideoContentContainer = styled.div`
-  flex: 6;
+  flex: 4;
 `;
 
 const HContainer = styled.div`
@@ -80,10 +80,9 @@ function SomaUI() {
       await setupCamera(video);
       video.play();
       video.hidden = true;
-
       // NOTE: Set video and Canvas size from ratio of video src
       const ratio = video.videoWidth / video.videoHeight;
-      const width = 720;
+      const width = 560;
       const height = Math.floor(width / ratio);
 
       video.setAttribute("height", String(height));
