@@ -16,7 +16,7 @@ import { v4 } from "uuid";
 import { makeCCSender } from "utils/midiCtx";
 import midiOutput from "atoms/selectedMidiOutput";
 import ADI from "localDB";
-import { CCEffectType } from "config/midi";
+import { CCEffectType, MidiNotesObjectType, MIDINoteType } from "config/midi";
 import { DBEffect } from "localDB/effectConfig";
 import selectedSession from "atoms/selectedSession";
 import { DBSession } from "localDB/sessionConfig";
@@ -29,10 +29,13 @@ import ConfirmationModal, {
 } from "./ConfirmationModal";
 import OverlayTrigger from "react-bootstrap/OverlayTrigger";
 import Tooltip from "react-bootstrap/Tooltip";
-import storedEffects from "atoms/storedEffects";
 import accountInState from "atoms/account";
+import storedEffects from "atoms/storedEffects";
+import storedMidiNotes from "atoms/storedMidiNotes";
 import muteMidi from "atoms/muteMidi";
 import dirtyAtom from "atoms/dirty";
+import midiNotes from "~/atoms/midiNotes";
+import { DBMidiNote } from "~/localDB/midiNoteConfig";
 
 const Container = styled.div`
   flex: 1;
@@ -91,6 +94,31 @@ const dbEffectToEffect = (effect: DBEffect) => {
     },
   } as CCEffectType;
 };
+
+const dbMidiNoteToMidiNote = (dbNote: DBMidiNote) => {
+  return {
+    uid: dbNote.id,
+    note: dbNote.midiNote,
+    channel: dbNote.channel,
+    box: {
+      xMin: dbNote.xMin,
+      xMax: dbNote.xMax,
+      yMin: dbNote.yMin,
+      yMax: dbNote.yMax,
+    },
+  } as MIDINoteType;
+};
+
+const noteArrayToObj = (arr: MIDINoteType[]) => {
+  const o: MidiNotesObjectType = {};
+
+  for (const element of arr) {
+    o[element.note] = element;
+  }
+
+  return o;
+};
+
 const sessionToDBSessions = (id: string, name: string) => {
   return {
     id,
@@ -149,12 +177,14 @@ function SessionSaving() {
   const [selectedSessionUid, setSelectedSessionUid] =
     useRecoilState(selectedSession);
   const [storedFx, setStoredFx] = useRecoilState(storedEffects); // TODO: Store this a key value pair instead of array
+  const [storedNotes, setStoredNotes] = useRecoilState(storedMidiNotes);
   const [storedSess, setStoredSess] = useRecoilState(storedSessions);
   const [modal, setModal] = useState<ConfirmationModalBaseProps | undefined>(
     undefined
   );
 
   const [tempCCs, setTempCCs] = useRecoilState(midiEffects); // FX Panel temporary state
+  const [tempMidiNotes, setTempMidiNotes] = useRecoilState(midiNotes);
   const isPaidUser = useContext(User);
   const [sessionName, setSessionName] = useState("");
   const [effectsToRemove, setEffectsToRemove] = useState<string[]>([]);
@@ -171,18 +201,31 @@ function SessionSaving() {
 
   useEffect(() => {
     if (selectedSessionUid) {
+      // TODO: Store as object in local state as well
       const displayStored = storedFx
         .filter((sEff) => sEff.sessionId === selectedSessionUid)
         .map((sEff) => dbEffectToEffect(sEff));
+
+      const displayedStoredNotes = noteArrayToObj(
+        storedNotes
+          .filter((sEff) => sEff.sessionId === selectedSessionUid)
+          .map((sMidiNote) => dbMidiNoteToMidiNote(sMidiNote))
+      );
 
       const sess = storedSess.find((ss) => ss.id === selectedSessionUid);
 
       setSessionName(sess?.name || "");
       setTempCCs(displayStored);
-
-      // TODO: Set temp Midi notes
+      setTempMidiNotes(displayedStoredNotes);
     }
-  }, [selectedSessionUid, setTempCCs, storedFx, storedSess]);
+  }, [
+    selectedSessionUid,
+    setTempCCs,
+    setTempMidiNotes,
+    storedFx,
+    storedNotes,
+    storedSess,
+  ]);
 
   const handleUserKeyPress = (event: KeyboardEvent) => {
     const { code, target } = event;
@@ -199,11 +242,6 @@ function SessionSaving() {
       window.removeEventListener("keydown", handleUserKeyPress);
     };
   });
-
-  const ccSender = useMemo(
-    () => (selectedOutput ? makeCCSender(selectedOutput) : undefined),
-    [selectedOutput]
-  );
 
   const onSaveSession = useCallback(async () => {
     if (!sessionName) {

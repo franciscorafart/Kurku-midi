@@ -1,6 +1,6 @@
 import React, { useMemo } from "react";
 import styled from "styled-components";
-import { useSetRecoilState, useRecoilValue } from "recoil";
+import { useRecoilState, useRecoilValue } from "recoil";
 import theme from "config/theme";
 import { Text, SubTitle } from "./shared";
 import accountInState from "atoms/account";
@@ -37,7 +37,7 @@ const ButtonContainer = styled(ColumnItem2)`
 `;
 
 function MidiNotes() {
-  const setSelectedNote = useSetRecoilState(selectedMidiNote);
+  const [selectedNote, setSelectedNote] = useRecoilState(selectedMidiNote);
   const userAccount = useRecoilValue(accountInState);
 
   const connected = useMemo(
@@ -70,10 +70,13 @@ function MidiNotes() {
             setSelectedNote(midiNumber);
           }}
           stopNote={(midiNumber: number) => {
+            console.log("stop note", midiNumber);
             // Stop playing a given note - see notes below
           }}
           width={700}
-          keyboardShortcuts={keyboardShortcuts}
+          // activeNotes={[62]}
+          disabled={Boolean(selectedNote)}
+          // keyboardShortcuts={keyboardShortcuts}
         />
       </UpperBar>
     </Container>

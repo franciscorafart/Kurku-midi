@@ -13,8 +13,9 @@ import VideoCanvas from "./VideoCanvas";
 import HowToUse from "./HowToUse";
 import WhatIsKurku from "./WhatIsKurku";
 import Header from "components/Header";
-import ADI, { initEffects, initSessions } from "localDB";
+import ADI, { initEffects, initMidiNotes, initSessions } from "localDB";
 import storedSessions from "atoms/storedSessions";
+import storedMidiNotes from "atoms/storedMidiNotes";
 import storedEffects from "atoms/storedEffects";
 import sessionConfig from "atoms/sessionConfig";
 import GlobalMidi from "./GobalMIDI";
@@ -43,6 +44,7 @@ function SomaUI() {
   const setKeypoints = useSetRecoilState(keypoints);
   const setSessions = useSetRecoilState(storedSessions);
   const setEffects = useSetRecoilState(storedEffects);
+  const setMidiNotes = useSetRecoilState(storedMidiNotes);
   const sessionCfg = useRecoilValue(sessionConfig);
 
   const videoRef = useRef<HTMLVideoElement | null>(null);
@@ -64,13 +66,16 @@ function SomaUI() {
     const populateSessions = async () => {
       const cachedSessions = await initSessions();
       const cachedEffects = await initEffects();
+      const cachedMidiNotes = await initMidiNotes();
+
       setSessions(cachedSessions);
       setEffects(cachedEffects);
+      setMidiNotes(cachedMidiNotes);
     };
     if (connected && isInitialized) {
       populateSessions();
     }
-  }, [setEffects, setSessions, connected, isInitialized]);
+  }, [setEffects, setSessions, connected, isInitialized, setMidiNotes]);
 
   const initTracking = useCallback(async () => {
     const video = videoRef.current;

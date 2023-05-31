@@ -58,6 +58,7 @@ const MidiNoteForm = ({ noteValue }: { noteValue: number }) => {
       const newNotes = { ...notes };
 
       newNotes[values.note] = {
+        uid: startingNote.uid,
         note: values.note,
         channel: values.channel,
         box: {

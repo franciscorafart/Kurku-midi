@@ -35,6 +35,7 @@ export interface CCEffectType {
 export type MidiNotesObjectType = { [index: number]: MIDINoteType };
 
 export const defaultMidiNote: MIDINoteType = {
+  uid: v4(),
   box: {
     xMin: 0.8,
     xMax: 1,
@@ -48,7 +49,8 @@ export const defaultMidiNote: MIDINoteType = {
 export const defaultMidiNotes: MidiNotesObjectType = {};
 
 export interface MIDINoteType {
-  box: Box;
+  uid: string;
   note: number;
   channel: ChannelType;
+  box: Box;
 }

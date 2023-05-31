@@ -81,7 +81,7 @@ async function addOrUpdateEffect(id: string, data: DBEffect) {
     bodyPart: data.bodyPart,
     direction: data.direction,
     inputFrom: data.inputFrom,
-    inputTo: data.inputFrom,
+    inputTo: data.inputTo,
     outputFrom: data.outputFrom,
     outputTo: data.outputTo,
   };

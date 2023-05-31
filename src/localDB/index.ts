@@ -1,8 +1,11 @@
 import createDataCacheAPI from "@jackcom/adi-cacheducks";
 import effectsDBAPI, { DBEffect } from "./effectConfig";
 import sessionsDBAPI, { DBSession } from "./sessionConfig";
+import midiNotesDBAPI, { DBMidiNote } from "./midiNoteConfig";
+
 const cacheMap = {
   effects: effectsDBAPI,
+  midiNotes: midiNotesDBAPI,
   sessions: sessionsDBAPI,
 };
 
@@ -24,4 +27,9 @@ export async function initSessions() {
 export async function initEffects() {
   const { data: effects } = await ADI.listItems({ cacheKey: "effects" });
   return effects as DBEffect[];
+}
+
+export async function initMidiNotes() {
+  const { data: midiNotes } = await ADI.listItems({ cacheKey: "midiNotes" });
+  return midiNotes as DBMidiNote[];
 }
