@@ -13,7 +13,6 @@ import { useRecoilState, useRecoilValue } from "recoil";
 import theme from "config/theme";
 import { Text, SubTitle, SubTitle2 } from "./shared";
 import { v4 } from "uuid";
-import { makeCCSender } from "utils/midiCtx";
 import midiOutput from "atoms/selectedMidiOutput";
 import ADI from "localDB";
 import { CCEffectType, MidiNotesObjectType, MIDINoteType } from "config/midi";
@@ -34,8 +33,8 @@ import storedEffects from "atoms/storedEffects";
 import storedMidiNotes from "atoms/storedMidiNotes";
 import muteMidi from "atoms/muteMidi";
 import dirtyAtom from "atoms/dirty";
-import midiNotes from "~/atoms/midiNotes";
-import { DBMidiNote } from "~/localDB/midiNoteConfig";
+import midiNotes from "atoms/midiNotes";
+import { DBMidiNote } from "localDB/midiNoteConfig";
 
 const Container = styled.div`
   flex: 1;
