@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useCallback, useMemo } from "react";
 import { useRecoilState, useSetRecoilState, useRecoilValue } from "recoil";
 import styled from "styled-components";
 import selectedMidiNote from "atoms/selectedMidiNote";
@@ -44,6 +44,14 @@ const MidiNoteForm = ({ noteValue }: { noteValue: number }) => {
     note: noteValue,
   };
 
+  const removeNote = useCallback(() => {
+    const newNotes = { ...notes };
+    delete newNotes[noteValue];
+
+    setNotes(newNotes);
+    setSelectedNoteValue(null);
+  }, [noteValue, notes, setNotes, setSelectedNoteValue]);
+
   const formik = useFormik({
     initialValues: {
       channel: startingNote.channel,
@@ -55,8 +63,6 @@ const MidiNoteForm = ({ noteValue }: { noteValue: number }) => {
     },
     onSubmit: (values) => {
       const newNotes = { ...notes };
-
-      console.log("values", values);
 
       newNotes[values.note] = {
         note: values.note,
@@ -220,9 +226,11 @@ const MidiNoteForm = ({ noteValue }: { noteValue: number }) => {
         </Form.Group>
       </UpperBody>
       <Footer>
-        {/* <Button variant="danger" onClick={() => setSelectedNoteValue(null)}>
-          Remove
-        </Button> */}
+        {noteExists && (
+          <Button variant="danger" onClick={removeNote}>
+            Remove
+          </Button>
+        )}
         <Button variant="secondary" onClick={() => setSelectedNoteValue(null)}>
           Cancel
         </Button>
