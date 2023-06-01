@@ -29,7 +29,7 @@ class MidiNoteDB extends Dexie {
       "id",
       "sessionId",
       "midiNote",
-      "channelType",
+      "channel",
       "xMin",
       "xMax",
       "yMin",
@@ -37,7 +37,7 @@ class MidiNoteDB extends Dexie {
     ];
 
     const midiNotes = effectColumns.toString();
-    this.version(1).stores({ midiNotes });
+    this.version(2).stores({ midiNotes });
     this.midiNotes = this.table("midiNotes");
   }
 }
@@ -46,8 +46,8 @@ const db = new MidiNoteDB();
 const effectDBAPI: ADIDBInterface<DBMidiNote | any> = {
   getItem: getMidiNoteByName,
   listItems: listMidiNotes,
-  putItem: addOrUpdateEffect,
-  removeItem: removeEffect,
+  putItem: addOrUpdateMidiNote,
+  removeItem: removeMidiNote,
 };
 
 export default effectDBAPI;
@@ -66,12 +66,12 @@ export async function listMidiNotes(
   return paginate(dbMidiNotes, opts);
 }
 
-export async function removeEffect(id: string) {
+export async function removeMidiNote(id: string) {
   await db.midiNotes.delete(id);
   return id;
 }
 
-async function addOrUpdateEffect(id: string, data: DBMidiNote) {
+async function addOrUpdateMidiNote(id: string, data: DBMidiNote) {
   const dbMidiNote: DBMidiNote = {
     id,
     sessionId: data.sessionId,

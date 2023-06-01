@@ -115,6 +115,7 @@ const dbMidiNoteToMidiNote = (dbNote: DBMidiNote) => {
 
 const midiNoteToDBMidiNote = (note: MIDINoteType, sessionId: string) => {
   return {
+    id: note.uid,
     sessionId: sessionId,
     midiNote: note.note,
     channel: note.channel,
@@ -129,7 +130,7 @@ const noteArrayToObj = (arr: MIDINoteType[]) => {
   const o: MidiNotesObjectType = {};
 
   for (const element of arr) {
-    o[element.note] = element;
+    o[element.uid] = element;
   }
 
   return o;
@@ -350,6 +351,7 @@ function SessionSaving() {
         sessionToDBSessions(sessionId, sessionName),
       ];
     }
+    console.log({ allMidiNotes, midiNotesToRemoveById });
     // Set on Recoil state
     setStoredFx(allCCs);
     setStoredNotes(allMidiNotes);

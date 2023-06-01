@@ -1,4 +1,4 @@
-import { useCallback } from "react";
+import { useCallback, useMemo } from "react";
 import { useRecoilState, useSetRecoilState } from "recoil";
 import styled from "styled-components";
 import dirtyAtom from "atoms/dirty";
@@ -26,24 +26,26 @@ const Footer = styled.div`
   gap: 8px;
 `;
 
-const MidiNoteForm = ({ noteValue }: { noteValue: number }) => {
+const MidiNoteForm = ({ noteUid }: { noteUid: string }) => {
   const [notes, setNotes] = useRecoilState(midiNotes);
   const setSelectedNoteValue = useSetRecoilState(selectedMidiNote);
   const setDirty = useSetRecoilState(dirtyAtom);
 
-  const noteExists = Boolean(notes[noteValue]);
-  const startingNote = notes[noteValue] || {
+  const selectedNote = notes[noteUid];
+  const noteExists = Boolean(selectedNote);
+  // TODO: Make default note use note that is not in the object
+  const startingNote = selectedNote || {
     ...defaultMidiNote,
-    note: noteValue,
+    uid: noteUid,
   };
 
   const removeNote = useCallback(() => {
     const newNotes = { ...notes };
-    delete newNotes[noteValue];
+    delete newNotes[noteUid];
 
     setNotes(newNotes);
     setSelectedNoteValue(null);
-  }, [noteValue, notes, setNotes, setSelectedNoteValue]);
+  }, [noteUid, notes, setNotes, setSelectedNoteValue]);
 
   const formik = useFormik({
     initialValues: {
@@ -120,15 +122,14 @@ const MidiNoteForm = ({ noteValue }: { noteValue: number }) => {
     <Form onSubmit={formik.handleSubmit}>
       <UpperBody>
         <Form.Group>
-          <Form.Label>MIDI Note: {noteValue}</Form.Label>
+          <Form.Label>MIDI Note: {selectedNote.note}</Form.Label>
           <InputGroup hasValidation>
             <Form.Control
               id="note"
               name="note"
               type="number"
               value={formik.values.note}
-              // onChange={formik.handleChange}
-              disabled
+              onChange={formik.handleChange}
               isInvalid={Boolean(formik.errors.note)}
             />
             <Form.Control.Feedback type="invalid">
@@ -254,7 +255,7 @@ function MidiNotePanel() {
       </Offcanvas.Header>
       <Offcanvas.Body>
         <BodyContainer>
-          {selected !== null && <MidiNoteForm noteValue={selected} />}
+          {selected !== null && <MidiNoteForm noteUid={selected} />}
         </BodyContainer>
       </Offcanvas.Body>
     </Offcanvas>

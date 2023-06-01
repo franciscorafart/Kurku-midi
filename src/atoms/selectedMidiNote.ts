@@ -2,7 +2,7 @@ import { atom } from "recoil";
 
 const selectedMidiNote = atom({
   key: "selectedMidiNote",
-  default: null as number | null, // Midi Note number
+  default: null as string | null, // Midi Note uid
 });
 
 export default selectedMidiNote;

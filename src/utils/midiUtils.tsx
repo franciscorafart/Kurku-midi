@@ -54,12 +54,12 @@ export const mapPositionsToMIDINotes = (
     ) as ValueRange[]; // Casting safe because of filtering
 
   // TODO: Make this more efficient
-  for (const [note, noteObj] of Object.entries(notes)) {
+  for (const [uid, noteObj] of Object.entries(notes)) {
     const box = noteObj.box;
     // 3. If found, send midi and break iteration
     const inTheBox = positions.find((p) => isWithinBox(box, p));
     if (inTheBox) {
-      console.log("Midi trigger note:", note);
+      console.log("Midi trigger note:", uid);
       noteSender(noteObj.channel, true, noteObj.note, 127);
     }
   }

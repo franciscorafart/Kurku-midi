@@ -1,13 +1,18 @@
-import React, { useMemo } from "react";
+import { useCallback, useContext, useMemo } from "react";
 import styled from "styled-components";
 import { useRecoilState, useRecoilValue } from "recoil";
 import theme from "config/theme";
 import { Text, SubTitle } from "./shared";
 import accountInState from "atoms/account";
-// @ts-ignore
-import { Piano, MidiNumbers } from "react-piano";
-import "react-piano/dist/styles.css";
+import { v4 } from "uuid";
 import selectedMidiNote from "atoms/selectedMidiNote";
+import OverlayTrigger from "react-bootstrap/OverlayTrigger";
+import { User } from "context";
+import Tooltip from "react-bootstrap/Tooltip";
+import { Plus } from "react-bootstrap-icons";
+import midiNotes from "atoms/midiNotes";
+import { defaultMidiNote } from "config/midi";
+import dirtyAtom from "atoms/dirty";
 
 const Container = styled.div`
   flex: 6;
@@ -36,18 +41,38 @@ const ButtonContainer = styled(ColumnItem2)`
   gap: 10px;
 `;
 
+const PlusButton = styled(Plus)`
+  cursor: pointer;
+`;
+
+const NoteContainer = styled.div`
+  border: 1px dashed white;
+  padding: 8px;
+  color: white;
+`;
+
 function MidiNotes() {
   const [selectedNote, setSelectedNote] = useRecoilState(selectedMidiNote);
   const userAccount = useRecoilValue(accountInState);
+  const [tempMidiNotes, setTempMidiNotes] = useRecoilState(midiNotes);
+  const isPaidUser = useContext(User);
+  const [dirty, setDirty] = useRecoilState(dirtyAtom);
 
   const connected = useMemo(
     () => Boolean(userAccount.userId),
     [userAccount.userId]
   );
-
-  const firstNote = MidiNumbers.fromNote("c1");
-  const lastNote = MidiNumbers.fromNote("f6");
+  const maxNotes = connected ? (isPaidUser ? 8 : 2) : 1;
+  const emptyFxCount = maxNotes - Object.keys(tempMidiNotes).length;
   // console.log("Keyboard shortcuts", KeyboardShortcuts);
+  const onAddNote = useCallback(() => {
+    const newNotes = { ...tempMidiNotes };
+    const uid = v4();
+
+    newNotes[uid] = { ...defaultMidiNote, uid };
+    setTempMidiNotes(newNotes);
+    setDirty(true);
+  }, [setTempMidiNotes, tempMidiNotes]);
 
   return (
     <Container>
@@ -55,8 +80,32 @@ function MidiNotes() {
         <SubTitle>
           <Text>MIDI Notes</Text>
         </SubTitle>
-        <ButtonContainer></ButtonContainer>
-        <Piano
+        <ButtonContainer>
+          <div>
+            <OverlayTrigger
+              overlay={
+                !isPaidUser ? (
+                  <Tooltip>Add up to 8 CCs with paid tier</Tooltip>
+                ) : (
+                  <div />
+                )
+              }
+            >
+              <PlusButton
+                color="white"
+                size={32}
+                onClick={emptyFxCount > 0 ? onAddNote : undefined}
+              />
+            </OverlayTrigger>
+          </div>
+        </ButtonContainer>
+        {Object.entries(tempMidiNotes).map(([_, tmn]) => (
+          <NoteContainer
+            key={`midi-note-${tmn.uid}`}
+            onClick={() => setSelectedNote(tmn.uid)}
+          >{`uid: ${tmn.uid} Note: ${tmn.note}`}</NoteContainer>
+        ))}
+        {/* <Piano
           noteRange={{ first: firstNote, last: lastNote }}
           playNote={(midiNumber: number) => {
             console.log("midiNumber", midiNumber);
@@ -71,7 +120,7 @@ function MidiNotes() {
           // activeNotes={[62]}
           disabled={Boolean(selectedNote)}
           // keyboardShortcuts={keyboardShortcuts}
-        />
+        /> */}
       </UpperBar>
     </Container>
   );
