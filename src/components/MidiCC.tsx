@@ -99,7 +99,6 @@ function MidiCC() {
   const inputOutputMap = useRecoilValue(ccMeterMap);
   const [dirty, setDirty] = useRecoilState(dirtyAtom);
   const isPaidUser = useContext(User);
-  const [effectsToRemove, setEffectsToRemove] = useState<string[]>([]);
 
   const selectedOutput = useRecoilValue(midiOutput);
   const userAccount = useRecoilValue(accountInState);
@@ -112,18 +111,17 @@ function MidiCC() {
   const handleDisconnect = useCallback(
     (uid: string) => {
       const idxOfRemove = tempCCs.findIndex((msc) => msc.uid === uid);
-      const elementToRemove = tempCCs.find((msc) => msc.uid === uid);
       const newMidiFx = [...tempCCs];
 
-      if (idxOfRemove !== undefined && elementToRemove !== undefined) {
+      if (idxOfRemove !== undefined) {
         newMidiFx.splice(idxOfRemove, 1);
         setTempCCs(newMidiFx);
-        setEffectsToRemove([...effectsToRemove, elementToRemove.uid]);
         setDirty(true);
       }
     },
-    [effectsToRemove, tempCCs, setTempCCs]
+    [tempCCs, setTempCCs, setDirty]
   );
+
   const maxFx = connected ? (isPaidUser ? 8 : 3) : 1;
   const emptyFxCount = maxFx - tempCCs.length;
 
@@ -147,7 +145,7 @@ function MidiCC() {
 
     setTempCCs(newMidiFx);
     setDirty(true);
-  }, [tempCCs, setTempCCs]);
+  }, [tempCCs, setTempCCs, setDirty]);
 
   const ccSender = useMemo(
     () => (selectedOutput ? makeCCSender(selectedOutput) : undefined),

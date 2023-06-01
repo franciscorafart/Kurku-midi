@@ -32,6 +32,8 @@ export interface CCEffectType {
   controller: number;
   sessionId?: string;
 }
+
+// TODO: Change to string to that it's keyed on the uid
 export type MidiNotesObjectType = { [index: number]: MIDINoteType };
 
 export const defaultMidiNote: MIDINoteType = {

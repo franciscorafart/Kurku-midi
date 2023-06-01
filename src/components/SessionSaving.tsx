@@ -15,7 +15,12 @@ import { Text, SubTitle, SubTitle2 } from "./shared";
 import { v4 } from "uuid";
 import midiOutput from "atoms/selectedMidiOutput";
 import ADI from "localDB";
-import { CCEffectType, MidiNotesObjectType, MIDINoteType } from "config/midi";
+import {
+  CCEffectType,
+  defaultMidiNotes,
+  MidiNotesObjectType,
+  MIDINoteType,
+} from "config/midi";
 import { DBEffect } from "localDB/effectConfig";
 import selectedSession from "atoms/selectedSession";
 import { DBSession } from "localDB/sessionConfig";
@@ -108,6 +113,18 @@ const dbMidiNoteToMidiNote = (dbNote: DBMidiNote) => {
   } as MIDINoteType;
 };
 
+const midiNoteToDBMidiNote = (note: MIDINoteType, sessionId: string) => {
+  return {
+    sessionId: sessionId,
+    midiNote: note.note,
+    channel: note.channel,
+    xMin: note.box.xMin,
+    xMax: note.box.xMax,
+    yMin: note.box.yMin,
+    yMax: note.box.yMax,
+  } as DBMidiNote;
+};
+
 const noteArrayToObj = (arr: MIDINoteType[]) => {
   const o: MidiNotesObjectType = {};
 
@@ -186,7 +203,6 @@ function SessionSaving() {
   const [tempMidiNotes, setTempMidiNotes] = useRecoilState(midiNotes);
   const isPaidUser = useContext(User);
   const [sessionName, setSessionName] = useState("");
-  const [effectsToRemove, setEffectsToRemove] = useState<string[]>([]);
   const [dirty, setDirty] = useRecoilState(dirtyAtom);
 
   const selectedOutput = useRecoilValue(midiOutput);
@@ -216,9 +232,11 @@ function SessionSaving() {
       setSessionName(sess?.name || "");
       setTempCCs(displayStored);
       setTempMidiNotes(displayedStoredNotes);
+      setTempMidiNotes(displayedStoredNotes);
     }
   }, [
     selectedSessionUid,
+    setStoredNotes,
     setTempCCs,
     setTempMidiNotes,
     storedFx,
@@ -267,34 +285,74 @@ function SessionSaving() {
     }
 
     const sessionId = selectedSessionUid || v4();
-
-    let allEffects: DBEffect[] = [];
     let allSessions: DBSession[] = [];
 
+    let allCCs: DBEffect[] = [];
+    let ccsToRemoveById: string[] = [];
+
+    let allMidiNotes: DBMidiNote[] = [];
+    let midiNotesToRemoveById: string[] = [];
+
     if (selectedSessionUid) {
-      const initialSessionEffects = tempCCs
-        .map((f) => f.uid)
-        .concat(effectsToRemove);
-
-      // concat tempCCs (dirty state) to the ones not in the session (original)
-      allEffects = storedFx
-        .filter((sEff) => !initialSessionEffects.includes(sEff.id))
-        .concat(tempCCs.map((f) => effectToDBEffect(f, sessionId)));
-
+      // Session
       allSessions = storedSess
         .filter((s) => s.id !== sessionId) // all sessions minus selected one
         .concat(sessionToDBSessions(sessionId, sessionName)); // Rename
+
+      // MIDI CCs
+      allCCs = storedFx
+        .filter((sEff) => selectedSessionUid !== sEff.sessionId)
+        .concat(tempCCs.map((f) => effectToDBEffect(f, sessionId))); // concat tempCCs (dirty state) to the ones not in the session (original)
+
+      const initialSessionCCs = storedFx.filter(
+        (f) => selectedSessionUid === f.sessionId
+      );
+
+      const tempCCIds: string[] = tempCCs.map((cc) => cc.uid);
+      const ccsToRemove = initialSessionCCs.filter(
+        (icc) => !tempCCIds.includes(icc.id)
+      );
+      ccsToRemoveById = ccsToRemove.map((ccr) => ccr.id);
+
+      // MIDI NOTES
+      allMidiNotes = storedNotes
+        .filter((smn) => smn.sessionId !== selectedSessionUid)
+        .concat(
+          Object.entries(tempMidiNotes).map(([_, tmn]) =>
+            midiNoteToDBMidiNote(tmn, sessionId)
+          )
+        );
+      const initialSessionMidiNotes = storedNotes.filter(
+        (smn) => smn.sessionId === selectedSessionUid
+      );
+      const tempNoteIds: string[] = Object.entries(tempMidiNotes).map(
+        ([k, tmn]) => tmn.uid
+      );
+      const midiNotesToRemove = initialSessionMidiNotes.filter(
+        (initialNote) => !tempNoteIds.includes(initialNote.id)
+      );
+      midiNotesToRemoveById = midiNotesToRemove.map((mnr) => mnr.id);
     } else {
       // New session
-      allEffects = storedFx.concat(
+      allCCs = storedFx.concat(
         tempCCs.map((f) => effectToDBEffect(f, sessionId))
       );
+
+      allMidiNotes = [
+        ...storedNotes,
+        ...Object.entries(tempMidiNotes).map(([k, midiNote]) =>
+          midiNoteToDBMidiNote(midiNote, sessionId)
+        ),
+      ];
+
       allSessions = [
         ...storedSess,
         sessionToDBSessions(sessionId, sessionName),
       ];
     }
-    setStoredFx(allEffects);
+    // Set on Recoil state
+    setStoredFx(allCCs);
+    setStoredNotes(allMidiNotes);
     setStoredSess(allSessions);
 
     // IndexedDB update sessions
@@ -304,15 +362,21 @@ function SessionSaving() {
       "sessions"
     );
 
-    // IndexedDb update effects
-    for (const f of allEffects) {
+    // IndexedDb update CC effects
+    for (const f of allCCs) {
       ADI.cacheItem(f.id, f, "effects");
     }
-    for (const uid of effectsToRemove) {
+    for (const uid of ccsToRemoveById) {
       ADI.removeItem(uid, "effects");
     }
 
-    // TODO: Save Midi notes
+    // IndexedDb Save Midi notes
+    for (const f of allMidiNotes) {
+      ADI.cacheItem(f.id, f, "midiNotes");
+    }
+    for (const uid of midiNotesToRemoveById) {
+      ADI.removeItem(uid, "midiNotes");
+    }
 
     setSelectedSessionUid(sessionId);
     setDirty(false);
@@ -322,21 +386,24 @@ function SessionSaving() {
     storedSess,
     selectedSessionUid,
     setStoredFx,
+    setStoredNotes,
     setStoredSess,
     setSelectedSessionUid,
-    tempCCs,
-    effectsToRemove,
+    setDirty,
     storedFx,
+    tempCCs,
+    storedNotes,
+    tempMidiNotes,
   ]);
 
   const makeNewSession = useCallback(() => {
     setTempCCs(defaultMidiCCs);
+    setTempMidiNotes(defaultMidiNotes); // empty
     setSelectedSessionUid("");
     setSessionName("");
     setDirty(false);
     setModal(undefined);
-    setEffectsToRemove([]);
-  }, [setTempCCs, setSelectedSessionUid]);
+  }, [setTempCCs, setTempMidiNotes, setSelectedSessionUid, setDirty]);
 
   const newSession = useCallback(() => {
     if (dirty) {
@@ -368,26 +435,41 @@ function SessionSaving() {
         (sEff) => selectedSessionUid === sEff.sessionId
       );
 
+      const midiNotesAfterDelete = storedNotes.filter(
+        (sNote) => selectedSessionUid !== sNote.sessionId
+      );
+      const midiNotesToDelete = storedNotes.filter(
+        (sNote) => selectedSessionUid === sNote.sessionId
+      );
+
       const sessionsAfterDelete = storedSess.filter(
         (s) => s.id !== selectedSessionUid
       );
 
-      // Delete sessions and effects from indexedDB
+      // Delete sessions, CCs, and Midi notes from indexedDB
       ADI.removeItem(selectedSessionUid, "sessions");
+
       for (const eff of effectsToDelete) {
         ADI.removeItem(eff.id, "effects");
       }
 
+      for (const midiNote of midiNotesToDelete) {
+        ADI.removeItem(midiNote.id, "midiNotes");
+      }
+
       setStoredFx(effectsAfterDelete);
       setStoredSess(sessionsAfterDelete);
+      setStoredNotes(midiNotesAfterDelete);
       makeNewSession();
     }
   }, [
     makeNewSession,
     selectedSessionUid,
     setStoredFx,
+    setStoredNotes,
     setStoredSess,
     storedFx,
+    storedNotes,
     storedSess,
   ]);
 
@@ -431,7 +513,6 @@ function SessionSaving() {
                   title: "Select session",
                   onConfirm: () => {
                     setSelectedSessionUid(id);
-                    setEffectsToRemove([]);
                     setDirty(false);
                     setModal(undefined);
                   },
@@ -439,7 +520,6 @@ function SessionSaving() {
                 });
               }}
               onSelectCallback={() => {
-                setEffectsToRemove([]);
                 setDirty(false);
                 setModal(undefined);
               }}

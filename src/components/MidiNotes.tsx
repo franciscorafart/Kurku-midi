@@ -5,7 +5,7 @@ import theme from "config/theme";
 import { Text, SubTitle } from "./shared";
 import accountInState from "atoms/account";
 // @ts-ignore
-import { Piano, KeyboardShortcuts, MidiNumbers } from "react-piano";
+import { Piano, MidiNumbers } from "react-piano";
 import "react-piano/dist/styles.css";
 import selectedMidiNote from "atoms/selectedMidiNote";
 
@@ -47,12 +47,6 @@ function MidiNotes() {
 
   const firstNote = MidiNumbers.fromNote("c1");
   const lastNote = MidiNumbers.fromNote("f6");
-  const keyboardShortcuts = KeyboardShortcuts.create({
-    firstNote: firstNote,
-    lastNote: lastNote,
-    keyboardConfig: KeyboardShortcuts.HOME_ROW,
-  });
-
   // console.log("Keyboard shortcuts", KeyboardShortcuts);
 
   return (
