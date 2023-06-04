@@ -1,5 +1,6 @@
 import styled from "styled-components";
 import theme from "config/theme";
+import { Plus, XLg, Gear } from "react-bootstrap-icons";
 
 export const Container = styled.div`
   display: flex;
@@ -82,6 +83,16 @@ export const SubTitle2 = styled.h6`
   margin: 0;
 `;
 
+export const ColumnContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+`;
+
+export const ColumnItem = styled.div`
+  display: flex;
+  flex-direction: column;
+`;
+
 export const fetchBodyBase = {
   method: "POST",
   cache: "no-cache",
@@ -98,3 +109,21 @@ export type TransactionResponse = {
   date: string;
   expiry: string;
 };
+
+export const Icons = styled.div`
+  display: flex;
+  gap: 4px;
+`;
+
+export const PlusButton = styled(Plus)`
+  cursor: pointer;
+`;
+
+export const CloseButton = styled(XLg)`
+  cursor: pointer;
+  color: white;
+`;
+
+export const GearButton = styled(Gear)`
+  cursor: pointer;
+`;

@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useMemo } from "react";
+import { useCallback, useContext, useMemo } from "react";
 import styled from "styled-components";
 import {
   Container as FXContainer,
@@ -7,6 +7,12 @@ import {
   OptionsContainer,
   EmptyEffectContainer,
   EffectData,
+  CloseButton,
+  GearButton,
+  Icons,
+  PlusButton,
+  ColumnContainer,
+  ColumnItem,
 } from "./shared";
 import midiEffects from "atoms/midiEffects";
 import { Button } from "react-bootstrap";
@@ -24,7 +30,6 @@ import OverlayTrigger from "react-bootstrap/OverlayTrigger";
 import Tooltip from "react-bootstrap/Tooltip";
 import accountInState from "atoms/account";
 import dirtyAtom from "atoms/dirty";
-import { Plus, XLg, Gear } from "react-bootstrap-icons";
 
 const Container = styled.div`
   flex: 6;
@@ -45,38 +50,12 @@ const StlFXContainer = styled(FXContainer)`
   gap: 10px;
 `;
 
-const Icons = styled.div`
-  display: flex;
-  gap: 4px;
-`;
-
-const ColumnContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-`;
-
-const ColumnItem = styled.div`
-  display: flex;
-  flex-direction: column;
-`;
-const ColumnItem2 = styled(ColumnItem)`
+const RowItem = styled(ColumnItem)`
   flex-direction: row;
 `;
 
-const ButtonContainer = styled(ColumnItem2)`
+const ButtonContainer = styled(RowItem)`
   gap: 10px;
-`;
-
-const PlusButton = styled(Plus)`
-  cursor: pointer;
-`;
-
-const CloseButton = styled(XLg)`
-  cursor: pointer;
-`;
-
-const GearButton = styled(Gear)`
-  cursor: pointer;
 `;
 
 const firstUpperCase = (t: string) =>
@@ -122,7 +101,7 @@ function MidiCC() {
     [tempCCs, setTempCCs, setDirty]
   );
 
-  const maxFx = connected ? (isPaidUser ? 8 : 3) : 1;
+  const maxFx = connected ? (isPaidUser ? 6 : 3) : 1;
   const emptyFxCount = maxFx - tempCCs.length;
 
   const onAddEffect = useCallback(() => {
@@ -201,16 +180,8 @@ function MidiCC() {
                 Map
               </Button>
               <Icons>
-                <GearButton
-                  color="white"
-                  size={16}
-                  onClick={() => setSelectedUid(mEff.uid)}
-                />
-                <CloseButton
-                  color="white"
-                  size={16}
-                  onClick={() => handleDisconnect(mEff.uid)}
-                />
+                <GearButton onClick={() => setSelectedUid(mEff.uid)} />
+                <CloseButton onClick={() => handleDisconnect(mEff.uid)} />
               </Icons>
             </OptionsContainer>
             <EffectBox key={`${mEff.controller}-${mEff.bodyPart}`}>
@@ -219,13 +190,14 @@ function MidiCC() {
                 <ColumnItem>
                   <EffectData>{firstUpperCase(mEff.bodyPart)}</EffectData>
                   <EffectData>CC: {mEff.controller}</EffectData>
+                  <EffectData>Ch: {mEff.channel}</EffectData>
                   <EffectData>
                     {mEff.direction === "x" ? "Horizontal" : "Vertical"}
                     <br></br>
                   </EffectData>
                 </ColumnItem>
               </ColumnContainer>
-              <ColumnItem2>
+              <RowItem>
                 <MidiMeter
                   variant="input"
                   value={inputOutputMap[mEff.uid]?.input || 0}
@@ -236,7 +208,7 @@ function MidiCC() {
                   variant="output"
                   cap
                 />
-              </ColumnItem2>
+              </RowItem>
             </EffectBox>
           </EffectContainer>
         ))}

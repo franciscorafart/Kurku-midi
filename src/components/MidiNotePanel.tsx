@@ -1,4 +1,3 @@
-import { useCallback, useMemo } from "react";
 import { useRecoilState, useSetRecoilState } from "recoil";
 import styled from "styled-components";
 import dirtyAtom from "atoms/dirty";
@@ -38,14 +37,6 @@ const MidiNoteForm = ({ noteUid }: { noteUid: string }) => {
     ...defaultMidiNote,
     uid: noteUid,
   };
-
-  const removeNote = useCallback(() => {
-    const newNotes = { ...notes };
-    delete newNotes[noteUid];
-
-    setNotes(newNotes);
-    setSelectedNoteValue(null);
-  }, [noteUid, notes, setNotes, setSelectedNoteValue]);
 
   const formik = useFormik({
     initialValues: {
@@ -221,11 +212,6 @@ const MidiNoteForm = ({ noteUid }: { noteUid: string }) => {
         </Form.Group>
       </UpperBody>
       <Footer>
-        {noteExists && (
-          <Button variant="danger" onClick={removeNote}>
-            Remove
-          </Button>
-        )}
         <Button variant="secondary" onClick={() => setSelectedNoteValue(null)}>
           Cancel
         </Button>
