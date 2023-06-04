@@ -32,7 +32,7 @@ const Container = styled.div`
 `;
 
 const VideoContentContainer = styled.div`
-  flex: 4;
+  flex: 5;
 `;
 
 const HContainer = styled.div`

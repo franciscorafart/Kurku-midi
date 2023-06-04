@@ -17,6 +17,7 @@ const VideoCanvasContainer = styled.div`
   padding: 20px;
   background-color: ${theme.background2};
   border-radius: 8px;
+  gap: 20px;
 `;
 
 const Video = styled.video`

@@ -10,7 +10,7 @@ import BodyTrackingControls from "./BodyTrackingControls";
 import SessionConfig from "./SessionConfig";
 
 const Container = styled.div`
-  flex: 5;
+  flex: 4;
   display: flex;
   flex-direction: column;
   padding: 20px;

@@ -10,10 +10,8 @@ import midiEffects from "atoms/midiEffects";
 import { Dropdown, DropdownButton, Button } from "react-bootstrap";
 import { useRecoilState, useRecoilValue } from "recoil";
 
-import theme from "config/theme";
-import { Text, SubTitle, SubTitle2 } from "./shared";
+import { Text, SubTitle2 } from "./shared";
 import { v4 } from "uuid";
-import midiOutput from "atoms/selectedMidiOutput";
 import ADI from "localDB";
 import {
   CCEffectType,
@@ -205,8 +203,6 @@ function SessionSaving() {
   const isPaidUser = useContext(User);
   const [sessionName, setSessionName] = useState("");
   const [dirty, setDirty] = useRecoilState(dirtyAtom);
-
-  const selectedOutput = useRecoilValue(midiOutput);
   const [muted, setMuted] = useRecoilState(muteMidi);
   const userAccount = useRecoilValue(accountInState);
 
@@ -491,6 +487,30 @@ function SessionSaving() {
         <SubTitle2>
           <Text>Session Saving</Text>
         </SubTitle2>
+        {connected && (
+          <SessionsDropdown
+            dirty={dirty}
+            selectedSes={selectedSessionUid}
+            setSelectedSes={setSelectedSessionUid}
+            onDirtyCallback={(id: string) => {
+              setModal({
+                type: "selectSession",
+                text: `Select session without saving ${sessionName}`,
+                title: "Select session",
+                onConfirm: () => {
+                  setSelectedSessionUid(id);
+                  setDirty(false);
+                  setModal(undefined);
+                },
+                onCancel: () => setModal(undefined),
+              });
+            }}
+            onSelectCallback={() => {
+              setDirty(false);
+              setModal(undefined);
+            }}
+          />
+        )}
         <ButtonContainer>
           <Form>
             <Form.Group>
@@ -503,30 +523,6 @@ function SessionSaving() {
               />
             </Form.Group>
           </Form>
-          {connected && (
-            <SessionsDropdown
-              dirty={dirty}
-              selectedSes={selectedSessionUid}
-              setSelectedSes={setSelectedSessionUid}
-              onDirtyCallback={(id: string) => {
-                setModal({
-                  type: "selectSession",
-                  text: `Select session without saving ${sessionName}`,
-                  title: "Select session",
-                  onConfirm: () => {
-                    setSelectedSessionUid(id);
-                    setDirty(false);
-                    setModal(undefined);
-                  },
-                  onCancel: () => setModal(undefined),
-                });
-              }}
-              onSelectCallback={() => {
-                setDirty(false);
-                setModal(undefined);
-              }}
-            />
-          )}
         </ButtonContainer>
         <ButtonContainer>
           <div>

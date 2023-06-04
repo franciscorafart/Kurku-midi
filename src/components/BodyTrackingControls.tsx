@@ -5,11 +5,14 @@ import midiOutputs from "atoms/midiOutputs";
 import midiOutput from "atoms/selectedMidiOutput";
 import styled from "styled-components";
 import { Text, SubTitle2 } from "./shared";
+import OverlayTrigger from "react-bootstrap/OverlayTrigger";
+import Tooltip from "react-bootstrap/Tooltip";
 
 const ButtonSection = styled.div`
   display: flex;
+  flex-direction: column;
   justify-content: flex-start;
-  gap: 20px;
+  gap: 10px;
 `;
 
 const Container = styled.div`
@@ -68,15 +71,25 @@ function BodyTrackingControls({ onInit }: { onInit: () => Promise<void> }) {
           <MidiDropdown />
         </OptionsContainer>
         <OptionsContainer>
-          {selectedOutput && (
+          <OverlayTrigger
+            overlay={
+              !selectedOutput ? (
+                <Tooltip>Select Midi output before starting MIDI</Tooltip>
+              ) : (
+                <Tooltip>
+                  Tip: Map your MIDI notes and CCs before tracking
+                </Tooltip>
+              )
+            }
+          >
             <Button
-              onClick={() => initMidiSession()}
+              onClick={selectedOutput ? () => initMidiSession() : () => {}}
               variant="outline-light"
               size="sm"
             >
-              Start MIDI
+              Start MIDI Tracking
             </Button>
-          )}
+          </OverlayTrigger>
         </OptionsContainer>
       </ButtonSection>
     </Container>

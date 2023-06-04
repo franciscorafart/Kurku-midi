@@ -72,6 +72,7 @@ function ConfigMidiBridge({
     midiSessionControls,
     muted,
     noteSender,
+    notes,
     setCCMeterMap,
     videoHeight,
     videoWidth,
