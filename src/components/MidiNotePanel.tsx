@@ -32,26 +32,21 @@ const MidiNoteForm = ({ noteUid }: { noteUid: string }) => {
 
   const selectedNote = notes[noteUid];
   const noteExists = Boolean(selectedNote);
-  // TODO: Make default note use note that is not in the object
-  const startingNote = selectedNote || {
-    ...defaultMidiNote,
-    uid: noteUid,
-  };
 
   const formik = useFormik({
     initialValues: {
-      channel: startingNote.channel,
-      note: startingNote.note,
-      xMin: startingNote.box.xMin,
-      xMax: startingNote.box.xMax,
-      yMin: startingNote.box.yMin,
-      yMax: startingNote.box.yMax,
+      channel: selectedNote.channel,
+      note: selectedNote.note,
+      xMin: selectedNote.box.xMin,
+      xMax: selectedNote.box.xMax,
+      yMin: selectedNote.box.yMin,
+      yMax: selectedNote.box.yMax,
     },
     onSubmit: (values) => {
       const newNotes = { ...notes };
 
       newNotes[values.note] = {
-        uid: startingNote.uid,
+        uid: selectedNote.uid,
         note: values.note,
         channel: values.channel,
         box: {

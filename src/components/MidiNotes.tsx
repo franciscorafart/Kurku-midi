@@ -28,6 +28,7 @@ import dirtyAtom from "atoms/dirty";
 import { Button } from "react-bootstrap";
 import { makeNoteSender } from "utils/midiCtx";
 import midiOutput from "atoms/selectedMidiOutput";
+import { findAvailableCCorNote } from "utils/midiUtils";
 
 const Container = styled.div`
   flex: 6;
@@ -85,8 +86,9 @@ function MidiNotes() {
   const onAddNote = useCallback(() => {
     const newNotes = { ...tempMidiNotes };
     const uid = v4();
-
-    newNotes[uid] = { ...defaultMidiNote, uid };
+    const existingNoteList = Object.values(newNotes).map((nn) => nn.note);
+    const note = findAvailableCCorNote(existingNoteList);
+    newNotes[uid] = { ...defaultMidiNote, uid, note };
     setTempMidiNotes(newNotes);
     setDirty(true);
   }, [setDirty, setTempMidiNotes, tempMidiNotes]);

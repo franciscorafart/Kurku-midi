@@ -30,6 +30,7 @@ import OverlayTrigger from "react-bootstrap/OverlayTrigger";
 import Tooltip from "react-bootstrap/Tooltip";
 import accountInState from "atoms/account";
 import dirtyAtom from "atoms/dirty";
+import { findAvailableCCorNote } from "utils/midiUtils";
 
 const Container = styled.div`
   flex: 6;
@@ -60,17 +61,6 @@ const ButtonContainer = styled(RowItem)`
 
 const firstUpperCase = (t: string) =>
   t[0].toLocaleUpperCase().concat(t.slice(1));
-
-const findCC = (ccList: number[]) => {
-  for (let i = 1; i <= 127; i++) {
-    if (ccList.includes(i)) {
-      continue;
-    }
-    return i;
-  }
-
-  return 1;
-};
 
 function MidiCC() {
   const [selectedUid, setSelectedUid] = useRecoilState(selectedMidiEffect);
@@ -107,7 +97,7 @@ function MidiCC() {
   const onAddEffect = useCallback(() => {
     const newMidiFx = [...tempCCs];
     const ccList = newMidiFx.map((m) => m.controller);
-    const cc = findCC(ccList);
+    const cc = findAvailableCCorNote(ccList);
 
     newMidiFx.push({
       uid: v4(),

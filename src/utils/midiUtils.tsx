@@ -64,3 +64,14 @@ export const mapPositionsToMIDINotes = (
     }
   }
 };
+
+export const findAvailableCCorNote = (ccList: number[]) => {
+  for (let i = 1; i <= 127; i++) {
+    if (ccList.includes(i)) {
+      continue;
+    }
+    return i;
+  }
+
+  return 1;
+};
