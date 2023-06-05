@@ -257,6 +257,110 @@ function SessionSaving() {
     };
   });
 
+  const saveSession = useCallback(
+    (sessionId: string, selected: boolean) => {
+      const allSessions: DBSession[] = selected
+        ? storedSess
+            .filter((s) => s.id !== sessionId) // all sessions minus selected one
+            .concat(sessionToDBSessions(sessionId, sessionName)) // Rename
+        : [...storedSess, sessionToDBSessions(sessionId, sessionName)];
+
+      setStoredSess(allSessions);
+
+      // IndexedDB
+      ADI.cacheItem(
+        sessionId,
+        sessionToDBSessions(sessionId, sessionName),
+        "sessions"
+      );
+    },
+    [sessionName, setStoredSess, storedSess]
+  );
+
+  const saveCCs = useCallback(
+    (sessionId: string, selected: boolean) => {
+      let allCCs: DBEffect[] = [];
+      let ccsToRemoveById: string[] = [];
+
+      if (selected) {
+        allCCs = storedFx
+          .filter((sEff) => selectedSessionUid !== sEff.sessionId)
+          .concat(tempCCs.map((f) => effectToDBEffect(f, sessionId))); // concat tempCCs (dirty state) to the ones not in the session (original)
+
+        const initialSessionCCs = storedFx.filter(
+          (f) => selectedSessionUid === f.sessionId
+        );
+
+        const tempCCIds: string[] = tempCCs.map((cc) => cc.uid);
+        const ccsToRemove = initialSessionCCs.filter(
+          (icc) => !tempCCIds.includes(icc.id)
+        );
+        ccsToRemoveById = ccsToRemove.map((ccr) => ccr.id);
+      } else {
+        allCCs = storedFx.concat(
+          tempCCs.map((f) => effectToDBEffect(f, sessionId))
+        );
+      }
+
+      // Recoil sate
+      setStoredFx(allCCs);
+
+      // IndexedDb
+      for (const f of allCCs) {
+        ADI.cacheItem(f.id, f, "effects");
+      }
+      for (const uid of ccsToRemoveById) {
+        ADI.removeItem(uid, "effects");
+      }
+    },
+    [selectedSessionUid, setStoredFx, storedFx, tempCCs]
+  );
+
+  const saveMidiNotes = useCallback(
+    (sessionId: string, selected: boolean) => {
+      let allMidiNotes: DBMidiNote[] = [];
+      let midiNotesToRemoveById: string[] = [];
+      if (selected) {
+        // MIDI NOTES
+        allMidiNotes = storedNotes
+          .filter((smn) => smn.sessionId !== selectedSessionUid)
+          .concat(
+            Object.entries(tempMidiNotes).map(([_, tmn]) =>
+              midiNoteToDBMidiNote(tmn, sessionId)
+            )
+          );
+        const initialSessionMidiNotes = storedNotes.filter(
+          (smn) => smn.sessionId === selectedSessionUid
+        );
+        const tempNoteIds: string[] = Object.entries(tempMidiNotes).map(
+          ([k, tmn]) => tmn.uid
+        );
+        const midiNotesToRemove = initialSessionMidiNotes.filter(
+          (initialNote) => !tempNoteIds.includes(initialNote.id)
+        );
+        midiNotesToRemoveById = midiNotesToRemove.map((mnr) => mnr.id);
+      } else {
+        allMidiNotes = [
+          ...storedNotes,
+          ...Object.entries(tempMidiNotes).map(([k, midiNote]) =>
+            midiNoteToDBMidiNote(midiNote, sessionId)
+          ),
+        ];
+      }
+      // Recoil state
+      setStoredNotes(allMidiNotes);
+
+      // IndexedDb Save Midi notes
+      for (const f of allMidiNotes) {
+        ADI.cacheItem(f.id, f, "midiNotes");
+      }
+      for (const uid of midiNotesToRemoveById) {
+        ADI.removeItem(uid, "midiNotes");
+      }
+    },
+    [selectedSessionUid, setStoredNotes, storedNotes, tempMidiNotes]
+  );
+
   const onSaveSession = useCallback(async () => {
     if (!sessionName) {
       setModal({
@@ -282,116 +386,24 @@ function SessionSaving() {
     }
 
     const sessionId = selectedSessionUid || v4();
-    let allSessions: DBSession[] = [];
+    const sessionIsSelected = Boolean(selectedSessionUid);
 
-    let allCCs: DBEffect[] = [];
-    let ccsToRemoveById: string[] = [];
-
-    let allMidiNotes: DBMidiNote[] = [];
-    let midiNotesToRemoveById: string[] = [];
-
-    if (selectedSessionUid) {
-      // Session
-      allSessions = storedSess
-        .filter((s) => s.id !== sessionId) // all sessions minus selected one
-        .concat(sessionToDBSessions(sessionId, sessionName)); // Rename
-
-      // MIDI CCs
-      allCCs = storedFx
-        .filter((sEff) => selectedSessionUid !== sEff.sessionId)
-        .concat(tempCCs.map((f) => effectToDBEffect(f, sessionId))); // concat tempCCs (dirty state) to the ones not in the session (original)
-
-      const initialSessionCCs = storedFx.filter(
-        (f) => selectedSessionUid === f.sessionId
-      );
-
-      const tempCCIds: string[] = tempCCs.map((cc) => cc.uid);
-      const ccsToRemove = initialSessionCCs.filter(
-        (icc) => !tempCCIds.includes(icc.id)
-      );
-      ccsToRemoveById = ccsToRemove.map((ccr) => ccr.id);
-
-      // MIDI NOTES
-      allMidiNotes = storedNotes
-        .filter((smn) => smn.sessionId !== selectedSessionUid)
-        .concat(
-          Object.entries(tempMidiNotes).map(([_, tmn]) =>
-            midiNoteToDBMidiNote(tmn, sessionId)
-          )
-        );
-      const initialSessionMidiNotes = storedNotes.filter(
-        (smn) => smn.sessionId === selectedSessionUid
-      );
-      const tempNoteIds: string[] = Object.entries(tempMidiNotes).map(
-        ([k, tmn]) => tmn.uid
-      );
-      const midiNotesToRemove = initialSessionMidiNotes.filter(
-        (initialNote) => !tempNoteIds.includes(initialNote.id)
-      );
-      midiNotesToRemoveById = midiNotesToRemove.map((mnr) => mnr.id);
-    } else {
-      // New session
-      allCCs = storedFx.concat(
-        tempCCs.map((f) => effectToDBEffect(f, sessionId))
-      );
-
-      allMidiNotes = [
-        ...storedNotes,
-        ...Object.entries(tempMidiNotes).map(([k, midiNote]) =>
-          midiNoteToDBMidiNote(midiNote, sessionId)
-        ),
-      ];
-
-      allSessions = [
-        ...storedSess,
-        sessionToDBSessions(sessionId, sessionName),
-      ];
-    }
-    console.log({ allMidiNotes, midiNotesToRemoveById });
-    // Set on Recoil state
-    setStoredFx(allCCs);
-    setStoredNotes(allMidiNotes);
-    setStoredSess(allSessions);
-
-    // IndexedDB update sessions
-    ADI.cacheItem(
-      sessionId,
-      sessionToDBSessions(sessionId, sessionName),
-      "sessions"
-    );
-
-    // IndexedDb update CC effects
-    for (const f of allCCs) {
-      ADI.cacheItem(f.id, f, "effects");
-    }
-    for (const uid of ccsToRemoveById) {
-      ADI.removeItem(uid, "effects");
-    }
-
-    // IndexedDb Save Midi notes
-    for (const f of allMidiNotes) {
-      ADI.cacheItem(f.id, f, "midiNotes");
-    }
-    for (const uid of midiNotesToRemoveById) {
-      ADI.removeItem(uid, "midiNotes");
-    }
+    saveSession(sessionId, sessionIsSelected);
+    saveCCs(sessionId, sessionIsSelected);
+    saveMidiNotes(sessionId, sessionIsSelected);
 
     setSelectedSessionUid(sessionId);
     setDirty(false);
   }, [
     sessionName,
     isPaidUser,
-    storedSess,
+    storedSess.length,
     selectedSessionUid,
-    setStoredFx,
-    setStoredNotes,
-    setStoredSess,
+    saveSession,
+    saveCCs,
+    saveMidiNotes,
     setSelectedSessionUid,
     setDirty,
-    storedFx,
-    tempCCs,
-    storedNotes,
-    tempMidiNotes,
   ]);
 
   const makeNewSession = useCallback(() => {

@@ -31,6 +31,5 @@ export async function initEffects() {
 
 export async function initMidiNotes() {
   const { data: midiNotes } = await ADI.listItems({ cacheKey: "midiNotes" });
-  console.log("data", midiNotes);
   return midiNotes as DBMidiNote[];
 }
