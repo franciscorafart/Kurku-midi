@@ -81,7 +81,10 @@ function MidiNotes() {
     [userAccount.userId]
   );
   const maxNotes = connected ? (isPaidUser ? 6 : 2) : 1;
-  const emptyMidiSlotsCount = maxNotes - Object.keys(tempMidiNotes).length;
+  const emptyMidiSlotsCount = Math.max(
+    0,
+    maxNotes - Object.keys(tempMidiNotes).length
+  );
 
   const onAddNote = useCallback(() => {
     const newNotes = { ...tempMidiNotes };
@@ -136,47 +139,53 @@ function MidiNotes() {
         </ButtonContainer>
       </UpperBar>
       <NotesContainer>
-        {Object.entries(tempMidiNotes).map(([_, tmn]) => (
-          <EffectContainer
-            key={`midi-note-${tmn.uid}`}
-            selectable
-            selected={tmn.uid === selectedNoteValue}
-          >
-            <OptionsContainer>
-              <Button
-                size="sm"
-                variant="outline-light"
-                disabled={!noteSender}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  if (noteSender) {
-                    noteSender(tmn.channel, true, tmn.note, 127);
-                  }
-                }}
-                active={false}
-              >
-                Map
-              </Button>
-              <Icons>
-                <GearButton onClick={() => setSelectedNoteValue(tmn.uid)} />
-                <CloseButton onClick={() => removeNote(tmn.uid)} />
-              </Icons>
-            </OptionsContainer>
-            <EffectBox>
-              <ColumnContainer>
-                <EffectData>{`Note: ${tmn.note}`}</EffectData>
-                <EffectData>{`Ch: ${tmn.channel}`}</EffectData>
-              </ColumnContainer>
-            </EffectBox>
-          </EffectContainer>
-        ))}
-        {Array(emptyMidiSlotsCount)
-          .fill(null)
-          .map((_, idx) => (
-            <EmptyEffectContainer key={`empty-${idx}`}>
-              Empty
-            </EmptyEffectContainer>
+        {Object.entries(tempMidiNotes)
+          .slice(0, maxNotes)
+          .map(([_, tmn]) => (
+            <EffectContainer
+              key={`midi-note-${tmn.uid}`}
+              selectable
+              selected={tmn.uid === selectedNoteValue}
+            >
+              <OptionsContainer>
+                <Button
+                  size="sm"
+                  variant="outline-light"
+                  disabled={!noteSender}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (noteSender) {
+                      noteSender(tmn.channel, true, tmn.note, 127);
+                    }
+                  }}
+                  active={false}
+                >
+                  Map
+                </Button>
+                <Icons>
+                  <GearButton onClick={() => setSelectedNoteValue(tmn.uid)} />
+                  <CloseButton onClick={() => removeNote(tmn.uid)} />
+                </Icons>
+              </OptionsContainer>
+              <EffectBox>
+                <ColumnContainer>
+                  <EffectData>{`Note: ${tmn.note}`}</EffectData>
+                  <EffectData>{`Ch: ${tmn.channel}`}</EffectData>
+                </ColumnContainer>
+              </EffectBox>
+            </EffectContainer>
           ))}
+        {emptyMidiSlotsCount ? (
+          Array(emptyMidiSlotsCount)
+            .fill(null)
+            .map((_, idx) => (
+              <EmptyEffectContainer key={`empty-${idx}`}>
+                Empty
+              </EmptyEffectContainer>
+            ))
+        ) : (
+          <></>
+        )}
       </NotesContainer>
     </Container>
   );
