@@ -16,7 +16,7 @@ import {
 } from "./shared";
 import midiEffects from "atoms/midiEffects";
 import { Button } from "react-bootstrap";
-import { useRecoilState, useRecoilValue } from "recoil";
+import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import selectedMidiEffect from "atoms/selectedMidiEffect";
 import theme from "config/theme";
 import { Text, SubTitle } from "./shared";
@@ -66,7 +66,7 @@ function MidiCC() {
   const [selectedUid, setSelectedUid] = useRecoilState(selectedMidiEffect);
   const [tempCCs, setTempCCs] = useRecoilState(midiEffects); // FX Panel temporary state
   const inputOutputMap = useRecoilValue(ccMeterMap);
-  const [dirty, setDirty] = useRecoilState(dirtyAtom);
+  const setDirty = useSetRecoilState(dirtyAtom);
   const isPaidUser = useContext(User);
 
   const selectedOutput = useRecoilValue(midiOutput);

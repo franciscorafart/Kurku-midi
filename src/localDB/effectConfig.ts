@@ -18,6 +18,7 @@ export type DBEffect = {
   inputTo: number;
   outputFrom: number;
   outputTo: number;
+  channel: number;
 };
 
 class EffectsDB extends Dexie {
@@ -79,6 +80,7 @@ async function addOrUpdateEffect(id: string, data: DBEffect) {
     sessionId: data.sessionId,
     cc: data.cc,
     bodyPart: data.bodyPart,
+    channel: data.channel || 1,
     direction: data.direction,
     inputFrom: data.inputFrom,
     inputTo: data.inputTo,

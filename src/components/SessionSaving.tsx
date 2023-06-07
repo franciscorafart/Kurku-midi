@@ -71,6 +71,7 @@ const effectToDBEffect = (effect: CCEffectType, sessionId: string) => {
     sessionId: sessionId,
     cc: effect.controller,
     bodyPart: effect.bodyPart,
+    channel: effect.channel,
     direction: effect.direction === "y" ? "vertical" : "horizontal",
     inputFrom: effect.screenRange.a,
     inputTo: effect.screenRange.b,
@@ -85,6 +86,7 @@ const dbEffectToEffect = (effect: DBEffect) => {
     sessionId: effect.sessionId,
     controller: effect.cc,
     bodyPart: effect.bodyPart,
+    channel: effect.channel,
     direction: effect.direction === "vertical" ? "y" : "x",
     screenRange: {
       a: effect.inputFrom,
