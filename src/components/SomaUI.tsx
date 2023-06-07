@@ -13,7 +13,8 @@ import VideoCanvas from "./VideoCanvas";
 import HowToUse from "./HowToUse";
 import WhatIsKurku from "./WhatIsKurku";
 import Header from "components/Header";
-import ADI, { initEffects, initMidiNotes, initSessions } from "localDB";
+import { initEffects, initMidiNotes, initSessions } from "localDB";
+import initializedADI from "atoms/initializedADI";
 import storedSessions from "atoms/storedSessions";
 import storedMidiNotes from "atoms/storedMidiNotes";
 import storedEffects from "atoms/storedEffects";
@@ -46,6 +47,7 @@ function SomaUI() {
   const setEffects = useSetRecoilState(storedEffects);
   const setMidiNotes = useSetRecoilState(storedMidiNotes);
   const sessionCfg = useRecoilValue(sessionConfig);
+  const isInitialized = useRecoilValue(initializedADI);
 
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -56,7 +58,6 @@ function SomaUI() {
   const [showKurkuModal, setShowKurkuModal] = useState(false);
   const userAccount = useRecoilValue(accountInState);
 
-  const isInitialized = ADI.isInitialized();
   const connected = useMemo(
     () => Boolean(userAccount.userId),
     [userAccount.userId]

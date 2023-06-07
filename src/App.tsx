@@ -14,6 +14,7 @@ import { apiUrl } from "./constants";
 import MobileWarning from "./components/MobileWarning";
 import ResetPassword from "./pages/ResetPassword";
 import ConfirmEmail from "./pages/ConfirmEmail";
+import initializedADI from "./atoms/initializedADI";
 
 function App() {
   return (
@@ -32,7 +33,7 @@ function App() {
 export default App;
 
 const UIInitializer = () => {
-  const [initialized, setInitialized] = useState(false);
+  const [initialized, setInitialized] = useRecoilState(initializedADI);
   const [waitingWorker, setWaitingWorker] = useState<any>(null);
   const [newVersion, setNewVersion] = useState(false);
   const [userAccount, setUserAccount] = useRecoilState(account);
@@ -120,7 +121,7 @@ const UIInitializer = () => {
       }
     };
     fetchUserData();
-  }, [userAccount.userId, setUserAccount]);
+  }, [userAccount.userId, setUserAccount, userAccount.email]);
 
   useEffect(() => {
     if (paidCustomer) {
@@ -133,14 +134,14 @@ const UIInitializer = () => {
       if (!ADI.isInitialized()) {
         initializeADI();
       }
+      setInitialized(true);
     }
-    setInitialized(true);
   }, [setInitialized, paidCustomer, connected]);
 
   return (
     <User.Provider value={paidCustomer}>
-      {isMobile && <MobileWarning />}
-      {!isMobile && initialized && <SomaUI />}
+      {isMobile ? <MobileWarning /> : <SomaUI />}
+      {!initialized && <div>Staring up...</div>}
       <NewVersionModal open={newVersion} onClose={updateServiceWorker} />
     </User.Provider>
   );

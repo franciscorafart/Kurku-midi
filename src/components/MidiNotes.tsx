@@ -120,7 +120,7 @@ function MidiNotes() {
             <OverlayTrigger
               overlay={
                 !isPaidUser ? (
-                  <Tooltip>Add up to 8 CCs with paid tier</Tooltip>
+                  <Tooltip>Add up to 6 Midi notes with paid tier</Tooltip>
                 ) : (
                   <div />
                 )

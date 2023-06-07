@@ -124,6 +124,13 @@ const midiNoteToDBMidiNote = (note: MIDINoteType, sessionId: string) => {
   } as DBMidiNote;
 };
 
+const sessionToDBSessions = (id: string, name: string) => {
+  return {
+    id,
+    name,
+  };
+};
+
 const noteArrayToObj = (arr: MIDINoteType[]) => {
   const o: MidiNotesObjectType = {};
 
@@ -132,13 +139,6 @@ const noteArrayToObj = (arr: MIDINoteType[]) => {
   }
 
   return o;
-};
-
-const sessionToDBSessions = (id: string, name: string) => {
-  return {
-    id,
-    name,
-  };
 };
 
 function SessionsDropdown({
@@ -259,11 +259,23 @@ function SessionSaving() {
 
   const saveSession = useCallback(
     (sessionId: string, selected: boolean) => {
-      const allSessions: DBSession[] = selected
-        ? storedSess
-            .filter((s) => s.id !== sessionId) // all sessions minus selected one
-            .concat(sessionToDBSessions(sessionId, sessionName)) // Rename
-        : [...storedSess, sessionToDBSessions(sessionId, sessionName)];
+      let allSessions: DBSession[] = [];
+      if (selected) {
+        // Note: Replace in-place so that order doesn't get mixed, we want first session created always at the beggining of array
+        const indexOfSelected = storedSess.findIndex(
+          (el) => el.id === sessionId
+        );
+        allSessions = [...storedSess];
+        allSessions[indexOfSelected] = sessionToDBSessions(
+          sessionId,
+          sessionName
+        ); // Rename
+      } else {
+        allSessions = [
+          ...storedSess,
+          sessionToDBSessions(sessionId, sessionName),
+        ];
+      }
 
       setStoredSess(allSessions);
 
@@ -374,20 +386,26 @@ function SessionSaving() {
 
     // NOTE: Make sure logged users can only create 1 session, even if they
     // are downgraded from paid to logged. They just keep the ones they had.
-    if (!isPaidUser && storedSess.length >= 1 && !selectedSessionUid) {
-      setModal({
-        type: "sessionName",
-        title: "Get paid tier",
-        text: "You need a paid tier to save more than one session",
-        onCancel: () => setModal(undefined),
-      });
+    if (!isPaidUser && storedSess.length >= 1) {
+      // new one or overwriting second one
+      const allowedSession = storedSess[0];
+      if (
+        selectedSessionUid === null ||
+        allowedSession.id !== selectedSessionUid
+      ) {
+        setModal({
+          type: "sessionName",
+          title: "Get paid tier",
+          text: `You need a paid tier to save more than one session. You can only work with: ${allowedSession.name}`,
+          onCancel: () => setModal(undefined),
+        });
 
-      return;
+        return;
+      }
     }
 
     const sessionId = selectedSessionUid || v4();
     const sessionIsSelected = Boolean(selectedSessionUid);
-
     saveSession(sessionId, sessionIsSelected);
     saveCCs(sessionId, sessionIsSelected);
     saveMidiNotes(sessionId, sessionIsSelected);
@@ -397,7 +415,7 @@ function SessionSaving() {
   }, [
     sessionName,
     isPaidUser,
-    storedSess.length,
+    storedSess,
     selectedSessionUid,
     saveSession,
     saveCCs,
@@ -540,7 +558,9 @@ function SessionSaving() {
           <div>
             <OverlayTrigger
               overlay={
-                !isPaidUser ? (
+                !connected ? (
+                  <Tooltip>Save more session by logging in</Tooltip>
+                ) : !isPaidUser && storedSess.length >= 1 ? (
                   <Tooltip>Save more sessions on paid tier</Tooltip>
                 ) : (
                   <div />

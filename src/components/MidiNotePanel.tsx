@@ -45,7 +45,7 @@ const MidiNoteForm = ({ noteUid }: { noteUid: string }) => {
     onSubmit: (values) => {
       const newNotes = { ...notes };
 
-      newNotes[values.note] = {
+      newNotes[noteUid] = {
         uid: selectedNote.uid,
         note: values.note,
         channel: values.channel,

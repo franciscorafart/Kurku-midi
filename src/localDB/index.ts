@@ -21,6 +21,7 @@ export function initializeADI() {
 
 export async function initSessions() {
   const { data: sessions } = await ADI.listItems({ cacheKey: "sessions" });
+  // TODO: Filter user sessions, so that it doesn't get mixed up
   return sessions as DBSession[];
 }
 
