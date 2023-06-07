@@ -141,7 +141,6 @@ const UIInitializer = () => {
   return (
     <User.Provider value={paidCustomer}>
       {isMobile ? <MobileWarning /> : <SomaUI />}
-      {!initialized && <div>Staring up...</div>}
       <NewVersionModal open={newVersion} onClose={updateServiceWorker} />
     </User.Provider>
   );
