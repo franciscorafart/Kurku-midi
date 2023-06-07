@@ -92,7 +92,7 @@ function MidiCC() {
   );
 
   const maxFx = connected ? (isPaidUser ? 6 : 3) : 1;
-  const emptyFxCount = maxFx - tempCCs.length;
+  const emptyFxCount = Math.max(0, maxFx - tempCCs.length);
 
   const onAddEffect = useCallback(() => {
     const newMidiFx = [...tempCCs];
@@ -148,7 +148,7 @@ function MidiCC() {
         </ButtonContainer>
       </UpperBar>
       <StlFXContainer>
-        {tempCCs.map((mEff) => (
+        {tempCCs.slice(0, maxFx).map((mEff) => (
           <EffectContainer
             key={`midi-effect-${mEff.controller}`}
             selectable
