@@ -19,3 +19,9 @@ Fix session saving and retreival issues for paid users.
 ### 0.1.4
 
 Delete sessions
+
+### 0.1.5
+
+- Refurbish user Interface
+- Add Midi Note trigger functionality
+- Fix multiple bugs on Saving and retreiving sessions
