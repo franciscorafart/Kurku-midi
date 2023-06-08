@@ -26,7 +26,7 @@ const Container = styled.div`
   display: flex;
   flex-direction: column;
   min-height: 800px;
-  // height: calc(100vh - 80px);
+  height: calc(100vh - 80px);
   padding: 20px;
   gap: 20px;
   background-color: ${theme.background};
