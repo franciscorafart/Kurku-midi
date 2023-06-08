@@ -5,7 +5,6 @@ import selectedMidiNote from "atoms/selectedMidiNote";
 import midiNotes from "atoms/midiNotes";
 import { Button, Form, Offcanvas, InputGroup, Col } from "react-bootstrap";
 import { isEmpty } from "lodash";
-import { defaultMidiNote } from "config/midi";
 import { useFormik } from "formik";
 
 const BodyContainer = styled.div`
@@ -90,7 +89,7 @@ const MidiNoteForm = ({ noteUid }: { noteUid: string }) => {
         errors.xMax = "Out of range";
       }
 
-      if (values.yMax <= values.xMin) {
+      if (values.yMax <= values.yMin) {
         errors.yMin = "Larger than max value";
         errors.yMax = "Lower than min value";
       }
@@ -107,7 +106,7 @@ const MidiNoteForm = ({ noteUid }: { noteUid: string }) => {
   return (
     <Form onSubmit={formik.handleSubmit}>
       <UpperBody>
-        <Form.Group>
+        <Form.Group className="mb-4">
           <Form.Label>MIDI Note: {selectedNote.note}</Form.Label>
           <InputGroup hasValidation>
             <Form.Control
@@ -140,7 +139,7 @@ const MidiNoteForm = ({ noteUid }: { noteUid: string }) => {
           </InputGroup>
         </Form.Group>
         <Form.Group className="mb-4">
-          <Form.Label>Screen Range (0.0 - 1.0)</Form.Label>
+          <Form.Label>Horizontal Range (0.0 - 1.0)</Form.Label>
           <InputGroup as={Col} md="6" hasValidation>
             <InputGroup.Text id="inputGroupPrepend">Min</InputGroup.Text>
             <Form.Control
@@ -171,11 +170,9 @@ const MidiNoteForm = ({ noteUid }: { noteUid: string }) => {
           </InputGroup>
         </Form.Group>
         <Form.Group className="mb-4">
-          <Form.Label>Output Range (0 - 127)</Form.Label>
+          <Form.Label>Vertical Range (0.0 - 1.0)</Form.Label>
           <InputGroup hasValidation>
-            <InputGroup.Text id="inputGroupPrepend">
-              Lower bound
-            </InputGroup.Text>
+            <InputGroup.Text id="inputGroupPrepend">Min</InputGroup.Text>
             <Form.Control
               id="yMin"
               name="yMin"
@@ -189,9 +186,7 @@ const MidiNoteForm = ({ noteUid }: { noteUid: string }) => {
             </Form.Control.Feedback>
           </InputGroup>
           <InputGroup hasValidation>
-            <InputGroup.Text id="inputGroupPrepend">
-              Upper bound
-            </InputGroup.Text>
+            <InputGroup.Text id="inputGroupPrepend">Max</InputGroup.Text>
             <Form.Control
               id="yMax"
               name="yMax"
