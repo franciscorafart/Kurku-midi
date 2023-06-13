@@ -1,10 +1,11 @@
 import { useEffect } from "react";
-import { useRecoilValue } from "recoil";
+import { useRecoilState, useRecoilValue } from "recoil";
 import styled from "styled-components";
 import { drawKeypoints, drawSkeleton, resetCanvas } from "utils/utils";
 import { isEmpty } from "lodash";
 import { machineConfig } from "utils/bodytracking";
 import keypoints from "atoms/keypoints";
+import midiNotes from "atoms/midiNotes";
 import sessionConfig from "atoms/sessionConfig";
 import theme from "config/theme";
 import { Text, SubTitle } from "./shared";
@@ -29,6 +30,9 @@ const Canvas = styled.canvas`
   min-height: 375px;
   width: 500px;
   border: 1px dashed ${theme.text};
+  position: absolute:
+  top: 0;
+  left: 0;
 `;
 
 const TextContainer = styled.div`
@@ -36,9 +40,71 @@ const TextContainer = styled.div`
   justify-content: center;
 `;
 
+const OverlapContainer = styled.div`
+  position: relative;
+`;
+
+const NoteViewContainer = styled.div`
+  position: absolute;
+  top: 0;
+  left: 0;
+`;
+
+const BoxContainer = styled.div`
+  position: relative;
+  min-height: 375px;
+  width: 500px;
+  top: 0;
+  left: 0;
+`;
+
+const BoxElement = styled.div<{
+  top: number;
+  left: number;
+  w: number;
+  h: number;
+}>`
+  position: absolute;
+  width: ${({ w }) => w}px;
+  height: ${({ h }) => h}px;
+  top: ${({ top }) => top}px;
+  left: ${({ left }) => left}px;
+  background-color: blue;
+  float: left;
+  z-index: 100;
+`;
+
 const StyledText = styled(Text)`
   color: ${theme.text};
 `;
+
+function MIDINoteView() {
+  const [tempMidiNotes, setTempMidiNotes] = useRecoilState(midiNotes);
+  return (
+    <NoteViewContainer>
+      <BoxContainer>
+        {Object.values(tempMidiNotes).map((tmn) => {
+          const w = (tmn.box.xMax - tmn.box.xMin) * 500;
+          const h = (tmn.box.yMax - tmn.box.yMin) * 375;
+          const top = tmn.box.yMin * 375;
+          const left = tmn.box.xMin * 500;
+
+          console.log({ w, h, top, left });
+
+          return (
+            <BoxElement
+              key={`box-${tmn.uid}`}
+              w={w}
+              h={h}
+              top={top}
+              left={left}
+            ></BoxElement>
+          );
+        })}
+      </BoxContainer>
+    </NoteViewContainer>
+  );
+}
 
 function VideoCanvas({
   canvasRef,
@@ -68,8 +134,11 @@ function VideoCanvas({
           <StyledText>Webcam view</StyledText>
         </SubTitle>
       </TextContainer>
-      <Video ref={videoRef} />
-      <Canvas ref={canvasRef} />
+      <OverlapContainer>
+        <Video ref={videoRef} />
+        <Canvas ref={canvasRef} />
+        <MIDINoteView />
+      </OverlapContainer>
     </VideoCanvasContainer>
   );
 }
