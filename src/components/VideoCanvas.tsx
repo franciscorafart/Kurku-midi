@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRecoilState, useRecoilValue } from "recoil";
 import styled from "styled-components";
 import { drawKeypoints, drawSkeleton, resetCanvas } from "utils/utils";
@@ -69,9 +69,12 @@ const BoxElement = styled.div<{
   height: ${({ h }) => h}px;
   top: ${({ top }) => top}px;
   left: ${({ left }) => left}px;
-  background-color: blue;
+  border: 2px solid ${theme.border};
+  padding: 4px;
+  color: ${theme.border};
   float: left;
   z-index: 100;
+  cursor: pointer;
 `;
 
 const StyledText = styled(Text)`
@@ -79,7 +82,10 @@ const StyledText = styled(Text)`
 `;
 
 function MIDINoteView() {
+  const [dragging, setDragging] = useState(false);
   const [tempMidiNotes, setTempMidiNotes] = useRecoilState(midiNotes);
+
+  console.log("dragging", dragging);
   return (
     <NoteViewContainer>
       <BoxContainer>
@@ -89,8 +95,6 @@ function MIDINoteView() {
           const top = tmn.box.yMin * 375;
           const left = tmn.box.xMin * 500;
 
-          console.log({ w, h, top, left });
-
           return (
             <BoxElement
               key={`box-${tmn.uid}`}
@@ -98,7 +102,55 @@ function MIDINoteView() {
               h={h}
               top={top}
               left={left}
-            ></BoxElement>
+              onMouseDown={(e) => {
+                setDragging(true);
+                e.stopPropagation();
+                e.preventDefault();
+              }}
+              onMouseUp={(e) => {
+                setDragging(false);
+                e.stopPropagation();
+                e.preventDefault();
+              }}
+              onMouseLeave={(e) => {
+                setDragging(false);
+                e.stopPropagation();
+                e.preventDefault();
+              }}
+              onMouseMove={(e) => {
+                // console.log("e", e);
+                e.stopPropagation();
+                e.preventDefault();
+                if (dragging) {
+                  const midiNote = { ...tmn };
+                  const box = { ...midiNote.box };
+                  const originalW = box.xMax - box.xMin;
+                  const originalH = box.yMax - box.yMin;
+
+                  const xMin = Math.max(0, box.xMin + e.movementX / 500);
+                  const xMax = Math.min(1, box.xMax + e.movementX / 500);
+                  const yMin = Math.max(0, box.yMin + e.movementY / 375);
+                  const yMax = Math.min(1, box.yMax + e.movementY / 375);
+
+                  if (originalW === xMax - xMin && originalH === yMax - yMin) {
+                    box.xMin = xMin;
+                    box.xMax = xMax;
+                    box.yMin = yMin;
+                    box.yMax = yMax;
+
+                    midiNote.box = box;
+                    const newMidiNotes = {
+                      ...tempMidiNotes,
+                      [tmn.uid]: midiNote,
+                    };
+
+                    setTempMidiNotes(newMidiNotes);
+                  }
+                }
+              }}
+            >
+              Note: {tmn.note}
+            </BoxElement>
           );
         })}
       </BoxContainer>
