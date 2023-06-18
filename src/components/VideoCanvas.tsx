@@ -10,7 +10,8 @@ import sessionConfig from "atoms/sessionConfig";
 import theme from "config/theme";
 import { Text, SubTitle } from "./shared";
 import { MIDINoteType } from "config/midi";
-import Draggable from "react-draggable";
+import { DraggableCore } from "react-draggable";
+import { Box } from "config/shared";
 
 const VideoCanvasContainer = styled.div`
   display: flex;
@@ -79,12 +80,21 @@ const BoxElement = styled.div<{
   cursor: pointer;
 `;
 
+const DraggedBox = styled(BoxElement)`
+  border: 2px solid ${theme.selectable};
+`;
+
 const StyledText = styled(Text)`
   color: ${theme.text};
 `;
 
 function MIDINoteView() {
   const [tempMidiNotes, setTempMidiNotes] = useRecoilState(midiNotes);
+  const [selectedMidiNote, setSelectedMidiNote] = useState<
+    MIDINoteType | undefined
+  >(undefined);
+  const [draggedBox, setDraggedBox] = useState<Box | undefined>(undefined);
+
   const [startPos, setStartPos] = useState<
     { [index: string]: number } | undefined
   >(undefined);
@@ -99,32 +109,30 @@ function MIDINoteView() {
           const left = tmn.box.xMin * 500;
 
           return (
-            <Draggable
-              bounds="parent"
-              onStart={(e) => {
-                console.log("e start", e);
+            <DraggableCore
+              // bounds="parent"
+              onStart={(e, data) => {
+                console.log("e start", data);
                 e.preventDefault();
                 e.stopPropagation();
-                // @ts-ignore
-                setStartPos({ x: e.pageX, y: e.pageY });
+                setStartPos({ x: data.x, y: data.y });
+                setSelectedMidiNote(tmn);
+                setDraggedBox(tmn.box);
               }}
-              onStop={(e) => {
-                console.log("e stop", e);
+              onStop={(e, data) => {
+                console.log("e stop", data);
                 e.preventDefault();
                 e.stopPropagation();
+                setSelectedMidiNote(undefined);
+                setDraggedBox(undefined);
                 if (startPos) {
-                  // @ts-ignore
-                  const [endX, endY] = [e.pageX, e.pageY] as number[];
                   const [movementX, movementY] = [
-                    endX - startPos.x,
-                    endY - startPos.y,
+                    data.x - startPos.x,
+                    data.y - startPos.y,
                   ];
 
-                  console.log({
-                    startPos,
-                    movementX: movementX / 500,
-                    movementY: movementY / 500,
-                  });
+                  const originalW = tmn.box.xMax - tmn.box.xMin;
+                  const originalH = tmn.box.yMax - tmn.box.yMin;
 
                   const xMin = Math.max(0, tmn.box.xMin + movementX / 500);
                   const xMax = Math.min(1, tmn.box.xMax + movementX / 500);
@@ -143,8 +151,40 @@ function MIDINoteView() {
                       },
                     },
                   };
+                  if (
+                    originalW.toFixed(2) === (xMax - xMin).toFixed(2) &&
+                    originalH.toFixed(2) === (yMax - yMin).toFixed(2)
+                  ) {
+                    setTempMidiNotes(newMidiNotes);
+                    setStartPos(undefined);
+                  }
+                }
+              }}
+              onDrag={(e, data) => {
+                e.stopPropagation();
+                e.preventDefault();
+                if (selectedMidiNote && draggedBox) {
+                  const originalW =
+                    selectedMidiNote.box.xMax - selectedMidiNote.box.xMin;
+                  const originalH =
+                    selectedMidiNote.box.yMax - selectedMidiNote.box.yMin;
 
-                  setTempMidiNotes(newMidiNotes);
+                  const xMin = Math.max(0, draggedBox.xMin + data.deltaX / 500);
+                  const xMax = Math.min(1, draggedBox.xMax + data.deltaX / 500);
+                  const yMin = Math.max(0, draggedBox.yMin + data.deltaY / 375);
+                  const yMax = Math.min(1, draggedBox.yMax + data.deltaY / 375);
+
+                  if (
+                    originalW.toFixed(2) === (xMax - xMin).toFixed(2) &&
+                    originalH.toFixed(2) === (yMax - yMin).toFixed(2)
+                  ) {
+                    setDraggedBox({
+                      xMin,
+                      xMax,
+                      yMin,
+                      yMax,
+                    });
+                  }
                 }
               }}
             >
@@ -157,9 +197,59 @@ function MIDINoteView() {
               >
                 Note: {tmn.note}
               </BoxElement>
-            </Draggable>
+            </DraggableCore>
           );
         })}
+        {selectedMidiNote && draggedBox && (
+          <DraggedBox
+            key="dragged-box"
+            w={(draggedBox.xMax - draggedBox.xMin) * 500}
+            h={(draggedBox.yMax - draggedBox.yMin) * 375}
+            top={draggedBox.yMin * 375}
+            left={draggedBox.xMin * 500}
+            // onMouseMove={(e) => {
+            //   e.stopPropagation();
+            //   e.preventDefault();
+
+            //   const originalW =
+            //     selectedMidiNote.box.xMax - selectedMidiNote.box.xMin;
+            //   const originalH =
+            //     selectedMidiNote.box.yMax - selectedMidiNote.box.yMin;
+
+            //   const xMin = Math.max(
+            //     0,
+            //     selectedMidiNote.box.xMin + e.movementX / 500
+            //   );
+            //   const xMax = Math.min(
+            //     1,
+            //     selectedMidiNote.box.xMax + e.movementX / 500
+            //   );
+            //   const yMin = Math.max(
+            //     0,
+            //     selectedMidiNote.box.yMin + e.movementY / 375
+            //   );
+            //   const yMax = Math.min(
+            //     1,
+            //     selectedMidiNote.box.yMax + e.movementY / 375
+            //   );
+
+            //   if (originalW <= xMax - xMin && originalH <= yMax - yMin) {
+            //     console.log("Not moving bitch");
+            //   } else {
+            //     console.log("moving bitch");
+            //     setSelectedMidiNote({
+            //       ...selectedMidiNote,
+            //       box: {
+            //         xMin,
+            //         xMax,
+            //         yMin,
+            //         yMax,
+            //       },
+            //     });
+            //   }
+            // }}
+          />
+        )}
       </BoxContainer>
     </NoteViewContainer>
   );
