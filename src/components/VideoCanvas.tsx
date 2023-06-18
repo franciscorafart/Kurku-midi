@@ -9,8 +9,10 @@ import midiNotes from "atoms/midiNotes";
 import sessionConfig from "atoms/sessionConfig";
 import theme from "config/theme";
 import { Text, SubTitle } from "./shared";
+import selectedMidiNote from "atoms/selectedMidiNote";
+
 import { MIDINoteType } from "config/midi";
-import { DraggableCore } from "react-draggable";
+import Draggable, { DraggableCore } from "react-draggable";
 import { Box } from "config/shared";
 
 const VideoCanvasContainer = styled.div`
@@ -62,26 +64,30 @@ const BoxContainer = styled.div`
 `;
 
 const BoxElement = styled.div<{
-  top: number;
-  left: number;
   w: number;
   h: number;
+  selected: boolean;
 }>`
   position: absolute;
   width: ${({ w }) => w}px;
   height: ${({ h }) => h}px;
-  top: ${({ top }) => top}px;
-  left: ${({ left }) => left}px;
-  border: 2px solid ${theme.border};
-  padding: 4px;
-  color: ${theme.border};
+  border: 2px solid
+    ${({ selected }) => (selected ? theme.border : theme.selectable)};
+  color: ${({ selected }) => (selected ? theme.border : theme.selectable)};
   float: left;
   z-index: 100;
-  cursor: pointer;
+  cursor: move;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  flex-direction: column;
 `;
 
-const DraggedBox = styled(BoxElement)`
-  border: 2px solid ${theme.selectable};
+const Sizer = styled.div`
+  width: 8px;
+  height: 8px;
+  background-color: ${theme.selectable};
+  cursor: nwse-resize;
 `;
 
 const StyledText = styled(Text)`
@@ -90,10 +96,11 @@ const StyledText = styled(Text)`
 
 function MIDINoteView() {
   const [tempMidiNotes, setTempMidiNotes] = useRecoilState(midiNotes);
-  const [selectedMidiNote, setSelectedMidiNote] = useState<
-    MIDINoteType | undefined
+  const selectedNoteValue = useRecoilValue(selectedMidiNote);
+
+  const [startPos, setStartPos] = useState<
+    { [index: string]: number } | undefined
   >(undefined);
-  const [draggedBox, setDraggedBox] = useState<Box | undefined>(undefined);
 
   return (
     <NoteViewContainer>
@@ -105,76 +112,100 @@ function MIDINoteView() {
           const left = tmn.box.xMin * 500;
 
           return (
-            <DraggableCore
-              onStart={(e) => {
+            <Draggable
+              bounds="parent"
+              defaultPosition={{ x: left, y: top }}
+              onStart={(e, data) => {
                 e.preventDefault();
                 e.stopPropagation();
-                setSelectedMidiNote(tmn);
-                setDraggedBox(tmn.box);
+                setStartPos({ x: data.x, y: data.y });
+                // Set dirty
               }}
-              onStop={(e) => {
+              onStop={(e, data) => {
                 e.preventDefault();
                 e.stopPropagation();
-                if (draggedBox) {
+                if (startPos) {
+                  const [movementX, movementY] = [
+                    data.x - startPos.x,
+                    data.y - startPos.y,
+                  ];
+
+                  const xMin = Math.max(0, tmn.box.xMin + movementX / 500);
+                  const xMax = Math.min(1, tmn.box.xMax + movementX / 500);
+                  const yMin = Math.max(0, tmn.box.yMin + movementY / 375);
+                  const yMax = Math.min(1, tmn.box.yMax + movementY / 375);
                   const newMidiNotes = {
                     ...tempMidiNotes,
                     [tmn.uid]: {
                       ...tmn,
-                      box: draggedBox,
+                      box: {
+                        xMin,
+                        xMax,
+                        yMin,
+                        yMax,
+                      },
                     },
                   };
 
                   setTempMidiNotes(newMidiNotes);
-                  setDraggedBox(undefined);
+                  setStartPos(undefined);
                 }
               }}
-              onDrag={(e, data) => {
-                e.stopPropagation();
-                e.preventDefault();
-                if (draggedBox) {
-                  const originalW = tmn.box.xMax - tmn.box.xMin;
-                  const originalH = tmn.box.yMax - tmn.box.yMin;
-
-                  const xMin = Math.max(0, draggedBox.xMin + data.deltaX / 500);
-                  const xMax = Math.min(1, draggedBox.xMax + data.deltaX / 500);
-                  const yMin = Math.max(0, draggedBox.yMin + data.deltaY / 375);
-                  const yMax = Math.min(1, draggedBox.yMax + data.deltaY / 375);
-
-                  if (
-                    originalW.toFixed(2) === (xMax - xMin).toFixed(2) &&
-                    originalH.toFixed(2) === (yMax - yMin).toFixed(2)
-                  ) {
-                    setDraggedBox({
-                      xMin,
-                      xMax,
-                      yMin,
-                      yMax,
-                    });
-                  }
-                }
-              }}
+              key={`box-${tmn.uid}`}
             >
-              <BoxElement
-                key={`box-${tmn.uid}`}
-                w={w}
-                h={h}
-                top={top}
-                left={left}
-              >
+              <BoxElement w={w} h={h} selected={tmn.uid === selectedNoteValue}>
                 Note: {tmn.note}
+                {/* <Draggable
+                  onStart={(e, data) => {
+                    console.log("data", data);
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setStartPos({ x: data.x, y: data.y });
+                  }}
+                  onStop={(e, data) => {
+                    console.log("data", data);
+                    e.preventDefault();
+                    e.stopPropagation();
+                    if (startPos) {
+                      const [movementX, movementY] = [
+                        data.x - startPos.x,
+                        data.y - startPos.y,
+                      ];
+                      const xMin = tmn.box.xMin;
+                      const xMax = Math.min(
+                        1,
+                        tmn.box.xMin + (tmn.box.xMax + movementX / 500)
+                      );
+                      // const xMax = Math.min(1, tmn.box.xMax + movementX / 500);
+                      const yMin = tmn.box.yMin;
+                      const yMax = Math.min(
+                        1,
+                        tmn.box.yMin + (tmn.box.yMax + movementY / 375)
+                      );
+
+                      const newMidiNotes = {
+                        ...tempMidiNotes,
+                        [tmn.uid]: {
+                          ...tmn,
+                          box: {
+                            xMin,
+                            xMax,
+                            yMin,
+                            yMax,
+                          },
+                        },
+                      };
+                      setTempMidiNotes(newMidiNotes);
+                      setStartPos(undefined);
+                    }
+                  }}
+                >
+                  <Sizer />
+                </Draggable> */}
               </BoxElement>
-            </DraggableCore>
+            </Draggable>
           );
         })}
-        {draggedBox && (
-          <DraggedBox
-            key="dragged-box"
-            w={(draggedBox.xMax - draggedBox.xMin) * 500}
-            h={(draggedBox.yMax - draggedBox.yMin) * 375}
-            top={draggedBox.yMin * 375}
-            left={draggedBox.xMin * 500}
-          />
-        )}
       </BoxContainer>
     </NoteViewContainer>
   );
