@@ -84,8 +84,8 @@ const BoxElement = styled.div<{
 `;
 
 const Sizer = styled.div`
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
   background-color: ${theme.selectable};
   cursor: nwse-resize;
 `;
@@ -155,7 +155,8 @@ function MIDINoteView() {
             >
               <BoxElement w={w} h={h} selected={tmn.uid === selectedNoteValue}>
                 Note: {tmn.note}
-                {/* <Draggable
+                <Draggable
+                  bounds="parent parent"
                   onStart={(e, data) => {
                     console.log("data", data);
                     e.preventDefault();
@@ -172,16 +173,9 @@ function MIDINoteView() {
                         data.y - startPos.y,
                       ];
                       const xMin = tmn.box.xMin;
-                      const xMax = Math.min(
-                        1,
-                        tmn.box.xMin + (tmn.box.xMax + movementX / 500)
-                      );
-                      // const xMax = Math.min(1, tmn.box.xMax + movementX / 500);
+                      const xMax = Math.min(1, tmn.box.xMax + movementX / 500);
                       const yMin = tmn.box.yMin;
-                      const yMax = Math.min(
-                        1,
-                        tmn.box.yMin + (tmn.box.yMax + movementY / 375)
-                      );
+                      const yMax = Math.min(1, tmn.box.yMax + movementY / 375);
 
                       const newMidiNotes = {
                         ...tempMidiNotes,
@@ -201,7 +195,7 @@ function MIDINoteView() {
                   }}
                 >
                   <Sizer />
-                </Draggable> */}
+                </Draggable>
               </BoxElement>
             </Draggable>
           );
