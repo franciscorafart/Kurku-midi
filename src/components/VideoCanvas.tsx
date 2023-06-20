@@ -87,10 +87,11 @@ const BoxElement = styled.div<{
   flex-direction: column;
 `;
 
-const Sizer = styled.div`
+const Sizer = styled.div<{ selected: boolean }>`
   width: 6px;
   height: 6px;
-  background-color: ${theme.selectable};
+  background-color: ${({ selected }) =>
+    selected ? theme.border : theme.selectable};
   cursor: nwse-resize;
   transform: none !important; // Prevent translate when resizing element
 `;
@@ -130,6 +131,7 @@ function MIDINoteView() {
           const h = (tmn.box.yMax - tmn.box.yMin) * VIEW_H;
           const top = tmn.box.yMin * VIEW_H;
           const left = tmn.box.xMin * VIEW_W;
+          const isSelected = tmn.uid === selectedNoteValue;
 
           return (
             <Draggable
@@ -139,7 +141,6 @@ function MIDINoteView() {
                 e.preventDefault();
                 e.stopPropagation();
                 setStartPos({ x: data.x, y: data.y });
-                // Set dirty
               }}
               onStop={(e, data) => {
                 e.preventDefault();
@@ -174,7 +175,7 @@ function MIDINoteView() {
               }}
               key={`box-${tmn.uid}`}
             >
-              <BoxElement w={w} h={h} selected={tmn.uid === selectedNoteValue}>
+              <BoxElement w={w} h={h} selected={isSelected}>
                 <NoteData>Note: {tmn.note}</NoteData>
                 <Draggable
                   onStart={(e, data) => {
@@ -247,7 +248,7 @@ function MIDINoteView() {
                     }
                   }}
                 >
-                  <Sizer key={`sizer-${tmn.uid}`} />
+                  <Sizer selected={isSelected} />
                 </Draggable>
               </BoxElement>
             </Draggable>
