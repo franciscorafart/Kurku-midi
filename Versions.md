@@ -25,3 +25,8 @@ Delete sessions
 - Refurbish user Interface
 - Add Midi Note trigger functionality
 - Fix multiple bugs on Saving and retreiving sessions
+
+### 0.1.6
+
+- Add Midi notes box ovelay to Webvam view
+- Implement graphic resizing and dragging of Midi notes
