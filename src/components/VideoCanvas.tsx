@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
-import { useRecoilState, useRecoilValue } from "recoil";
+import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import styled from "styled-components";
 import { drawKeypoints, drawSkeleton, resetCanvas } from "utils/utils";
 import { isEmpty } from "lodash";
+import dirtyAtom from "atoms/dirty";
 import { machineConfig } from "utils/bodytracking";
 import keypoints from "atoms/keypoints";
 import midiNotes from "atoms/midiNotes";
@@ -115,6 +116,7 @@ function MIDINoteView() {
   const [tempMidiNotes, setTempMidiNotes] = useRecoilState(midiNotes);
   const selectedNoteValue = useRecoilValue(selectedMidiNote);
   const [resizableBox, setResizableBox] = useState<Box | undefined>(undefined);
+  const setDirty = useSetRecoilState(dirtyAtom);
 
   const [startPos, setStartPos] = useState<
     { [index: string]: number } | undefined
@@ -167,6 +169,7 @@ function MIDINoteView() {
 
                   setTempMidiNotes(newMidiNotes);
                   setStartPos(undefined);
+                  setDirty(true);
                 }
               }}
               key={`box-${tmn.uid}`}
@@ -213,9 +216,12 @@ function MIDINoteView() {
                       setTempMidiNotes(newMidiNotes);
                       setStartPos(undefined);
                       setResizableBox(undefined);
+                      setDirty(true);
                     }
                   }}
                   onDrag={(e, data) => {
+                    e.preventDefault();
+                    e.stopPropagation();
                     if (startPos) {
                       const [movementX, movementY] = [
                         data.x - startPos.x,
