@@ -10,10 +10,11 @@ import sessionConfig from "atoms/sessionConfig";
 import theme from "config/theme";
 import { Text, SubTitle } from "./shared";
 import selectedMidiNote from "atoms/selectedMidiNote";
-
-import { MIDINoteType } from "config/midi";
-import Draggable, { DraggableCore } from "react-draggable";
+import Draggable from "react-draggable";
 import { Box } from "config/shared";
+
+const VIEW_W = 500;
+const VIEW_H = 375;
 
 const VideoCanvasContainer = styled.div`
   display: flex;
@@ -32,8 +33,8 @@ const Video = styled.video`
 
 // NOTE: Fix webcam view here
 const Canvas = styled.canvas`
-  min-height: 375px;
-  width: 500px;
+  min-height: ${VIEW_H}px;
+  width: ${VIEW_W}px;
   border: 1px dashed ${theme.text};
   position: absolute:
   top: 0;
@@ -57,8 +58,8 @@ const NoteViewContainer = styled.div`
 
 const BoxContainer = styled.div`
   position: relative;
-  min-height: 375px;
-  width: 500px;
+  min-height: ${VIEW_H}px;
+  width: ${VIEW_W}px;
   top: 0;
   left: 0;
 `;
@@ -66,9 +67,11 @@ const BoxContainer = styled.div`
 const BoxElement = styled.div<{
   w: number;
   h: number;
-  selected: boolean;
+  selected?: boolean;
 }>`
   position: absolute;
+  min-width: 50px;
+  min-height: 50px;
   width: ${({ w }) => w}px;
   height: ${({ h }) => h}px;
   border: 2px solid
@@ -88,15 +91,30 @@ const Sizer = styled.div`
   height: 6px;
   background-color: ${theme.selectable};
   cursor: nwse-resize;
+  transform: none !important; // Prevent translate when resizing element
+`;
+
+const NoteData = styled.div`
+  width: 100%;
+  font-size: 0.7em;
+  text-align: left;
 `;
 
 const StyledText = styled(Text)`
   color: ${theme.text};
 `;
 
+const ResizableBox = styled(BoxElement)<{ top: number; left: number }>`
+  border: 1px dashed
+    ${({ selected }) => (selected ? theme.border : theme.selectable)};
+  top: ${({ top }) => top}px;
+  left: ${({ left }) => left}px;
+`;
+
 function MIDINoteView() {
   const [tempMidiNotes, setTempMidiNotes] = useRecoilState(midiNotes);
   const selectedNoteValue = useRecoilValue(selectedMidiNote);
+  const [resizableBox, setResizableBox] = useState<Box | undefined>(undefined);
 
   const [startPos, setStartPos] = useState<
     { [index: string]: number } | undefined
@@ -106,10 +124,10 @@ function MIDINoteView() {
     <NoteViewContainer>
       <BoxContainer>
         {Object.values(tempMidiNotes).map((tmn) => {
-          const w = (tmn.box.xMax - tmn.box.xMin) * 500;
-          const h = (tmn.box.yMax - tmn.box.yMin) * 375;
-          const top = tmn.box.yMin * 375;
-          const left = tmn.box.xMin * 500;
+          const w = (tmn.box.xMax - tmn.box.xMin) * VIEW_W;
+          const h = (tmn.box.yMax - tmn.box.yMin) * VIEW_H;
+          const top = tmn.box.yMin * VIEW_H;
+          const left = tmn.box.xMin * VIEW_W;
 
           return (
             <Draggable
@@ -130,10 +148,10 @@ function MIDINoteView() {
                     data.y - startPos.y,
                   ];
 
-                  const xMin = Math.max(0, tmn.box.xMin + movementX / 500);
-                  const xMax = Math.min(1, tmn.box.xMax + movementX / 500);
-                  const yMin = Math.max(0, tmn.box.yMin + movementY / 375);
-                  const yMax = Math.min(1, tmn.box.yMax + movementY / 375);
+                  const xMin = Math.max(0, tmn.box.xMin + movementX / VIEW_W);
+                  const xMax = Math.min(1, tmn.box.xMax + movementX / VIEW_W);
+                  const yMin = Math.max(0, tmn.box.yMin + movementY / VIEW_H);
+                  const yMax = Math.min(1, tmn.box.yMax + movementY / VIEW_H);
                   const newMidiNotes = {
                     ...tempMidiNotes,
                     [tmn.uid]: {
@@ -154,17 +172,14 @@ function MIDINoteView() {
               key={`box-${tmn.uid}`}
             >
               <BoxElement w={w} h={h} selected={tmn.uid === selectedNoteValue}>
-                Note: {tmn.note}
+                <NoteData>Note: {tmn.note}</NoteData>
                 <Draggable
-                  bounds="parent parent"
                   onStart={(e, data) => {
-                    console.log("data", data);
                     e.preventDefault();
                     e.stopPropagation();
                     setStartPos({ x: data.x, y: data.y });
                   }}
                   onStop={(e, data) => {
-                    console.log("data", data);
                     e.preventDefault();
                     e.stopPropagation();
                     if (startPos) {
@@ -173,9 +188,15 @@ function MIDINoteView() {
                         data.y - startPos.y,
                       ];
                       const xMin = tmn.box.xMin;
-                      const xMax = Math.min(1, tmn.box.xMax + movementX / 500);
+                      const xMax = Math.min(
+                        1,
+                        tmn.box.xMax + movementX / VIEW_W
+                      );
                       const yMin = tmn.box.yMin;
-                      const yMax = Math.min(1, tmn.box.yMax + movementY / 375);
+                      const yMax = Math.min(
+                        1,
+                        tmn.box.yMax + movementY / VIEW_H
+                      );
 
                       const newMidiNotes = {
                         ...tempMidiNotes,
@@ -191,15 +212,49 @@ function MIDINoteView() {
                       };
                       setTempMidiNotes(newMidiNotes);
                       setStartPos(undefined);
+                      setResizableBox(undefined);
+                    }
+                  }}
+                  onDrag={(e, data) => {
+                    if (startPos) {
+                      const [movementX, movementY] = [
+                        data.x - startPos.x,
+                        data.y - startPos.y,
+                      ];
+                      const xMin = tmn.box.xMin;
+                      const xMax = Math.min(
+                        1,
+                        Math.max(
+                          tmn.box.xMin + 0.1,
+                          tmn.box.xMax + movementX / VIEW_W
+                        )
+                      );
+                      const yMin = tmn.box.yMin;
+                      const yMax = Math.min(
+                        1,
+                        Math.max(
+                          tmn.box.yMin + 0.1,
+                          tmn.box.yMax + movementY / VIEW_H
+                        )
+                      );
+                      setResizableBox({ xMin, xMax, yMin, yMax });
                     }
                   }}
                 >
-                  <Sizer />
+                  <Sizer key={`sizer-${tmn.uid}`} />
                 </Draggable>
               </BoxElement>
             </Draggable>
           );
         })}
+        {resizableBox && (
+          <ResizableBox
+            w={(resizableBox.xMax - resizableBox.xMin) * VIEW_W}
+            h={(resizableBox.yMax - resizableBox.yMin) * VIEW_H}
+            left={resizableBox.xMin * VIEW_W}
+            top={resizableBox.yMin * VIEW_H}
+          />
+        )}
       </BoxContainer>
     </NoteViewContainer>
   );
