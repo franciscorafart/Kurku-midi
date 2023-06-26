@@ -1,5 +1,5 @@
 import Dexie from "dexie";
-import { ChannelType } from "~/utils/types";
+import { ChannelType } from "utils/types";
 import {
   ADIDBInterface,
   ListQueryOpts,
