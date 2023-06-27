@@ -148,8 +148,18 @@ export const scaleWindowToRange = (
 };
 
 export const isWithinBox = (box: Box, position: ValueRange) => {
+  /* NOTE: vervical (y) positions start from bottom of the webcam view for body part and 
+  from the  top for midi box. Here we transform box space to express it in the same terms
+  as body position. We express range 0-1 as 1-0 and swap the max and min values of the box 
+  so that it's not flipped like a mirror, just translated.
+  */
+
+  const translatedBoxYMin = box.yMax * -1 + 1;
+  const translatedBoxYMax = box.yMin * -1 + 1;
+
   if (position.x > box.xMax || position.x < box.xMin) return false;
-  if (position.y > box.yMax || position.y < box.yMin) return false;
+  if (position.y > translatedBoxYMax || position.y < translatedBoxYMin)
+    return false;
 
   return true;
 };

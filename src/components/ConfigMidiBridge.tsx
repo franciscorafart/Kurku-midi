@@ -60,9 +60,8 @@ function ConfigMidiBridge({
         bodyPartPositions,
         ccSender
       );
-      setCCMeterMap(valueObjectMap);
+      setCCMeterMap(valueObjectMap); // Note: CC meter visulization
 
-      // TODO: Add Note mapper here
       mapPositionsToMIDINotes(bodyPartPositions, noteSender, notes);
     }
   }, [
