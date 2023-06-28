@@ -127,6 +127,7 @@ function MIDINoteView() {
     <NoteViewContainer>
       <BoxContainer>
         {Object.values(tempMidiNotes).map((tmn) => {
+          console.log(tmn.box);
           const w = (tmn.box.xMax - tmn.box.xMin) * VIEW_W;
           const h = (tmn.box.yMax - tmn.box.yMin) * VIEW_H;
           const top = tmn.box.yMin * VIEW_H;

@@ -149,6 +149,7 @@ const MidiNoteForm = ({ noteUid }: { noteUid: string }) => {
               value={formik.values.xMin}
               onChange={formik.handleChange}
               isInvalid={Boolean(formik.errors.xMin)}
+              disabled
             />
             <Form.Control.Feedback type="invalid">
               {formik.errors.xMin}
@@ -163,6 +164,7 @@ const MidiNoteForm = ({ noteUid }: { noteUid: string }) => {
               value={formik.values.xMax}
               onChange={formik.handleChange}
               isInvalid={Boolean(formik.errors.xMax)}
+              disabled
             />
             <Form.Control.Feedback type="invalid">
               {formik.errors.xMax}
@@ -180,6 +182,7 @@ const MidiNoteForm = ({ noteUid }: { noteUid: string }) => {
               value={formik.values.yMin}
               onChange={formik.handleChange}
               isInvalid={Boolean(formik.errors.yMin)}
+              disabled
             />
             <Form.Control.Feedback type="invalid">
               {formik.errors.yMin}
@@ -194,6 +197,7 @@ const MidiNoteForm = ({ noteUid }: { noteUid: string }) => {
               value={formik.values.yMax}
               onChange={formik.handleChange}
               isInvalid={Boolean(formik.errors.yMax)}
+              disabled
             />
             <Form.Control.Feedback type="invalid">
               {formik.errors.yMax}
