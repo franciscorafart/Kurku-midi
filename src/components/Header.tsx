@@ -14,6 +14,7 @@ import theme from "config/theme";
 import LoginModal from "./LoginModal";
 import { apiUrl } from "../constants";
 import jwtDecode from "jwt-decode";
+import { Link } from "react-router-dom";
 
 const StyledContainer = styled(Container)`
   max-width: 2000px;
@@ -217,6 +218,13 @@ function Header({
           )}
           {!hideOptions && (
             <StyledNav>
+              <a
+                target="_blank"
+                href="https://about.kurku.tech"
+                rel="noreferrer"
+              >
+                <Button variant="outline-light">About</Button>
+              </a>
               <Button onClick={kurkuModal} variant="outline-light">
                 What is Kurku?
               </Button>
