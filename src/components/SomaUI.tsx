@@ -21,6 +21,7 @@ import storedEffects from "atoms/storedEffects";
 import sessionConfig from "atoms/sessionConfig";
 import GlobalMidi from "./GobalMIDI";
 import MidiNotePanel from "./MidiNotePanel";
+import AdCommponent from "./AdComponent";
 
 const Container = styled.div`
   display: flex;
@@ -108,6 +109,7 @@ function SomaUI() {
         howToUseModal={() => setShowModal(true)}
       />
       <Container>
+        <AdCommponent />
         <HContainer>
           <ConfigMidiBridge
             onInit={initTracking}
