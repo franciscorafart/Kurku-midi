@@ -223,7 +223,7 @@ function Header({
                 href="https://about.kurku.tech"
                 rel="noreferrer"
               >
-                <Button variant="outline-light">About</Button>
+                <Button variant="outline-light">Website</Button>
               </a>
               <Button onClick={kurkuModal} variant="outline-light">
                 What is Kurku?
