@@ -1,5 +1,6 @@
 import { useEffect, useContext, useRef, useState } from "react";
 import { User } from "context";
+import { MONETAG_AD_ID } from "../constants";
 
 const Ad = () => {
   const isPaidUser = useContext(User);
@@ -22,7 +23,7 @@ const Ad = () => {
         for (const mutation of mutationsList) {
           // Check if the dynamic element has been added to the DOM
           if (mutation.type === "childList") {
-            const dynamicElement = document.getElementById("p_5884602");
+            const dynamicElement = document.getElementById(MONETAG_AD_ID);
 
             if (dynamicElement) {
               adRef.current = dynamicElement;
