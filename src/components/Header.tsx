@@ -14,7 +14,6 @@ import theme from "config/theme";
 import LoginModal from "./LoginModal";
 import { apiUrl } from "../constants";
 import jwtDecode from "jwt-decode";
-import { Link } from "react-router-dom";
 
 const StyledContainer = styled(Container)`
   max-width: 2000px;
