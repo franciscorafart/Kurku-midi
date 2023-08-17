@@ -81,6 +81,33 @@ const SplitForm = ({
     setFormEmail(emailAddress);
   };
 
+  const handleSubscription = async (event: React.SyntheticEvent) => {
+    event.preventDefault();
+
+    const payload = {
+      lookup_key: process.env.REACT_APP_PRICE_MONTHLY_TEST,
+    };
+
+    const jwt = localStorage.getItem("kurkuToken") || "";
+
+    fetch(`${apiUrl}/transactions/createCheckoutSession`, {
+      method: "POST",
+      cache: "no-cache",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: jwt,
+      },
+      redirect: "follow",
+      referrerPolicy: "unsafe-url",
+      body: JSON.stringify(payload),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        const { url } = data;
+        window.location.href = url;
+      });
+  };
+
   const handleSubmit = async (event: React.SyntheticEvent) => {
     event.preventDefault();
 
@@ -306,6 +333,7 @@ const SplitForm = ({
           {spinner ? <Spinner animation="border" /> : <span>Pay</span>}
         </Button>
       </Form>
+      <Button onClick={handleSubscription}>Subscribe</Button>
     </FormContainer>
   );
 };

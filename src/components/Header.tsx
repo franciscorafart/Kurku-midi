@@ -243,7 +243,6 @@ function Header({
                 <Button
                   variant="outline-light"
                   onClick={() => setDisplayForm(true)}
-                  disabled
                 >
                   Subscribe
                 </Button>
