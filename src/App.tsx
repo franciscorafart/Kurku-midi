@@ -15,6 +15,7 @@ import MobileWarning from "./components/MobileWarning";
 import ResetPassword from "./pages/ResetPassword";
 import ConfirmEmail from "./pages/ConfirmEmail";
 import initializedADI from "./atoms/initializedADI";
+import SubscriptionSuccess from "./pages/SubscriptionSuccess";
 
 function App() {
   return (
@@ -24,6 +25,10 @@ function App() {
           <Route path="/" element={<UIInitializer />}></Route>
           <Route path="/reset-password" element={<ResetPassword />}></Route>
           <Route path="/confirm-user" element={<ConfirmEmail />}></Route>
+          <Route
+            path="subscription-success"
+            element={<SubscriptionSuccess />}
+          />
         </Routes>
       </BrowserRouter>
     </RecoilRoot>
