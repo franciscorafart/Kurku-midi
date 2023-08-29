@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import {
   useStripe,
   useElements,
@@ -22,6 +22,7 @@ import {
 import account from "atoms/account";
 import { useRecoilState } from "recoil";
 import { apiUrl } from "../../constants";
+import { User } from "context";
 
 const options = {
   style: {
@@ -59,6 +60,7 @@ const SplitForm = ({
 }) => {
   const stripe = useStripe();
   const elements = useElements();
+  const isPaidUser = useContext(User);
   const [userAccount, setUserAccount] = useRecoilState(account);
 
   const [errorAlert, setErrorAlert] = useState({
@@ -100,6 +102,31 @@ const SplitForm = ({
       redirect: "follow",
       referrerPolicy: "unsafe-url",
       body: JSON.stringify(payload),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        const { url } = data;
+        // NOTE: Set session id here?
+        window.location.href = url;
+      });
+  };
+
+  const handleCancel = async (event: React.SyntheticEvent) => {
+    event.preventDefault();
+    const jwt = localStorage.getItem("kurkuToken") || "";
+
+    fetch(`${apiUrl}/transactions/createCheckoutSession`, {
+      method: "POST",
+      cache: "no-cache",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: jwt,
+      },
+      redirect: "follow",
+      referrerPolicy: "unsafe-url",
+      body: JSON.stringify({
+        session_id: userAccount.sessionId,
+      }),
     })
       .then((response) => response.json())
       .then((data) => {
@@ -334,6 +361,11 @@ const SplitForm = ({
         </Button>
       </Form>
       <Button onClick={handleSubscription}>Subscribe</Button>
+      {isPaidUser && (
+        <Button onClick={handleCancel} variant="warning">
+          Cancel subscription
+        </Button>
+      )}
     </FormContainer>
   );
 };

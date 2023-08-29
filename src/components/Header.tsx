@@ -122,6 +122,7 @@ function Header({
             dateExpiry: userAccount.dateExpiry,
             userId: data.id,
             email: data.email,
+            sessionId: data.sessionId || "",
           });
           setRenew(renewSoon(userAccount.dateExpiry));
         }
@@ -143,6 +144,7 @@ function Header({
             dateExpiry: userAccount.dateExpiry,
             userId: decoded.id,
             email: decoded.email,
+            sessionId: decoded.sessionId || "",
           });
           setRenew(renewSoon(userAccount.dateExpiry));
         }
@@ -187,6 +189,7 @@ function Header({
       userId: "",
       dateExpiry: "",
       email: "",
+      sessionId: "",
     });
   };
 
