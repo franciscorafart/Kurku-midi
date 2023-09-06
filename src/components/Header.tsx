@@ -6,7 +6,7 @@ import Navbar from "react-bootstrap/Navbar";
 import logo from "assets/kurku-logo.png";
 import { Button } from "react-bootstrap";
 import styled from "styled-components";
-import StripeModal from "./StripeModal";
+import Subscription from "./StripeModal/Subscription";
 import { User } from "context";
 import accountInState from "atoms/account";
 import { useRecoilState } from "recoil";
@@ -122,7 +122,6 @@ function Header({
             dateExpiry: userAccount.dateExpiry,
             userId: data.id,
             email: data.email,
-            sessionId: data.sessionId || "",
           });
           setRenew(renewSoon(userAccount.dateExpiry));
         }
@@ -144,7 +143,6 @@ function Header({
             dateExpiry: userAccount.dateExpiry,
             userId: decoded.id,
             email: decoded.email,
-            sessionId: decoded.sessionId || "",
           });
           setRenew(renewSoon(userAccount.dateExpiry));
         }
@@ -189,7 +187,6 @@ function Header({
       userId: "",
       dateExpiry: "",
       email: "",
-      sessionId: "",
     });
   };
 
@@ -242,12 +239,12 @@ function Header({
               >
                 {buttonText}
               </Button>
-              {!isPaidUser && connected && (
+              {connected && (
                 <Button
                   variant="outline-light"
                   onClick={() => setDisplayForm(true)}
                 >
-                  Subscribe
+                  {!isPaidUser ? "Subscribe" : "Change subscription"}
                 </Button>
               )}
 
@@ -280,7 +277,7 @@ function Header({
             </StyledNav>
           )}
         </StyledContainer>
-        <StripeModal
+        <Subscription
           open={displayForm}
           handleClose={() => setDisplayForm(false)}
         />

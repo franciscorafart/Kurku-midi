@@ -9,7 +9,7 @@ import NewVersionModal from "./components/NewVersionModal";
 import ADI, { initializeADI } from "./localDB";
 import { User } from "context";
 import account from "./atoms/account";
-import { TransactionResponse } from "./components/shared";
+import { SubscriptionActiveResponse } from "./components/shared";
 import { apiUrl } from "./constants";
 import MobileWarning from "./components/MobileWarning";
 import ResetPassword from "./pages/ResetPassword";
@@ -72,7 +72,7 @@ const UIInitializer = () => {
         const jwt = localStorage.getItem("kurkuToken");
 
         try {
-          const res = await fetch(`${apiUrl}/transactions/list`, {
+          const res = await fetch(`${apiUrl}/transactions/subscriptionActive`, {
             method: "GET",
             cache: "no-cache",
             headers: {
@@ -82,28 +82,19 @@ const UIInitializer = () => {
             redirect: "follow",
             referrerPolicy: "no-referrer",
           });
-          const { data } = (await res.json()) as {
-            data: TransactionResponse[];
-          };
+          const data = (await res.json()) as SubscriptionActiveResponse;
 
-          // TODO: Do this in the backend and have endpoint return one transaction only
-          const latest = data.length
-            ? data.sort((t1, t2) =>
-                new Date(t1.expiry) > new Date(t2.expiry) ? -1 : 1
-              )[0]
-            : null;
-
-          if (latest) {
+          if (data) {
             setUserAccount({
-              userId: latest.userId,
-              dateExpiry: latest.expiry,
+              userId: userAccount.userId,
+              dateExpiry: data.expiry,
               email: userAccount.email,
             });
 
-            localStorage.setItem("expiry", latest.expiry); // Reset date
+            localStorage.setItem("expiry", data.expiry); // Reset date
 
             const now2 = new Date();
-            if (new Date(latest.expiry) < now2) {
+            if (new Date(data.expiry) < now2) {
               // If expired, disable offline use
               serviceWorkerRegistration.unregister();
             }

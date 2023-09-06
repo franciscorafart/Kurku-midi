@@ -7,7 +7,7 @@ import styled from "styled-components";
 
 import Alert from "react-bootstrap/Alert";
 
-import SplitForm from "./SplitForm";
+import SubscriptionOptions from "./SubscriptionOptions";
 
 const PositionedAlert = styled(Alert)`
   position: static;
@@ -16,7 +16,7 @@ const PositionedAlert = styled(Alert)`
   float: left;
 `;
 
-const StripeModal = ({
+const Subscription = ({
   open,
   handleClose,
 }: {
@@ -55,12 +55,15 @@ const StripeModal = ({
       >
         <Modal.Header>
           <Modal.Title id="contained-modal-title-vcenter">
-            Enter your card information
+            Subscribe to Kurku
           </Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <Elements stripe={stripePromise}>
-            <SplitForm displayAlert={displayAlert} handleClose={handleClose} />
+            <SubscriptionOptions
+              displayAlert={displayAlert}
+              handleClose={handleClose}
+            />
           </Elements>
         </Modal.Body>
         <Modal.Footer>
@@ -93,4 +96,4 @@ const StripeModal = ({
   );
 };
 
-export default StripeModal;
+export default Subscription;

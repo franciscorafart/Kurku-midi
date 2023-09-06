@@ -110,6 +110,10 @@ export type TransactionResponse = {
   expiry: string;
 };
 
+export type SubscriptionActiveResponse = {
+  expiry: string;
+};
+
 export const Icons = styled.div`
   display: flex;
   gap: 4px;
