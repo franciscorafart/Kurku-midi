@@ -4,10 +4,10 @@ import Spinner from "react-bootstrap/Spinner";
 
 import styled from "styled-components";
 import { Button, FormText } from "react-bootstrap";
-import account from "atoms/account";
-import { useRecoilState } from "recoil";
 import { apiUrl } from "../../constants";
 import { User } from "context";
+import { useRecoilValue } from "recoil";
+import account from "atoms/account";
 
 const LowerContainer = styled.div`
   padding: 40px 0;
@@ -22,14 +22,10 @@ const FormContainer = styled.div`
   padding: 20px;
 `;
 
-const SplitForm = ({
-  displayAlert,
-  handleClose,
-}: {
-  displayAlert: (display: boolean, variant: string, message: string) => void;
-  handleClose: () => void;
-}) => {
+const SubscriptionOptions = ({ onError }: { onError: () => void }) => {
   const isPaidUser = useContext(User);
+  const userAccount = useRecoilValue(account);
+
   const [spinner, setSpinner] = useState(false);
 
   const handleSubscription =
@@ -60,9 +56,14 @@ const SplitForm = ({
         .then((response) => response.json())
         .then((data) => {
           setSpinner(false);
+          console.log("data before error", data);
           const { url } = data;
-          // NOTE: Set session id here?
+
           window.location.href = url;
+        })
+        .catch((e) => {
+          setSpinner(false);
+          onError();
         });
     };
 
@@ -85,8 +86,16 @@ const SplitForm = ({
       .then((response) => response.json())
       .then((data) => {
         setSpinner(false);
-        const { url } = data;
-        window.location.href = url;
+        if (data.success) {
+          const { url } = data;
+          window.location.href = url;
+        } else {
+          onError();
+        }
+      })
+      .catch((e) => {
+        setSpinner(false);
+        onError();
       });
   };
 
@@ -99,8 +108,12 @@ const SplitForm = ({
       <LowerContainer>
         {isPaidUser ? (
           <ButtonContainer>
-            <Button onClick={handleCancel} variant="warning">
-              Cancel subscription
+            <Button
+              disabled={!Boolean(userAccount.checkoutId)}
+              onClick={handleCancel}
+              variant="warning"
+            >
+              Manage Subscription
             </Button>
           </ButtonContainer>
         ) : (
@@ -119,4 +132,4 @@ const SplitForm = ({
   );
 };
 
-export default SplitForm;
+export default SubscriptionOptions;

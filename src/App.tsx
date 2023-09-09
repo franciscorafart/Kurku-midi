@@ -1,7 +1,7 @@
 import { useEffect, useCallback, useMemo, useState } from "react";
 import { isMobile } from "react-device-detect";
 import SomaUI from "./components/SomaUI";
-import { RecoilRoot, useRecoilState } from "recoil";
+import { RecoilRoot, useRecoilState, useSetRecoilState } from "recoil";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 import * as serviceWorkerRegistration from "./serviceWorkerRegistration";
@@ -38,7 +38,7 @@ function App() {
 export default App;
 
 const UIInitializer = () => {
-  const [initialized, setInitialized] = useRecoilState(initializedADI);
+  const setInitialized = useSetRecoilState(initializedADI);
   const [waitingWorker, setWaitingWorker] = useState<any>(null);
   const [newVersion, setNewVersion] = useState(false);
   const [userAccount, setUserAccount] = useRecoilState(account);
@@ -86,9 +86,8 @@ const UIInitializer = () => {
 
           if (data) {
             setUserAccount({
-              userId: userAccount.userId,
+              ...userAccount,
               dateExpiry: data.expiry,
-              email: userAccount.email,
             });
 
             localStorage.setItem("expiry", data.expiry); // Reset date
@@ -106,18 +105,16 @@ const UIInitializer = () => {
           console.error("Couldn't fetch user account, trying local storage", e);
           const exp = localStorage.getItem("expiry");
           if (exp) {
-            // TODO: Decrypt
             setUserAccount({
-              userId: userId,
+              ...userAccount,
               dateExpiry: exp,
-              email: userAccount.email,
             });
           }
         }
       }
     };
     fetchUserData();
-  }, [userAccount.userId, setUserAccount, userAccount.email]);
+  }, [setUserAccount, userAccount]);
 
   useEffect(() => {
     if (paidCustomer) {

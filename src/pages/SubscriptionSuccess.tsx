@@ -34,7 +34,6 @@ function SubscriptionSuccess() {
   const [showModal, setShowModal] = useState(false);
   const [showKurkuModal, setShowKurkuModal] = useState(false);
 
-  // TODO: Get session id from url and write to local storage
   return (
     <>
       <Header

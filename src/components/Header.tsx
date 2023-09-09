@@ -63,13 +63,6 @@ const LoginStateCircle = styled.div<{ color: string }>`
   border-radius: 8px;
 `;
 
-const renewSoon = (d: string) => {
-  const oneMonthToExpiry = new Date(d);
-  oneMonthToExpiry.setMonth(oneMonthToExpiry.getMonth() - 1);
-
-  return new Date() > oneMonthToExpiry;
-};
-
 function Header({
   kurkuModal,
   howToUseModal,
@@ -83,7 +76,6 @@ function Header({
   const [loginForm, setLoginForm] = useState(false);
   const isPaidUser = useContext(User);
   const [userAccount, setUserAccount] = useRecoilState(accountInState);
-  const [renew, setRenew] = useState(false);
 
   const [alert, setAlert] = useState({
     display: false,
@@ -122,8 +114,8 @@ function Header({
             dateExpiry: userAccount.dateExpiry,
             userId: data.id,
             email: data.email,
+            checkoutId: data.checkoutId || "",
           });
-          setRenew(renewSoon(userAccount.dateExpiry));
         }
       })
       .catch((_) => {
@@ -143,11 +135,11 @@ function Header({
             dateExpiry: userAccount.dateExpiry,
             userId: decoded.id,
             email: decoded.email,
+            checkoutId: decoded.checkoutId || userAccount.checkoutId || "",
           });
-          setRenew(renewSoon(userAccount.dateExpiry));
         }
       });
-  }, [setUserAccount, userAccount.dateExpiry]);
+  }, [setUserAccount, userAccount.checkoutId, userAccount.dateExpiry]);
 
   useEffect(() => {
     getUser();
@@ -187,6 +179,7 @@ function Header({
       userId: "",
       dateExpiry: "",
       email: "",
+      checkoutId: "",
     });
   };
 
@@ -244,16 +237,7 @@ function Header({
                   variant="outline-light"
                   onClick={() => setDisplayForm(true)}
                 >
-                  {!isPaidUser ? "Subscribe" : "Change subscription"}
-                </Button>
-              )}
-
-              {renew && connected && (
-                <Button
-                  variant="outline-light"
-                  onClick={() => setDisplayForm(true)}
-                >
-                  Renew subscription now!
+                  {!isPaidUser ? "Subscribe" : "Subscription"}
                 </Button>
               )}
               {

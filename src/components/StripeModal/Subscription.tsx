@@ -41,10 +41,6 @@ const Subscription = ({
     setAlert({ display: false, variant: "", message: "" });
   };
 
-  const displayAlert = (display: boolean, variant: string, message: string) => {
-    setAlert({ display: display, variant: variant, message: message });
-  };
-
   return (
     <div>
       <Modal
@@ -57,39 +53,36 @@ const Subscription = ({
           <Modal.Title id="contained-modal-title-vcenter">
             Subscribe to Kurku
           </Modal.Title>
+          <PositionedAlert key={alert.variant} variant={alert.variant}>
+            {alert.message}
+          </PositionedAlert>
         </Modal.Header>
         <Modal.Body>
           <Elements stripe={stripePromise}>
             <SubscriptionOptions
-              displayAlert={displayAlert}
-              handleClose={handleClose}
+              onError={() =>
+                setAlert({
+                  display: true,
+                  variant: "danger",
+                  message: "Error accessing checkout session",
+                })
+              }
             />
           </Elements>
         </Modal.Body>
         <Modal.Footer>
           <span>Powered by Stripe</span>
           {handleClose && (
-            <Button variant="secondary" onClick={handleClose}>
+            <Button
+              variant="secondary"
+              onClick={() => {
+                handleClose();
+                clearMessage();
+              }}
+            >
               Close
             </Button>
           )}
-        </Modal.Footer>
-      </Modal>
-      <Modal
-        show={alert.display}
-        size="lg"
-        aria-labelledby="contained-modal-title-vcenter"
-        centerd
-      >
-        <Modal.Body>
-          <PositionedAlert key={alert.variant} variant={alert.variant}>
-            {alert.message}
-          </PositionedAlert>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={clearMessage}>
-            Close
-          </Button>
         </Modal.Footer>
       </Modal>
     </div>

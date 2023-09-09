@@ -120,6 +120,7 @@ const LoginForm = ({
               userId: data.id,
               email: data.email,
               dateExpiry: userAccount.dateExpiry,
+              checkoutId: userAccount.checkoutId,
             });
             handleClose();
           }

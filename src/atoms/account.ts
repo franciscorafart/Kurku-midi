@@ -4,6 +4,7 @@ const defaultAccount = {
   userId: "",
   dateExpiry: "",
   email: "",
+  checkoutId: "",
 };
 
 const account = atom({
