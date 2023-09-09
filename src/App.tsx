@@ -114,7 +114,7 @@ const UIInitializer = () => {
       }
     };
     fetchUserData();
-  }, [setUserAccount, userAccount]);
+  }, [userAccount.userId, setUserAccount]); // Don't user userAccount as dependency or else it goes on a loop
 
   useEffect(() => {
     if (paidCustomer) {
