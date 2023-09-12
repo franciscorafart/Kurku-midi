@@ -115,12 +115,12 @@ const LoginForm = ({
               variant: "success",
               message: `Log in succeeded`,
             });
-
+            // On Login,
             setUserAccount({
               userId: data.id,
               email: data.email,
+              checkoutId: data.checkoutId,
               dateExpiry: userAccount.dateExpiry,
-              checkoutId: userAccount.checkoutId,
             });
             handleClose();
           }
