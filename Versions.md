@@ -30,3 +30,7 @@ Delete sessions
 
 - Add Midi notes box ovelay to Webvam view
 - Implement graphic resizing and dragging of Midi notes
+
+### 0.1.7
+
+- Implement Stripe subcription instead of direct payment
