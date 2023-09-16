@@ -29,6 +29,7 @@ import { Button } from "react-bootstrap";
 import { makeNoteSender } from "utils/midiCtx";
 import midiOutput from "atoms/selectedMidiOutput";
 import { findAvailableCCorNote } from "utils/midiUtils";
+import noteOnOffMap from "atoms/noteOnOffMap";
 
 const Container = styled.div`
   flex: 6;
@@ -67,6 +68,14 @@ const NotesContainer = styled.div`
   flex-wrap: wrap;
 `;
 
+const NoteOnOffCircle = styled.div<{ playing: boolean }>`
+  background-color: ${({ playing }) =>
+    playing ? theme.paid : theme.notSelecteble};
+  height: 12px;
+  width: 12px;
+  border-radius: 4px;
+`;
+
 function MidiNotes() {
   const [selectedNoteValue, setSelectedNoteValue] =
     useRecoilState(selectedMidiNote);
@@ -75,6 +84,7 @@ function MidiNotes() {
   const isPaidUser = useContext(User);
   const setDirty = useSetRecoilState(dirtyAtom);
   const selectedOutput = useRecoilValue(midiOutput);
+  const notesPlaying = useRecoilValue(noteOnOffMap);
 
   const connected = useMemo(
     () => Boolean(userAccount.userId),
@@ -173,6 +183,7 @@ function MidiNotes() {
                   <EffectData>{`Ch: ${tmn.channel}`}</EffectData>
                 </ColumnContainer>
               </EffectBox>
+              <NoteOnOffCircle playing={notesPlaying[tmn.uid]} />
             </EffectContainer>
           ))}
         {emptyMidiSlotsCount ? (

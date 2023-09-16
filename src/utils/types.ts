@@ -41,6 +41,13 @@ export type InputOutputObjectType = {
   input: number;
   output: number;
 };
+
+// Keeps track of MIDI cc visualization data
 export type InputOutputMap = {
   [key: string]: InputOutputObjectType;
+};
+
+// Keeps track of MIDI note visualization data
+export type MidiNoteOnOffMap = {
+  [key: string]: boolean;
 };

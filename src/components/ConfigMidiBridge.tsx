@@ -4,7 +4,7 @@ import {
   mapGlobalConfigsToMidi,
   mapPositionsToMIDINotes,
 } from "utils/midiUtils";
-import { useRecoilValue, useSetRecoilState } from "recoil";
+import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import { machineConfig } from "utils/bodytracking";
 import keypoints from "atoms/keypoints";
 import { useEffect, useMemo } from "react";
@@ -16,6 +16,7 @@ import sessionConfig from "atoms/sessionConfig";
 import midiNotes from "atoms/midiNotes";
 import muteMidi from "atoms/muteMidi";
 import MidiSessionControls from "./MidiSessionControls";
+import noteOnOffMap from "atoms/noteOnOffMap";
 
 function ConfigMidiBridge({
   videoHeight,
@@ -29,6 +30,7 @@ function ConfigMidiBridge({
   const kpValues = useRecoilValue(keypoints);
   const midiSessionControls = useRecoilValue(midiSession);
   const setCCMeterMap = useSetRecoilState(ccMeterMap);
+  const [onOffMap, setOnOffMap] = useRecoilState(noteOnOffMap);
   const sessionCfg = useRecoilValue(sessionConfig);
   const notes = useRecoilValue(midiNotes);
   const config = machineConfig[sessionCfg.machineType];
@@ -60,11 +62,18 @@ function ConfigMidiBridge({
         bodyPartPositions,
         ccSender
       );
-      setCCMeterMap(valueObjectMap); // Note: CC meter visulization
+      const midinotesPlaying = mapPositionsToMIDINotes(
+        bodyPartPositions,
+        noteSender,
+        notes,
+        onOffMap
+      );
 
-      mapPositionsToMIDINotes(bodyPartPositions, noteSender, notes);
+      setCCMeterMap(valueObjectMap);
+      setOnOffMap(midinotesPlaying);
     }
   }, [
+    // Keep onOffMap out of dependencies to not trigger an extra unecessary cycle
     ccSender,
     config.confidence,
     kpValues,
@@ -73,6 +82,7 @@ function ConfigMidiBridge({
     noteSender,
     notes,
     setCCMeterMap,
+    setOnOffMap,
     videoHeight,
     videoWidth,
   ]);

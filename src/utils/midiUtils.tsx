@@ -1,6 +1,6 @@
 import { CCEffectType, MidiNotesObjectType } from "config/midi";
 import { BodyPartPositionType, ValueRange } from "config/shared";
-import { ChannelType, InputOutputMap } from "./types";
+import { ChannelType, InputOutputMap, MidiNoteOnOffMap } from "./types";
 import { isWithinBox, scaleWindowToRange } from "./utils";
 
 export const mapGlobalConfigsToMidi = (
@@ -44,8 +44,11 @@ export const mapPositionsToMIDINotes = (
     note: number,
     velocity: number
   ) => void,
-  notes: MidiNotesObjectType
+  notes: MidiNotesObjectType, // available notes to trigger (Midi Notes section)
+  onOffMap: MidiNoteOnOffMap // current notes playing
 ) => {
+  const notesPlaying = { ...onOffMap };
+
   // 1. Extract absoulte position in x & y axis of body parts
   const positions = Object.entries(bodyPartPositions)
     .map(([_, position]) => position)
@@ -56,13 +59,25 @@ export const mapPositionsToMIDINotes = (
   // TODO: Make this more efficient
   for (const [uid, noteObj] of Object.entries(notes)) {
     const box = noteObj.box;
-    // 3. If found, send midi and break iteration
+    // Idea: Limit positions being tracked
+
+    // Determine if note box is being "touched" by a body part
     const inTheBox = positions.find((p) => isWithinBox(box, p));
     if (inTheBox) {
-      console.log("Midi trigger note:", uid);
-      noteSender(noteObj.channel, true, noteObj.note, 127);
+      // If note not playing, trigger, it playing, don't do anything
+      if (!notesPlaying[uid]) {
+        console.log("Midi note on:", uid);
+        noteSender(noteObj.channel, true, noteObj.note, 127);
+        notesPlaying[uid] = true;
+      }
+    } else if (notesPlaying[uid]) {
+      noteSender(noteObj.channel, false, noteObj.note, 0);
+      notesPlaying[uid] = false;
+      console.log("Midi note off", uid);
     }
   }
+
+  return notesPlaying;
 };
 
 export const findAvailableCCorNote = (ccList: number[]) => {
