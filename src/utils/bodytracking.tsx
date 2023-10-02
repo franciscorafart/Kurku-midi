@@ -1,6 +1,6 @@
 import * as posenet from "@tensorflow-models/posenet";
 import "@tensorflow/tfjs";
-import { Keypoints, MachineType, filteredBodyKey } from "config/shared";
+import { Keypoints, MachineType } from "config/shared";
 import { PoseNetQuantBytes } from "@tensorflow-models/posenet/dist/types";
 
 // @ts-ignore
@@ -104,17 +104,17 @@ async function poseDetectionFrame(
 ) {
   // % executes the calculation every `skipSize` number of frames
   if (frame % config.skipSize === 0) {
-    const pose = await net.estimateSinglePose(video, {
+    const poses = await net.estimateMultiplePoses(video, {
       flipHorizontal: flipPoseHorizontal,
       // scoreThreshold: 0.7
     });
-
+    console.log({ poses });
     // TODO: Filter out ones we don't need. Why does it break?
     // const filteredKeypoints = pose.keypoints.filter(
     //   (k) => filteredBodyKey[k.part]
     // );
 
-    setKeypoints(pose.keypoints);
+    setKeypoints(poses[0].keypoints);
   }
 
   frame++;

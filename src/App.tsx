@@ -45,7 +45,6 @@ const UIInitializer = () => {
 
   const now = new Date();
   const expiry = useMemo(() => new Date(userAccount.dateExpiry), [userAccount]);
-  // TODO: Decrypt
 
   const connected = Boolean(userAccount.userId);
   const paidCustomer =
