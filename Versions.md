@@ -34,3 +34,8 @@ Delete sessions
 ### 0.1.7
 
 - Implement Stripe subcription instead of direct payment
+
+### 0.1.8
+
+- Use of multiple tracking algorithm to avoid confusion when multiple people on webcam view.
+- Reset frame counter to avoid number overflow
