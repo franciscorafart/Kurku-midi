@@ -89,6 +89,8 @@ function SomaUI() {
 
     if (video && canvas) {
       await setupCamera(video);
+      setStatus({ modelLoaded: null, tracking: false, loading: true });
+
       video.play();
       video.hidden = true;
       // NOTE: Set video and Canvas size from ratio of video src
@@ -107,8 +109,7 @@ function SomaUI() {
       const net = await initModel(sessionCfg.machineType, ratio);
 
       await initBodyTracking(sessionCfg.machineType, net, video, setKeypoints);
-
-      setStatus({ modelLoaded: net, tracking: true });
+      setStatus({ modelLoaded: net, tracking: true, loading: false });
     }
   }, [sessionCfg.machineType, setKeypoints, setStatus]);
 

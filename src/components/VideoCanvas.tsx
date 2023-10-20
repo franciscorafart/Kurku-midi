@@ -4,15 +4,17 @@ import styled from "styled-components";
 import { drawKeypoints, drawSkeleton, resetCanvas } from "utils/utils";
 import { isEmpty } from "lodash";
 import dirtyAtom from "atoms/dirty";
-import { machineConfig } from "utils/bodytracking";
 import keypoints from "atoms/keypoints";
 import midiNotes from "atoms/midiNotes";
+import trackingStatus from "atoms/status";
 import sessionConfig from "atoms/sessionConfig";
+import { machineConfig } from "utils/bodytracking";
 import theme from "config/theme";
 import { Text, SubTitle } from "./shared";
 import selectedMidiNote from "atoms/selectedMidiNote";
 import Draggable from "react-draggable";
 import { Box } from "config/shared";
+import { Spinner } from "react-bootstrap";
 
 const VIEW_W = 500;
 const VIEW_H = 375;
@@ -57,12 +59,22 @@ const NoteViewContainer = styled.div`
   left: 0;
 `;
 
+const LoadingContainer = styled(NoteViewContainer)``;
+
 const BoxContainer = styled.div`
   position: relative;
   min-height: ${VIEW_H}px;
   width: ${VIEW_W}px;
   top: 0;
   left: 0;
+`;
+
+const SpinnerContainer = styled(BoxContainer)`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: ${theme.background3};
+  gap: 10px;
 `;
 
 const BoxElement = styled.div<{
@@ -276,6 +288,8 @@ function VideoCanvas({
 }) {
   const kpValues = useRecoilValue(keypoints);
   const sessionCfg = useRecoilValue(sessionConfig);
+  const status = useRecoilValue(trackingStatus);
+
   const video = videoRef.current;
   const canvas = canvasRef.current;
   const ctx: CanvasRenderingContext2D | null = canvas?.getContext("2d") || null;
@@ -297,7 +311,15 @@ function VideoCanvas({
       </TextContainer>
       <OverlapContainer>
         <Video ref={videoRef} />
-        <Canvas ref={canvasRef} />
+        {status.loading && (
+          <LoadingContainer>
+            <SpinnerContainer>
+              <Spinner animation="border" />
+              <span>Loading (It might take a minute)</span>
+            </SpinnerContainer>
+          </LoadingContainer>
+        )}
+        <Canvas ref={canvasRef}></Canvas>
         <MIDINoteView />
       </OverlapContainer>
     </VideoCanvasContainer>
