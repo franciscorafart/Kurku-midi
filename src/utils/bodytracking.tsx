@@ -8,8 +8,7 @@ import { PoseNetQuantBytes } from "@tensorflow-models/posenet/dist/types";
 navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
 
 let frame = 0;
-let animationFrameId = 0;
-const animationFrameIds = [];
+let animate = true;
 
 export type PosenetConfigType = {
   arch: "MobileNetV1" | "ResNet50";
@@ -80,11 +79,7 @@ export async function initBodyTracking(
 }
 
 export async function stopBodyTracking() {
-  console.log("canceled animationFrameId", animationFrameId);
-  cancelAnimationFrame(animationFrameId);
-
-  // cancelAnimationFrame(animationFrameId + 1);
-  return;
+  animate = false;
 }
 
 export async function setupCamera(
@@ -118,7 +113,6 @@ async function poseDetectionFrame(
   config: PosenetConfigType,
   setKeypoints: (kps: Keypoints) => void
 ) {
-  console.log("executing anumationFrame", animationFrameId);
   // % executes the calculation every `skipSize` number of frames
   if (frame % config.skipSize === 0) {
     const poses = await net.estimateMultiplePoses(video, {
@@ -137,19 +131,18 @@ async function poseDetectionFrame(
   }
 
   frame++;
-
-  // TODO:
-  animationFrameId = requestAnimationFrame(
-    async () =>
-      await poseDetectionFrame(
-        video,
-        net,
-        flipPoseHorizontal,
-        config,
-        setKeypoints
-      )
-  );
-  console.log("new animationFrameId", animationFrameId);
+  if (animate) {
+    requestAnimationFrame(
+      async () =>
+        await poseDetectionFrame(
+          video,
+          net,
+          flipPoseHorizontal,
+          config,
+          setKeypoints
+        )
+    );
+  }
 }
 
 function detectPoseInRealTime(
@@ -159,7 +152,7 @@ function detectPoseInRealTime(
   setKeypoints: (kps: Keypoints) => void
 ) {
   const flipPoseHorizontal = true;
-
+  animate = true;
   // Draw video pixels on canvas, draw keypoints, and set audio state
   poseDetectionFrame(video, net, flipPoseHorizontal, config, setKeypoints);
 }

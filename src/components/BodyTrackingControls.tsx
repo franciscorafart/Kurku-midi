@@ -67,7 +67,7 @@ function BodyTrackingControls({
   onPause: () => Promise<void>;
 }) {
   const selectedOutput = useRecoilValue(midiOutput);
-  const [status, setStatus] = useRecoilState(trackingStatus);
+  const status = useRecoilValue(trackingStatus);
 
   const trackCallback = useCallback(() => {
     if (status.modelLoaded) {
