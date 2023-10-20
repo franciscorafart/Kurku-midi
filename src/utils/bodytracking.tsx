@@ -108,7 +108,9 @@ async function poseDetectionFrame(
       flipHorizontal: flipPoseHorizontal,
       // scoreThreshold: 0.7
     });
-    console.log({ poses });
+    frame = 0; // Reset to avoid huge number over time
+
+    // console.log({ poses });
     // TODO: Filter out ones we don't need. Why does it break?
     // const filteredKeypoints = pose.keypoints.filter(
     //   (k) => filteredBodyKey[k.part]
