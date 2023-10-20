@@ -3,7 +3,6 @@ import styled from "styled-components";
 import { Form, Button, Alert } from "react-bootstrap";
 import theme from "config/theme";
 import HowToUse from "components/HowToUse";
-import WhatIsKurku from "components/WhatIsKurku";
 import Header from "components/Header";
 import { apiUrl } from "../constants";
 import { goHome } from "utils/utils";
@@ -34,7 +33,6 @@ const VStack = styled.div`
 
 function ConfirmEmail() {
   const [showModal, setShowModal] = useState(false);
-  const [showKurkuModal, setShowKurkuModal] = useState(false);
   const [token, setToken] = useState("");
   const [email, setEmail] = useState("");
   const [success, setSuccess] = useState(false);
@@ -124,11 +122,7 @@ function ConfirmEmail() {
   return (
     <>
       <Container>
-        <Header
-          kurkuModal={() => setShowKurkuModal(true)}
-          howToUseModal={() => setShowModal(true)}
-          hideOptions
-        />
+        <Header howToUseModal={() => setShowModal(true)} hideOptions />
         {Boolean(token) ? (
           <FormContainer>
             <StyledForm onSubmit={handleSubmit}>
@@ -157,10 +151,6 @@ function ConfirmEmail() {
           <h2>Link expired or invalid</h2>
         )}
         <HowToUse open={showModal} onClose={() => setShowModal(false)} />
-        <WhatIsKurku
-          open={showKurkuModal}
-          onClose={() => setShowKurkuModal(false)}
-        />
       </Container>
     </>
   );

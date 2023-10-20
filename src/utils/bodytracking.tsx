@@ -41,6 +41,8 @@ export const machineConfig: { [index: string]: PosenetConfigType } = {
   },
 };
 
+// TODO: Separate init model from start / stop tracking: Atom state with initmodel and active tracking flags. Store Posenet in recoild state?
+
 export async function initBodyTracking(
   machineType: MachineType,
   video: HTMLVideoElement,
@@ -121,6 +123,7 @@ async function poseDetectionFrame(
 
   frame++;
 
+  // TODO:
   requestAnimationFrame(() =>
     poseDetectionFrame(video, net, flipPoseHorizontal, config, setKeypoints)
   );

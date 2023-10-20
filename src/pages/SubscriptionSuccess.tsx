@@ -3,7 +3,6 @@ import styled from "styled-components";
 import { Button, Alert } from "react-bootstrap";
 import theme from "config/theme";
 import HowToUse from "components/HowToUse";
-import WhatIsKurku from "components/WhatIsKurku";
 import Header from "components/Header";
 import { goHome } from "utils/utils";
 
@@ -32,15 +31,10 @@ const VStack = styled.div`
 
 function SubscriptionSuccess() {
   const [showModal, setShowModal] = useState(false);
-  const [showKurkuModal, setShowKurkuModal] = useState(false);
 
   return (
     <>
-      <Header
-        kurkuModal={() => setShowKurkuModal(true)}
-        howToUseModal={() => setShowModal(true)}
-        hideOptions
-      />
+      <Header howToUseModal={() => setShowModal(true)} hideOptions />
       <Container>
         <FormContainer>
           <Alert key={"success"} variant={"success"}>
@@ -53,10 +47,6 @@ function SubscriptionSuccess() {
           </VStack>
         </FormContainer>
         <HowToUse open={showModal} onClose={() => setShowModal(false)} />
-        <WhatIsKurku
-          open={showKurkuModal}
-          onClose={() => setShowKurkuModal(false)}
-        />
       </Container>
     </>
   );

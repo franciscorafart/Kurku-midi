@@ -3,7 +3,6 @@ import styled from "styled-components";
 import { Form, FormGroup, FormLabel, Button, Alert } from "react-bootstrap";
 import theme from "config/theme";
 import HowToUse from "components/HowToUse";
-import WhatIsKurku from "components/WhatIsKurku";
 import Header from "components/Header";
 import { apiUrl } from "../constants";
 import { goHome, isRepeatValid, passwordValid } from "utils/utils";
@@ -34,7 +33,6 @@ const ButtonContainer = styled.div`
 
 function ResetPassword() {
   const [showModal, setShowModal] = useState(false);
-  const [showKurkuModal, setShowKurkuModal] = useState(false);
   const [token, setToken] = useState("");
   const [success, setSuccess] = useState(false);
 
@@ -153,11 +151,7 @@ function ResetPassword() {
   return (
     <>
       <Container>
-        <Header
-          kurkuModal={() => setShowKurkuModal(true)}
-          howToUseModal={() => setShowModal(true)}
-          hideOptions
-        />
+        <Header howToUseModal={() => setShowModal(true)} hideOptions />
         {Boolean(token) ? (
           <FormContainer>
             <StyledForm onSubmit={handleSubmit}>
@@ -211,10 +205,6 @@ function ResetPassword() {
           <h2>Link expired or invalid</h2>
         )}
         <HowToUse open={showModal} onClose={() => setShowModal(false)} />
-        <WhatIsKurku
-          open={showKurkuModal}
-          onClose={() => setShowKurkuModal(false)}
-        />
       </Container>
     </>
   );

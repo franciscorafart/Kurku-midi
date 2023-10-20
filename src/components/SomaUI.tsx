@@ -11,7 +11,6 @@ import theme from "config/theme";
 import ConfigMidiBridge from "./ConfigMidiBridge";
 import VideoCanvas from "./VideoCanvas";
 import HowToUse from "./HowToUse";
-import WhatIsKurku from "./WhatIsKurku";
 import Header from "components/Header";
 import { initEffects, initMidiNotes, initSessions } from "localDB";
 import initializedADI from "atoms/initializedADI";
@@ -55,7 +54,6 @@ function SomaUI() {
   const [videoDim, setVideoDim] = useState({ height: 0, width: 0 });
 
   const [showModal, setShowModal] = useState(false);
-  const [showKurkuModal, setShowKurkuModal] = useState(false);
   const userAccount = useRecoilValue(accountInState);
 
   const connected = useMemo(
@@ -104,10 +102,7 @@ function SomaUI() {
 
   return (
     <>
-      <Header
-        kurkuModal={() => setShowKurkuModal(true)}
-        howToUseModal={() => setShowModal(true)}
-      />
+      <Header howToUseModal={() => setShowModal(true)} />
       <Container>
         <AdCommponent />
         <HContainer>
@@ -128,10 +123,6 @@ function SomaUI() {
         <BodyTrackingMidiPanel />
         <MidiNotePanel />
         <HowToUse open={showModal} onClose={() => setShowModal(false)} />
-        <WhatIsKurku
-          open={showKurkuModal}
-          onClose={() => setShowKurkuModal(false)}
-        />
       </Container>
     </>
   );

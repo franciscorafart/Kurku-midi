@@ -45,14 +45,13 @@ const Subscription = ({
     <div>
       <Modal
         show={open}
-        size="lg"
+        size="xl"
         aria-labelledby="contained-modal-title-vcenter"
         centered
+        onHide={handleClose}
       >
-        <Modal.Header>
-          <Modal.Title id="contained-modal-title-vcenter">
-            Subscribe to Kurku
-          </Modal.Title>
+        <Modal.Header closeButton>
+          <Modal.Title id="contained-modal-title-vcenter">Tiers</Modal.Title>
           <PositionedAlert key={alert.variant} variant={alert.variant}>
             {alert.message}
           </PositionedAlert>

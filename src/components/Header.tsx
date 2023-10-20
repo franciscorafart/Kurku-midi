@@ -3,6 +3,7 @@ import Container from "react-bootstrap/Container";
 import Alert from "react-bootstrap/Alert";
 import Nav from "react-bootstrap/Nav";
 import Navbar from "react-bootstrap/Navbar";
+import { Instagram, Youtube, Linkedin, Envelope } from "react-bootstrap-icons";
 import logo from "assets/kurku-logo.png";
 import { Button } from "react-bootstrap";
 import styled from "styled-components";
@@ -49,10 +50,20 @@ const SubscriptionInfo = styled(CircleContainer)`
   gap: 6px;
 `;
 
+const A = styled.a`
+  cursor: pointer;
+  color: white;
+  text-decoration: none;
+
+  &:hover {
+    color: ${theme.border};
+  }
+`;
+
 export type StatusType = "notConnected" | "connected";
 
 enum StatusToButtonText {
-  notConnected = "Log In",
+  notConnected = "Log In / Sign up",
   connected = "Log Out",
 }
 
@@ -64,11 +75,9 @@ const LoginStateCircle = styled.div<{ color: string }>`
 `;
 
 function Header({
-  kurkuModal,
   howToUseModal,
   hideOptions,
 }: {
-  kurkuModal: () => void;
   howToUseModal: () => void;
   hideOptions?: Boolean;
 }) {
@@ -193,7 +202,11 @@ function Header({
     <>
       <StyledNavbar>
         <StyledContainer>
-          <Navbar.Brand href="https://kurku.tech">
+          <Navbar.Brand
+            href="https://about.kurku.tech"
+            target="_blank"
+            rel="noreferrer"
+          >
             <img
               alt=""
               src={logo}
@@ -201,65 +214,71 @@ function Header({
               height="30"
               className="d-inline-block align-top"
             />{" "}
-            <Span>Kurku - Body tracking web MIDI controller</Span>
+            <Span>Kurku - Body-tracking web MIDI controller</Span>
           </Navbar.Brand>
           {alert.display && (
             <StyledAlert key={alert.variant} variant={alert.variant}>
               {alert.message}
             </StyledAlert>
           )}
-          {!hideOptions && (
-            <StyledNav>
-              <a
-                target="_blank"
-                href="https://about.kurku.tech"
-                rel="noreferrer"
-              >
-                <Button variant="outline-light">Website</Button>
-              </a>
-              <Button onClick={kurkuModal} variant="outline-light">
-                What is Kurku?
-              </Button>
-              <Button onClick={howToUseModal} variant="outline-light">
-                How to use
-              </Button>
-
-              <Button
-                variant="outline-light"
-                onClick={
-                  !connected ? () => setLoginForm(true) : () => handleLogout()
-                }
-              >
-                {buttonText}
-              </Button>
-              {connected && (
+          <StyledNav>
+            <Button onClick={howToUseModal} variant="outline-light">
+              How to use
+            </Button>
+            <Button
+              variant="outline-light"
+              onClick={() => setDisplayForm(true)}
+            >
+              {!isPaidUser ? "Pro Subscription" : "Manage subscription"}
+            </Button>
+            {!hideOptions && (
+              <>
                 <Button
                   variant="outline-light"
-                  onClick={() => setDisplayForm(true)}
+                  onClick={
+                    !connected ? () => setLoginForm(true) : () => handleLogout()
+                  }
                 >
-                  {!isPaidUser ? "Subscribe" : "Subscription"}
+                  {buttonText}
                 </Button>
-              )}
-              {
-                <SubscriptionInfo>
-                  <CircleContainer>
-                    <LoginStateCircle color={color} />
-                  </CircleContainer>
-                  {!connected ? (
-                    "Disconnected"
-                  ) : isPaidUser ? (
-                    <>
-                      {userEmail} <br />
-                      Expires{" "}
-                      {new Date(userAccount.dateExpiry).toLocaleDateString()}
-                    </>
-                  ) : (
-                    <>{userEmail}</>
-                  )}
-                </SubscriptionInfo>
-              }
-            </StyledNav>
-          )}
+                {
+                  <SubscriptionInfo>
+                    <CircleContainer>
+                      <LoginStateCircle color={color} />
+                    </CircleContainer>
+                    {!connected ? (
+                      "Disconnected"
+                    ) : isPaidUser ? (
+                      <>
+                        {userEmail} <br />
+                        Expires{" "}
+                        {new Date(userAccount.dateExpiry).toLocaleDateString()}
+                      </>
+                    ) : (
+                      <>{userEmail}</>
+                    )}
+                  </SubscriptionInfo>
+                }
+              </>
+            )}
+          </StyledNav>
+          <StyledNav>
+            <A href="https://www.instagram.com/kurkusounds/" target="_blank">
+              <Instagram size={20} />
+            </A>
+            <A
+              href="https://www.youtube.com/channel/UCmWikEn62An79cbUTfL5eGw"
+              target="_blank"
+            >
+              <Youtube size={20} />
+            </A>
+            <A href="https://www.linkedin.com/company/kurku/" target="_blank">
+              <Linkedin size={20} />
+            </A>
+            <A href="mailto:admin@kurku.tech" target="_blank">
+              <Envelope size={20} />
+            </A>
+          </StyledNav>
         </StyledContainer>
         <Subscription
           open={displayForm}

@@ -17,6 +17,12 @@ function HowToUse({ open, onClose }: { open: boolean; onClose: () => void }) {
           <Modal.Title>How to use?</Modal.Title>
         </Modal.Header>
         <Modal.Body>
+          <p>
+            Kurku is a body tracking MIDI controller that works on your browser.
+            Map the position of different body parts to MIDI notes and
+            continuous control messages (CC) using your webcam, and send it to
+            midi devices or software.
+          </p>
           <h6>1. Select Midi Ouput</h6>
           <p>
             In the dropdown you will find your connected midi devices and
@@ -65,7 +71,6 @@ function HowToUse({ open, onClose }: { open: boolean; onClose: () => void }) {
               Windows: MIDI bus to Ableton
             </a>
           </Links>
-          <p>Please provide feedback at rafart@rafartmusic.com</p>
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={onClose}>
