@@ -15,17 +15,21 @@ import midiOutput from "atoms/selectedMidiOutput";
 import sessionConfig from "atoms/sessionConfig";
 import midiNotes from "atoms/midiNotes";
 import muteMidi from "atoms/muteMidi";
-import MidiSessionControls from "./MidiSessionControls";
 import noteOnOffMap from "atoms/noteOnOffMap";
+import MidiSessionControls from "./MidiSessionControls";
 
 function ConfigMidiBridge({
   videoHeight,
   videoWidth,
   onInit,
+  onResume,
+  onPause,
 }: {
   videoHeight: number;
   videoWidth: number;
   onInit: () => Promise<void>;
+  onResume: () => Promise<void>;
+  onPause: () => Promise<void>;
 }) {
   const kpValues = useRecoilValue(keypoints);
   const midiSessionControls = useRecoilValue(midiSession);
@@ -87,7 +91,13 @@ function ConfigMidiBridge({
     videoWidth,
   ]);
 
-  return <MidiSessionControls onInit={onInit} />;
+  return (
+    <MidiSessionControls
+      onInit={onInit}
+      onResume={onResume}
+      onPause={onPause}
+    />
+  );
 }
 
 export default ConfigMidiBridge;

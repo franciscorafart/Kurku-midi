@@ -8,6 +8,8 @@ import { PoseNetQuantBytes } from "@tensorflow-models/posenet/dist/types";
 navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
 
 let frame = 0;
+let animationFrameId = 0;
+const animationFrameIds = [];
 
 export type PosenetConfigType = {
   arch: "MobileNetV1" | "ResNet50";
@@ -42,13 +44,7 @@ export const machineConfig: { [index: string]: PosenetConfigType } = {
 };
 
 // TODO: Separate init model from start / stop tracking: Atom state with initmodel and active tracking flags. Store Posenet in recoild state?
-
-export async function initBodyTracking(
-  machineType: MachineType,
-  video: HTMLVideoElement,
-  setKeypoints: (kps: Keypoints) => void,
-  ratio: number
-) {
+export const initModel = async (machineType: MachineType, ratio: number) => {
   const config = machineConfig[machineType];
   let net: posenet.PoseNet;
 
@@ -70,7 +66,25 @@ export async function initBodyTracking(
     });
   }
 
+  return net;
+};
+
+export async function initBodyTracking(
+  machineType: MachineType,
+  net: posenet.PoseNet,
+  video: HTMLVideoElement,
+  setKeypoints: (kps: Keypoints) => void
+) {
+  const config = machineConfig[machineType];
   detectPoseInRealTime(video, net, config, setKeypoints);
+}
+
+export async function stopBodyTracking() {
+  console.log("canceled animationFrameId", animationFrameId);
+  cancelAnimationFrame(animationFrameId);
+
+  // cancelAnimationFrame(animationFrameId + 1);
+  return;
 }
 
 export async function setupCamera(
@@ -104,6 +118,7 @@ async function poseDetectionFrame(
   config: PosenetConfigType,
   setKeypoints: (kps: Keypoints) => void
 ) {
+  console.log("executing anumationFrame", animationFrameId);
   // % executes the calculation every `skipSize` number of frames
   if (frame % config.skipSize === 0) {
     const poses = await net.estimateMultiplePoses(video, {
@@ -124,9 +139,17 @@ async function poseDetectionFrame(
   frame++;
 
   // TODO:
-  requestAnimationFrame(() =>
-    poseDetectionFrame(video, net, flipPoseHorizontal, config, setKeypoints)
+  animationFrameId = requestAnimationFrame(
+    async () =>
+      await poseDetectionFrame(
+        video,
+        net,
+        flipPoseHorizontal,
+        config,
+        setKeypoints
+      )
   );
+  console.log("new animationFrameId", animationFrameId);
 }
 
 function detectPoseInRealTime(

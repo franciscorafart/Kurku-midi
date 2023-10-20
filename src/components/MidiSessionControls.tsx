@@ -24,7 +24,15 @@ const TextContainer = styled.div`
   justify-content: center;
 `;
 
-const MidiSessionControl = ({ onInit }: { onInit: () => Promise<void> }) => {
+const MidiSessionControl = ({
+  onInit,
+  onResume,
+  onPause,
+}: {
+  onInit: () => Promise<void>;
+  onResume: () => Promise<void>;
+  onPause: () => Promise<void>;
+}) => {
   const setMidiOutputs = useSetRecoilState(midiOutputs);
 
   useEffect(() => {
@@ -42,7 +50,11 @@ const MidiSessionControl = ({ onInit }: { onInit: () => Promise<void> }) => {
           <Text>Controls</Text>
         </SubTitle>
       </TextContainer>
-      <BodyTrackingControls onInit={onInit} />
+      <BodyTrackingControls
+        onInit={onInit}
+        onResume={onResume}
+        onPause={onPause}
+      />
       <SessionSaving />
       <SessionConfig />
     </Container>

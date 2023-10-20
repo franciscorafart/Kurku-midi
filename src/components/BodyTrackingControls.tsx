@@ -7,6 +7,8 @@ import styled from "styled-components";
 import { Text, SubTitle2 } from "./shared";
 import OverlayTrigger from "react-bootstrap/OverlayTrigger";
 import Tooltip from "react-bootstrap/Tooltip";
+import trackingStatus from "atoms/status";
+import { useCallback } from "react";
 
 const ButtonSection = styled.div`
   display: flex;
@@ -55,11 +57,35 @@ function MidiDropdown() {
   );
 }
 
-function BodyTrackingControls({ onInit }: { onInit: () => Promise<void> }) {
+function BodyTrackingControls({
+  onInit,
+  onResume,
+  onPause,
+}: {
+  onInit: () => Promise<void>;
+  onResume: () => Promise<void>;
+  onPause: () => Promise<void>;
+}) {
   const selectedOutput = useRecoilValue(midiOutput);
-  const initMidiSession = async () => {
-    await onInit();
-  };
+  const [status, setStatus] = useRecoilState(trackingStatus);
+
+  const trackCallback = useCallback(() => {
+    if (status.modelLoaded) {
+      if (status.tracking) {
+        onPause();
+      } else {
+        onResume();
+      }
+    } else {
+      onInit();
+    }
+  }, [onInit, onPause, onResume, status]);
+
+  const buttonText = status.modelLoaded
+    ? status.tracking
+      ? "Stop tracking"
+      : "Resume tracking"
+    : "Start Body Tracking";
 
   return (
     <Container>
@@ -83,11 +109,12 @@ function BodyTrackingControls({ onInit }: { onInit: () => Promise<void> }) {
             }
           >
             <Button
-              onClick={selectedOutput ? () => initMidiSession() : () => {}}
+              onClick={trackCallback}
               variant="outline-light"
               size="sm"
+              disabled={!selectedOutput}
             >
-              Start MIDI Tracking
+              {buttonText}
             </Button>
           </OverlayTrigger>
         </OptionsContainer>

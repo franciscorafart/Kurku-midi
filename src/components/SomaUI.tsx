@@ -2,8 +2,13 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import styled from "styled-components";
 import MidiCC from "./MidiCC";
 import MidiNotes from "./MidiNotes";
-import { initBodyTracking, setupCamera } from "utils/bodytracking";
-import { useRecoilValue, useSetRecoilState } from "recoil";
+import {
+  initBodyTracking,
+  initModel,
+  setupCamera,
+  stopBodyTracking,
+} from "utils/bodytracking";
+import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import keypoints from "atoms/keypoints";
 import accountInState from "atoms/account";
 import BodyTrackingMidiPanel from "./BodyTrackingMidiPanel";
@@ -21,6 +26,7 @@ import sessionConfig from "atoms/sessionConfig";
 import GlobalMidi from "./GobalMIDI";
 import MidiNotePanel from "./MidiNotePanel";
 import AdCommponent from "./AdComponent";
+import trackingStatus from "atoms/status";
 
 const Container = styled.div`
   display: flex;
@@ -45,8 +51,10 @@ function SomaUI() {
   const setSessions = useSetRecoilState(storedSessions);
   const setEffects = useSetRecoilState(storedEffects);
   const setMidiNotes = useSetRecoilState(storedMidiNotes);
+  const [status, setStatus] = useRecoilState(trackingStatus);
   const sessionCfg = useRecoilValue(sessionConfig);
   const isInitialized = useRecoilValue(initializedADI);
+  const userAccount = useRecoilValue(accountInState);
 
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -54,7 +62,6 @@ function SomaUI() {
   const [videoDim, setVideoDim] = useState({ height: 0, width: 0 });
 
   const [showModal, setShowModal] = useState(false);
-  const userAccount = useRecoilValue(accountInState);
 
   const connected = useMemo(
     () => Boolean(userAccount.userId),
@@ -96,9 +103,33 @@ function SomaUI() {
       canvas.height = height;
 
       setVideoDim({ height: video.height, width: video.width });
-      initBodyTracking(sessionCfg.machineType, video, setKeypoints, ratio);
+
+      const net = await initModel(sessionCfg.machineType, ratio);
+
+      await initBodyTracking(sessionCfg.machineType, net, video, setKeypoints);
+
+      setStatus({ modelLoaded: net, tracking: true });
     }
-  }, [sessionCfg.machineType, setKeypoints]);
+  }, [sessionCfg.machineType, setKeypoints, setStatus]);
+
+  const resumeBodyTracking = useCallback(async () => {
+    const video = videoRef.current;
+    const canvas = canvasRef.current;
+    if (video && canvas && status.modelLoaded && !status.tracking) {
+      await initBodyTracking(
+        sessionCfg.machineType,
+        status.modelLoaded,
+        video,
+        setKeypoints
+      );
+      setStatus({ ...status, tracking: true });
+    }
+  }, [sessionCfg.machineType, setKeypoints, setStatus, status]);
+
+  const pauseBodyTracking = useCallback(async () => {
+    setStatus({ ...status, tracking: false });
+    stopBodyTracking();
+  }, [setStatus, status]);
 
   return (
     <>
@@ -108,6 +139,8 @@ function SomaUI() {
         <HContainer>
           <ConfigMidiBridge
             onInit={initTracking}
+            onResume={resumeBodyTracking}
+            onPause={pauseBodyTracking}
             videoHeight={videoDim.height || 0}
             videoWidth={videoDim.width || 0}
           />
