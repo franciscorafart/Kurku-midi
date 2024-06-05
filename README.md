@@ -1,18 +1,38 @@
-# Soma controller
+# Kurku MIDI controller
+
+[Kurku](https://kurku.tech) is a web body-movement MIDI controller that runs your devices webcam.
+
+Kurku captures body movements with your webcam and allows you to send them as MIDI messages to Digital Audio Workstations (DAW) such as Ableton Live or Logic pro, or to any MIDI device connected to your machine, or in your WIFI network (with the proper setup).
 
 ## Architecture Overview
 
-### Audio Mode
+Kurku is a react app.
 
-In audio mode Soma combines three data sources to apply audio effects from body movement
+Shared application state is stored with Recoil library in `atoms`
 
-- Body positions (Dynamic feed)
-  Body positions are determined by the output of tensorflow's posetnet script
+## Features
 
-- Session Config (React Recoil state)
-  Session config is a state object that stores different configurations as well as an effect list with the corresponding configurations such as effect type, body part that controls it, screen range to capture, value range to output. The front end UI allows the user to change these configurations. The combinations of these with the position provided by the posenet script allows to change the state of audio nodes.
+- MIDI CC
+  Map different limb movement to a MIDI CC message. This will allow you to have continous control. Ideal for knob or fader-like parameters such as filters, dry/wet control, volume knobs.
 
-### MIDI Controller mode
+- MIDI Notes
+  Kurku allows you to define trigger areas in your webcam view. Any time you touch one of this trigger areas a MIDI note will be sent. You turn it of by removing your body part from the trigger area.
+
+- Offline use
+  With Progressive Web App technology Kurku is able to run locally without the need of a connection. To do so locally, you will need to modify the code so that your user appears as a `payingUser`
+
+- Lock Button. By pressing the Lock button or Space bar, Kurku will pause the sending of messages.
+
+# Technologies
+
+- React / Typescript
+- Recoil => State management
+- Styled components => Styling
+- Progressive Web apps => Offline use
+- localDB => Offline local storage
+- Web MIDI API => MIDI messages
+- Posenet => Body tracking
+- Stripe => Payment processing
 
 ### Deployment
 
